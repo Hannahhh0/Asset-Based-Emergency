@@ -68,7 +68,7 @@ def parse_paired(value):
 
 
 
-## Upload loop
+##Upload loop (creates collections, documents, and fields)
 for _, row in df.iterrows():
 
     participant_id = str(row["Unique Identifier"]).strip()
@@ -145,3 +145,5 @@ for _, row in df.iterrows():
     doc_ref.set(data)
 
 print("Upload complete")
+
+##To do: add subcollection, either in loop or separate (need to look up) 
