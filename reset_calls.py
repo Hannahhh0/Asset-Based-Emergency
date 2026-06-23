@@ -1,21 +1,22 @@
-##DON'T RUN
+##DON'T RUN THIS CODE, EMERGENCY CODE ONLY
 
-import firebase_admin
-from firebase_admin import credentials, firestore
 
-if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
+#import firebase_admin
+#from firebase_admin import credentials, firestore
 
-db = firestore.client()
+#if not firebase_admin._apps:
+    #cred = credentials.Certificate("serviceAccountKey.json")
+    #firebase_admin.initialize_app(cred)
 
-participants = db.collection("participants").stream()
+#db = firestore.client()
 
-for p in participants:
-    calls_ref = db.collection("participants").document(p.id).collection("calls")
-    calls = calls_ref.stream()
+#participants = db.collection("participants").stream()
 
-    for c in calls:
-        c.reference.delete()
+#for p in participants:
+    #calls_ref = db.collection("participants").document(p.id).collection("calls")
+    #calls = calls_ref.stream()
 
-print("All call histories deleted")
+    #for c in calls:
+        #c.reference.delete()
+
+#print("All call histories deleted")
