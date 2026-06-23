@@ -27,9 +27,16 @@ print(f"Loaded {len(df)} rows")
 
 print(df.columns.tolist())
 
-call_columns = [
-    col for col in df.columns
-    if str(col).startswith("Call Notes")
+call_columns = call_columns = [
+    "Call Notes 3/6",
+    "Call Notes 3/13",
+    "Call Notes 3/20",
+    "Call Notes 3/27",
+    "Call Notes 4/3",
+    "Call Notes 4/10",
+    "Call Notes 4/17",
+    "Call Notes 4/24",
+    "Call Notes 5/1"
 ]
 
 ##Helper functions (might add more to clean data)
@@ -165,4 +172,3 @@ for _, row in df.iterrows():
 
 print("Upload complete")
 
-##To do: add subcollection, either in loop or separate (need to look up) 
