@@ -27,7 +27,7 @@ print(f"Loaded {len(df)} rows")
 
 print(df.columns.tolist())
 
-call_columns = sorted(set([
+call_columns = [
     "Call Notes 3/6",
     "Call Notes 3/13",
     "Call Notes 3/20",
@@ -37,7 +37,7 @@ call_columns = sorted(set([
     "Call Notes 4/17",
     "Call Notes 4/24",
     "Call Notes 5/1"
-]))
+]
 
 ##Helper functions (might add more to clean data)
 def to_bool(value):
