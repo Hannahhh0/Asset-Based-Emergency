@@ -27,7 +27,7 @@ print(f"Loaded {len(df)} rows")
 
 print(df.columns.tolist())
 
-call_columns = call_columns = [
+call_columns = sorted(set([
     "Call Notes 3/6",
     "Call Notes 3/13",
     "Call Notes 3/20",
@@ -37,7 +37,7 @@ call_columns = call_columns = [
     "Call Notes 4/17",
     "Call Notes 4/24",
     "Call Notes 5/1"
-]
+]))
 
 ##Helper functions (might add more to clean data)
 def to_bool(value):
@@ -157,18 +157,16 @@ for _, row in df.iterrows():
     doc_ref.set(data)
     
     for col in call_columns:
-        note = row[col]
+        note = row.get(col)
+
         if pd.notna(note) and str(note).strip() != "":
             date = col.replace("Call Notes ", "")
-            call_ref = (
-                doc_ref.collection("calls").document(date.replace("/", "-"))
-            )
+
+            call_ref = doc_ref.collection("calls").document(date.replace("/", "-"))
 
             call_ref.set({
                 "date": date,
-                "notes": str(note).strip()},
-                merge = True
-            )
-
+                "notes": str(note).strip()
+            })
 print("Upload complete")
 
