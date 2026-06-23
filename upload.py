@@ -27,7 +27,12 @@ print(f"Loaded {len(df)} rows")
 
 print(df.columns.tolist())
 
-##Helper functions
+call_columns = [
+    col for col in df.columns
+    if str(col).startswith("Call Notes")
+]
+
+##Helper functions (might add more to clean data)
 def to_bool(value):
     if str(value).strip().lower() in ["yes", "true", "y"]:
         return True
@@ -46,7 +51,7 @@ def parse_paired(value):
     if not value or str(value).strip() == "":
         return {
             "paired": False,
-            "partner": None
+            "pairedWith": None
         }
 
     text = str(value).strip()
@@ -143,6 +148,20 @@ for _, row in df.iterrows():
     }
 
     doc_ref.set(data)
+    
+    for col in call_columns:
+        note = row[col]
+        if pd.notna(note) and str(note).strip() != "":
+            date = col.replace("Call Notes ", "")
+            call_ref = (
+                doc_ref.collection("calls").document(date.replace("/", "-"))
+            )
+
+            call_ref.set({
+                "date": date,
+                "notes": str(note).strip()},
+                merge = True
+            )
 
 print("Upload complete")
 
