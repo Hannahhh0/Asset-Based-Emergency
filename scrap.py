@@ -1,3 +1,5 @@
+##This code is a scrap worksheet, can edit and change to test or explore data
+
 import pandas as pd
 
 file = "dummy_data.xlsx"
