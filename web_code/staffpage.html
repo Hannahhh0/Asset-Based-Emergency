@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+            authDomain: "asset-based-emergency.firebaseapp.com",
+            projectId: "asset-based-emergency",
+            storageBucket: "asset-based-emergency.firebasestorage.app",
+            messagingSenderId: "166630111593",
+            appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.signInWithGoogle = function () {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    console.log("Signed in:", result.user);
+                })
+                .catch((error) => {
+                    console.error("Sign-in error:", error);
+                });
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("User is logged in:", user.email);
+            } else {
+                console.log("No user logged in");
+            }
+        });
+    </script>
+
+    <button onclick="signInWithGoogle()">Sign in with Google</button>
+
+</body>
+</html>
