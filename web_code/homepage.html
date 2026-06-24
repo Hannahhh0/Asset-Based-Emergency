@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asset-Based Emergency Response Platform</title>
+</head>
+
+<body>
+
+    <h1>Asset-Based Emergency Response Platform </h1>
+
+    <p>
+        Connecting residents with food assistance,
+        volunteers, and emergency resources.
+    </p>
+
+    <hr>
+
+    <h2>Quick Actions</h2>
+
+    <button>Volunteer Sign Up</button>
+    <button>Request Food Assistance</button>
+
+    <hr>
+
+    <h2>Community Resources</h2>
+
+    <ul>
+        <li>Food Pantries</li>
+        <li>Emergency Shelters</li>
+        <li>Transportation Support</li>
+        <li>Medical Resources</li>
+    </ul>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+          authDomain: "asset-based-emergency.firebaseapp.com",
+          projectId: "asset-based-emergency",
+          storageBucket: "asset-based-emergency.firebasestorage.app",
+          messagingSenderId: "166630111593",
+          appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        console.log("Firebase connected successfully!");
+        
+    </script>
+
+</body>
+</html>
