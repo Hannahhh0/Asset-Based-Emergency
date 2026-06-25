@@ -6,9 +6,19 @@
     <title>Document</title>
 </head>
 <body>
+    <dialog id="myModal">
+        <h2>ERROR</h2>
+        <p>Unauthorized User Access</p>
+        <button id="closeModal">Close</button>
+    </dialog>
+
+    <button onclick="signInWithGoogle()">Sign in with Google</button>
+
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -22,11 +32,28 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
+        const db = getFirestore(app);
+
+        const modal = document.getElementById("myModal");
+        const closeModal = document.getElementById("closeModal");
+        closeModal.addEventListener("click", async () => {
+            modal.close();
+            await auth.signOut();
+        });
 
         window.signInWithGoogle = function () {
             signInWithPopup(auth, provider)
-                .then((result) => {
-                    console.log("Signed in:", result.user);
+                .then(async (result) => {
+                    const email = result.user.email;
+                    const docRef = doc(db, "authorizedStaff", email);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        console.log("Access granted");
+                    } else {
+                        console.log("Access denied");
+                        modal.showModal();
+                    }
                 })
                 .catch((error) => {
                     console.error("Sign-in error:", error);
@@ -42,7 +69,6 @@
         });
     </script>
 
-    <button onclick="signInWithGoogle()">Sign in with Google</button>
-
+    
 </body>
 </html>
