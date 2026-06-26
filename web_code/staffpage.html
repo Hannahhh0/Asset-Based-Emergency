@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>staff login</title>
+    <link rel="stylesheet" href="staffpage.css">
 </head>
 <body>
     <dialog id="myModal">
@@ -12,7 +13,11 @@
         <button id="closeModal">Close</button>
     </dialog>
 
-    <button onclick="signInWithGoogle()">Sign in with Google</button>
+    <div class="login-box">
+        <h1>Staff Login</h1>
+        <p>Please sign in with your authorized google account</p>
+        <button onclick="signInWithGoogle()">Sign in with Google</button>
+    </div>
 
 
     <script type="module">
@@ -46,14 +51,23 @@
                 .then(async (result) => {
                     const email = result.user.email;
                     const docRef = doc(db, "authorizedStaff", email);
-                    const docSnap = await getDoc(docRef);
 
-                    if (docSnap.exists()) {
-                        console.log("Access granted");
-                        window.location.href = "dashboard.html";
-                    } else {
-                        console.log("Access denied");
+                    try {
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            console.log("Access granted");
+                            window.location.href = "dashboard.html";
+                        } else {
+                            console.log("Access denied");
+                            modal.showModal();
+                            await auth.signOut();
+                        }
+                    } catch (error) {
+                        // This catches the permission-denied error from Firestore rules
+                        console.log("Access denied:", error.code);
                         modal.showModal();
+                        await auth.signOut();
                     }
                 })
                 .catch((error) => {
