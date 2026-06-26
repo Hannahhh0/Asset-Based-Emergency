@@ -1,60 +1,225 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Asset-Based Emergency Response Platform</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergency Preparedness Response</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+    body {
+      font-family: 'Georgia', serif;
+      color: #1a1a2e;
+    }
+ 
+    /* ── NAV ── */
+    nav {
+      background-color: #1a2a5e;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      height: 60px;
+      gap: 60px;
+    }
+ 
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-family: 'Arial', sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.03em;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+ 
+    nav a:hover { opacity: 1; text-decoration: underline; }
+ 
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      height: 420px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+ 
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(10,30,80,0.55), rgba(10,30,80,0.55)),
+        url('https://images.unsplash.com/photo-1584515933487-779824d29309?w=1400&q=80') center/cover no-repeat;
+    }
+ 
+    .hero-content {
+      position: relative;
+      text-align: center;
+      color: #ffffff;
+    }
+ 
+    .hero-content h1 {
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+ 
+    .hero-content h1 span {
+      display: block;
+      color: #a8c4f5;
+      font-size: 28px;
+      font-weight: 400;
+      font-style: italic;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+ 
+    .hero-divider {
+      width: 80px;
+      height: 3px;
+      background: #a8c4f5;
+      margin: 18px auto 0;
+      border-radius: 2px;
+    }
+ 
+    /* ── CARDS ── */
+    .cards-section {
+      background: #f4f6fb;
+      padding: 60px 40px;
+    }
+ 
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+ 
+    .card {
+      background: #ffffff;
+      border: 1px solid #dce3f0;
+      border-radius: 6px;
+      padding: 40px 32px 36px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 10px rgba(26,42,94,0.07);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+ 
+    .card:hover {
+      box-shadow: 0 6px 24px rgba(26,42,94,0.14);
+      transform: translateY(-3px);
+    }
+ 
+    .card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+ 
+    .card-icon.food   { background: #e8f0fe; }
+    .card-icon.vol    { background: #e6f4ea; }
+    .card-icon.staff  { background: #fce8e6; }
+ 
+    .card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'Arial', sans-serif;
+      color: #1a2a5e;
+    }
+ 
+    .card p {
+      font-size: 14.5px;
+      color: #555;
+      line-height: 1.65;
+    }
+ 
+    .card-btn {
+      margin-top: 8px;
+      padding: 10px 26px;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: filter 0.2s;
+    }
+ 
+    .card-btn:hover { filter: brightness(0.9); }
+ 
+    .btn-food  { background: #1a2a5e; color: #fff; }
+    .btn-vol   { background: #2e6e3e; color: #fff; }
+    .btn-staff { background: #8b1a10; color: #fff; }
+ 
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .hero-content h1 { font-size: 34px; }
+      nav { gap: 30px; }
+    }
+  </style>
 </head>
-
 <body>
-
-    <h1>Asset-Based Emergency Response Platform </h1>
-
-    <p>
-        Connecting residents with food assistance,
-        volunteers, and emergency resources.
-    </p>
-
-    <hr>
-
-    <h2>Quick Actions</h2>
-
-    <button>Volunteer Sign Up</button>
-    <button>Request Food Assistance</button>
-
-    <hr>
-
-    <h2>Community Resources</h2>
-
-    <ul>
-        <li>Food Pantries</li>
-        <li>Emergency Shelters</li>
-        <li>Transportation Support</li>
-        <li>Medical Resources</li>
-    </ul>
-
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
-          authDomain: "asset-based-emergency.firebaseapp.com",
-          projectId: "asset-based-emergency",
-          storageBucket: "asset-based-emergency.firebasestorage.app",
-          messagingSenderId: "166630111593",
-          appId: "1:166630111593:web:9f8942e7301ca552e565f8"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        console.log("Firebase connected successfully!");
-        
-    </script>
-
+ 
+  <!-- NAV -->
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact Us</a>
+  </nav>
+ 
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>
+        <span>Community Response Program</span>
+        Emergency Preparedness Response
+      </h1>
+      <div class="hero-divider"></div>
+    </div>
+  </section>
+ 
+  <!-- CARDS -->
+  <section class="cards-section">
+    <div class="cards-grid">
+ 
+      <div class="card">
+        <div class="card-icon food">🍽️</div>
+        <h2>Request Food Assistance</h2>
+        <p>Experiencing food insecurity? Submit a request and our team will connect you with available resources as quickly as possible.</p>
+        <a href="#" class="card-btn btn-food">Request Assistance</a>
+      </div>
+ 
+      <div class="card">
+        <div class="card-icon vol">🤝</div>
+        <h2>Volunteer Sign-Up</h2>
+        <p>Want to make a difference? Sign up to volunteer and help your community during times of need. Every hour counts.</p>
+        <a href="#" class="card-btn btn-vol">Sign Up to Volunteer</a>
+      </div>
+ 
+      <div class="card">
+        <div class="card-icon staff">🔐</div>
+        <h2>Staff Portal</h2>
+        <p>Authorized personnel only. Sign in to access the staff database, manage cases, and review program data.</p>
+        <a href="#" class="card-btn btn-staff">Staff Login</a>
+      </div>
+ 
+    </div>
+  </section>
+ 
 </body>
 </html>
