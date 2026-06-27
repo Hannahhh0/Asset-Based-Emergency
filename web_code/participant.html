@@ -83,6 +83,35 @@
             margin-bottom: 10px;
         }
 
+        .call-item {
+            margin-bottom: 10px;
+            border-left: 3px solid #1a2a5e;
+            padding-left: 10px;
+        }
+
+        .call-date {
+            background: none;
+            border: none;
+            font-weight: bold;
+            color: #1a2a5e;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px 0;
+            text-align: left;
+        }
+
+        .call-date:hover {
+            text-decoration: underline;
+        }
+
+        .call-note {
+            display: none;
+            margin-top: 5px;
+            color: #444;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
         .back {
             margin-top: 20px;
             display: inline-block;
@@ -127,13 +156,11 @@ const db = getFirestore(app);
 const content = document.getElementById("content");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// logout
 logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
     window.location.href = "staffpage.html";
 });
 
-// get ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const participantId = urlParams.get("id");
 
@@ -160,8 +187,6 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         const data = docSnap.data();
-
-        // get calls subcollection
         const callsSnap = await getDocs(collection(docRef, "calls"));
 
         let calls = [];
@@ -170,12 +195,11 @@ onAuthStateChanged(auth, async (user) => {
             calls.push(c.data());
         });
 
-        // sort calls by date (safe string sort since format is M-D)
         calls.sort((a, b) => {
-            const dateA = new Date(`2026/${a.date}`);
-            const dateB = new Date(`2026/${b.date}`);
+            const [am, ad] = a.date.split("/").map(Number);
+            const [bm, bd] = b.date.split("/").map(Number);
 
-            return dateA - dateB;
+            return new Date(2026, am - 1, ad) - new Date(2026, bm - 1, bd);
         });
         content.innerHTML = `
             <div class="card">
@@ -231,10 +255,17 @@ onAuthStateChanged(auth, async (user) => {
                 ${
                     calls.length === 0
                     ? "<p>No call history.</p>"
-                    : calls.map(c => `
-                        <div class="call">
-                            <strong>${c.date}</strong><br>
-                            ${c.notes}
+                    : calls.map((c, index) => `
+                        <div class="call-item">
+
+                            <button class="call-date" onclick="toggleNote(${index})">
+                                ${c.date}
+                            </button>
+
+                            <div class="call-note" id="note-${index}">
+                                ${c.notes}
+                            </div>
+
                         </div>
                     `).join("")
                 }
@@ -248,6 +279,19 @@ onAuthStateChanged(auth, async (user) => {
     }
 
 });
+
+window.toggleNote = function(index) {
+    const allNotes = document.querySelectorAll(".call-note");
+
+    allNotes.forEach((note, i) => {
+        if (i === index) {
+            const isOpen = note.style.display === "block";
+            note.style.display = isOpen ? "none" : "block";
+        } else {
+            note.style.display = "none";
+        }
+    });
+};
 
 </script>
 
