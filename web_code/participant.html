@@ -171,8 +171,12 @@ onAuthStateChanged(auth, async (user) => {
         });
 
         // sort calls by date (safe string sort since format is M-D)
-        calls.sort((a, b) => a.date.localeCompare(b.date));
+        calls.sort((a, b) => {
+            const dateA = new Date(`2026/${a.date}`);
+            const dateB = new Date(`2026/${b.date}`);
 
+            return dateA - dateB;
+        });
         content.innerHTML = `
             <div class="card">
 
