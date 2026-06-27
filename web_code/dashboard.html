@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html> lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #f4f6fb;
+            color: #1a1a2e;
+        }
+
+        nav {
+            background-color: #1a2a5e;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        nav a,
+        nav button {
+            color: white;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        nav a:hover,
+        nav button:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a2a5e;
+        }
+
+        #searchBox {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #dce3f0;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .participant {
+            background: white;
+            padding: 18px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border: 1px solid #dce3f0;
+            box-shadow: 0 2px 10px rgba(26,42,94,0.05);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .participant:hover {
+            transform: translateY(-2px);
+        }
+
+        .name {
+            font-size: 18px;
+            color: #1a2a5e;
+            font-weight: bold;
+        }
+
+        .meta {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <a href="homepage.html">Home</a>
+    <button id="logoutBtn">Logout</button>
+</nav>
+
+<div class="container">
+
+    <h1>Participant Dashboard</h1>
+
+    <input type="text" id="searchBox" placeholder="Search participant by name...">
+
+    <div id="list">Loading participants...</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+            apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+            authDomain: "asset-based-emergency.firebaseapp.com",
+            projectId: "asset-based-emergency",
+            storageBucket: "asset-based-emergency.firebasestorage.app",
+            messagingSenderId: "166630111593",
+            appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const list = document.getElementById("list");
+const searchBox = document.getElementById("searchBox");
+const logoutBtn = document.getElementById("logoutBtn");
+
+let participants = [];
+
+logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "staffpage.html";
+});
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        window.location.href = "staffpage.html";
+        return;
+    }
+
+    const snapshot = await getDocs(collection(db, "participants"));
+
+    participants = [];
+
+    snapshot.forEach(doc => {
+        participants.push({
+            id: doc.id,
+            ...doc.data()
+        });
+    });
+
+    render(participants);
+});
+
+function render(data) {
+
+    list.innerHTML = "";
+
+    data.forEach(p => {
+
+        list.innerHTML += `
+            <div class="participant"
+                 onclick="openProfile('${p.id}')">
+
+                <div class="name">
+                    ${p.name || "No Name"}
+                </div>
+
+                <div class="meta">
+                    Group: ${p.groupAssignment || "N/A"}
+                </div>
+
+            </div>
+        `;
+    });
+}
+
+window.openProfile = function(id) {
+    window.location.href = `participant.html?id=${id}`;
+};
+
+searchBox.addEventListener("input", (e) => {
+
+    const term = e.target.value.toLowerCase();
+
+    const filtered = participants.filter(p =>
+        (p.name || "").toLowerCase().includes(term)
+    );
+
+    render(filtered);
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Profile</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #f4f6fb;
+            color: #1a1a2e;
+        }
+
+        nav {
+            background-color: #1a2a5e;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        nav a, nav button {
+            color: white;
+            font-family: Arial, sans-serif;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        nav a:hover, nav button:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #dce3f0;
+            border-radius: 6px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(26,42,94,0.07);
+        }
+
+        h1 {
+            color: #1a2a5e;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #1a2a5e;
+        }
+
+        .field {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #1a2a5e;
+        }
+
+        .call {
+            border-left: 3px solid #1a2a5e;
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        .back {
+            margin-top: 20px;
+            display: inline-block;
+            color: #1a2a5e;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <a href="dashboard.html">← Back to Dashboard</a>
+    <button id="logoutBtn">Logout</button>
+</nav>
+
+<div class="container" id="content">
+    Loading participant...
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+            apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+            authDomain: "asset-based-emergency.firebaseapp.com",
+            projectId: "asset-based-emergency",
+            storageBucket: "asset-based-emergency.firebasestorage.app",
+            messagingSenderId: "166630111593",
+            appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const content = document.getElementById("content");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// logout
+logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "staffpage.html";
+});
+
+// get ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const participantId = urlParams.get("id");
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        window.location.href = "staffpage.html";
+        return;
+    }
+
+    if (!participantId) {
+        content.innerHTML = "No participant selected.";
+        return;
+    }
+
+    try {
+
+        const docRef = doc(db, "participants", participantId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            content.innerHTML = "Participant not found.";
+            return;
+        }
+
+        const data = docSnap.data();
+
+        // get calls subcollection
+        const callsSnap = await getDocs(collection(docRef, "calls"));
+
+        let calls = [];
+
+        callsSnap.forEach(c => {
+            calls.push(c.data());
+        });
+
+        // sort calls by date (safe string sort since format is M-D)
+        calls.sort((a, b) => a.date.localeCompare(b.date));
+
+        content.innerHTML = `
+            <div class="card">
+
+                <h1>${data.name || "No Name"}</h1>
+
+                <div class="field">
+                    <span class="label">Group:</span>
+                    ${data.groupAssignment || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Phone:</span>
+                    ${data.contact?.primaryPhone || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Email:</span>
+                    ${data.contact?.email || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Household Size:</span>
+                    ${data.household?.size || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Address:</span>
+                    ${data.address?.fullAddress || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Language:</span>
+                    ${data.demographics?.preferredLanguage || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Medical Consent:</span>
+                    ${data.medical?.medicalConsent || ""}
+                </div>
+
+                <div class="field">
+                    <span class="label">Driver Notes:</span>
+                    ${data.delivery?.driverNotes || ""}
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h2>Call History</h2>
+
+                ${
+                    calls.length === 0
+                    ? "<p>No call history.</p>"
+                    : calls.map(c => `
+                        <div class="call">
+                            <strong>${c.date}</strong><br>
+                            ${c.notes}
+                        </div>
+                    `).join("")
+                }
+
+            </div>
+        `;
+
+    } catch (error) {
+        console.error(error);
+        content.innerHTML = "Error loading participant.";
+    }
+
+});
+
+</script>
+
+</body>
+</html>
