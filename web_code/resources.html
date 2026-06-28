@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources</title>
+</head>
+<body>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            color: #1a1a2e;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+           
+            display: grid;
+        }
+        
+    
+        /* ── NAV ── */
+        nav {
+        background-color: #1a2a5e;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        gap: 60px;
+        }
+    
+        nav a {
+        color: #ffffff;
+        text-decoration: none;
+        font-family: 'Arial', sans-serif;
+        font-size: 15px;
+        letter-spacing: 0.03em;
+        opacity: 0.9;
+        transition: opacity 0.2s;
+        }
+ 
+        nav a:hover { opacity: 1; text-decoration: underline; }
+    </style>
+
+
+     <nav>
+        <a href="homepage.html">Home</a>
+        <a href="#">About Us</a>
+        <a href="#">Contact Us</a>
+        <a href="resources.html">Additional Resources</a>
+    </nav>
+
+    <div class="slider"> 
+        <div class="track">
+            <div class="group">
+                <div class="card">1</div>
+                <div class="card">2</div>
+                <div class="card">3</div>
+                <div class="card">4</div>
+                <div class="card">5</div>
+                <div class="card">6</div>
+            </div>
+
+            <div class="group">
+                <div class="group" aria-hidden="true">
+                    <div class="card">1</div>
+                    <div class="card">2</div>
+                    <div class="card">3</div>
+                    <div class="card">4</div>
+                    <div class="card">5</div>
+                    <div class="card">6</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        
+
+        .slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .slider {
+            margin: 100px auto;
+            width: 90%;
+            border: 5px solid red;
+            overflow: hidden;
+        }
+
+        .track {
+            display: flex;
+            width: max-content;
+            animation: scroll 15s linear infinite;
+        }
+
+        .group {
+            display: flex;
+            gap: 1em;
+            padding-right: 1em;
+        }
+
+        .card {
+            width: 5em;
+            height: 5em;
+            background: black;
+            color: white;
+            font-size: 3rem;
+            border-radius: .2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+    </style>
+
+    
+</body>
+</html>
