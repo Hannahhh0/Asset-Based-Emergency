@@ -60,17 +60,17 @@
                 <div class="card">4</div>
                 <div class="card">5</div>
                 <div class="card">6</div>
+                <div class="card">7</div>
             </div>
 
-            <div class="group">
-                <div class="group" aria-hidden="true">
-                    <div class="card">1</div>
-                    <div class="card">2</div>
-                    <div class="card">3</div>
-                    <div class="card">4</div>
-                    <div class="card">5</div>
-                    <div class="card">6</div>
-                </div>
+            <div class="group" aria-hidden="true">
+                <div class="card">1</div>
+                <div class="card">2</div>
+                <div class="card">3</div>
+                <div class="card">4</div>
+                <div class="card">5</div>
+                <div class="card">6</div>
+                <div class="card">7</div>
             </div>
         </div>
     </div>
@@ -87,6 +87,7 @@
             width: 90%;
             border: 5px solid red;
             overflow: hidden;
+            height: fit-content;
         }
 
         .track {
@@ -97,31 +98,40 @@
 
         .group {
             display: flex;
-            gap: 1em;
-            padding-right: 1em;
+            gap: 1rem;
+            flex-shrink: 0;
+            padding-right: 1rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
         }
 
         .card {
-            width: 5em;
-            height: 5em;
+            width: 250px;
+            height: 250px;
             background: black;
             color: white;
             font-size: 3rem;
-            border-radius: .2em;
+            border-radius: 10px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+
+            flex: 0 0 250px;
+            text-decoration: none;
         }
 
         @keyframes scroll {
             from {
                 transform: translateX(0);
             }
+
             to {
                 transform: translateX(-50%);
             }
         }
+
+
 
     </style>
 
