@@ -54,24 +54,53 @@
     <div class="slider"> 
         <div class="track">
             <div class="group">
-                <div class="card"> <img group="images" src="changedpaths.png" alt="Changed Paths"></div>
-                <div class="card">2</div>
-                <div class="card">3</div>
-                <div class="card">4</div>
-                <div class="card">5</div>
-                <div class="card">6</div>
-                <div class="card">7</div>
+                <a class="card" href="https://changingpathsnc.com/" target="_blank" rel="noopener noreferrer"> 
+                    <img src="changedpaths.png" alt="Changed Paths">
+                </a>
+                <a class="card" href="https://www.emanuelfoodpantry.org/" target="_blank" rel="noopener noreferrer"> 
+                    <img src="efp.png" alt="Emmanuel Food Pantry">
+                </a>
+                <a class="card" href="https://elcentronc.org/es/" target="_blank" rel="noopener noreferrer"> 
+                    <img src="elcentrohispano.png" alt="El Centro Hispano">
+                </a>
+                <a class="card" href="https://www.feeddurham.com/" target="_blank" rel="noopener noreferrer">  
+                    <img src="feeddurham.png" alt="Feed Durham">
+                </a>
+                <a class="card" href="https://maameinc.org/" target="_blank" rel="noopener noreferrer">  
+                    <img src="maame.png" alt="MAAME">
+                </a>
+                <a class="card" href="" target="_blank" rel="noopener noreferrer">  
+                    <img src="" alt="">
+                </a>
+                <a class="card" href="" target="_blank" rel="noopener noreferrer">  
+                    <img src="" alt="">
+                </a>
             </div>
 
-            <div class="group" aria-hidden="true">
-                <div class="card"> <img src="changedpaths.png"></div>
-                <div class="card">2</div>
-                <div class="card">3</div>
-                <div class="card">4</div>
-                <div class="card">5</div>
-                <div class="card">6</div>
-                <div class="card">7</div>
+            <div class="group">
+                <a class="card" href="https://changingpathsnc.com/" target="_blank" rel="noopener noreferrer"> 
+                    <img src="changedpaths.png" alt="Changed Paths">
+                </a>
+                <a class="card" href="https://www.emanuelfoodpantry.org/" target="_blank" rel="noopener noreferrer"> 
+                    <img src="efp.png" alt="Emmanuel Food Pantry">
+                </a>
+                <a class="card" href="https://elcentronc.org/es/" target="_blank" rel="noopener noreferrer"> 
+                    <img src="elcentrohispano.png" alt="El Centro Hispano">
+                </a>
+                <a class="card" href="https://www.feeddurham.com/" target="_blank" rel="noopener noreferrer">  
+                    <img src="feeddurham.png" alt="Feed Durham">
+                </a>
+                <a class="card" href="https://maameinc.org/" target="_blank" rel="noopener noreferrer">  
+                    <img src="maame.png" alt="MAAME">
+                </a>
+                <a class="card" href="" target="_blank" rel="noopener noreferrer">  
+                    <img src="" alt="">
+                </a>
+                <a class="card" href="" target="_blank" rel="noopener noreferrer">  
+                    <img src="" alt="">
+                </a>
             </div>
+
         </div>
     </div>
 
@@ -85,9 +114,33 @@
         .slider {
             margin: 100px auto;
             width: 90%;
-            border: 5px solid red;
             overflow: hidden;
             height: fit-content;
+
+            -webkit-mask-image: linear-gradient(
+                to right,
+                transparent,
+                black 4%,
+                black 96%,
+                transparent
+            );
+
+            mask-image: linear-gradient(
+                to right,
+                transparent,
+                black 4%,
+                black 96%,
+                transparent
+            );
+        }
+
+        .track:hover {
+            animation-play-state: paused;
+        }
+
+        .card:hover {
+            transform: scale(1.1);
+
         }
 
         .track {
@@ -98,9 +151,9 @@
 
         .group {
             display: flex;
-            gap: 1rem;
+            gap: 2rem;
             flex-shrink: 0;
-            padding-right: 1rem;
+            padding-right: 2rem;
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
@@ -108,10 +161,11 @@
         .card {
             width: 250px;
             height: 250px;
-            background: black;
+            background: white;
             color: white;
             font-size: 3rem;
             border-radius: 10px;
+            border: 4px solid black;
 
             display: flex;
             align-items: center;
@@ -122,12 +176,15 @@
             padding: 0;
         }
 
-        .images {
+        .card img {
+            display: block;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 2px;
         }
+
 
         @keyframes scroll {
             from {
@@ -142,6 +199,7 @@
 
 
     </style>
+
 
     
 </body>
