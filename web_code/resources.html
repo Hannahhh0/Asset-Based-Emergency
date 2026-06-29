@@ -44,7 +44,7 @@
     </style>
 
 
-     <nav>
+    <nav class="nav">
         <a href="homepage.html">Home</a>
         <a href="#">About Us</a>
         <a href="#">Contact Us</a>
@@ -54,7 +54,7 @@
     <div class="slider"> 
         <div class="track">
             <div class="group">
-                <div class="card">1</div>
+                <div class="card"> <img group="images" src="changedpaths.png" alt="Changed Paths"></div>
                 <div class="card">2</div>
                 <div class="card">3</div>
                 <div class="card">4</div>
@@ -64,7 +64,7 @@
             </div>
 
             <div class="group" aria-hidden="true">
-                <div class="card">1</div>
+                <div class="card"> <img src="changedpaths.png"></div>
                 <div class="card">2</div>
                 <div class="card">3</div>
                 <div class="card">4</div>
@@ -119,6 +119,14 @@
 
             flex: 0 0 250px;
             text-decoration: none;
+            padding: 0;
+        }
+
+        .images {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
         }
 
         @keyframes scroll {
