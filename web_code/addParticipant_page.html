@@ -321,65 +321,79 @@ function toBool(v){
 document.getElementById("saveBtn").onclick = async () => {
 
     const id = await uniqueID();
-
     const today = new Date().toLocaleDateString();
 
+    const nameEl = document.getElementById("name");
+    const groupEl = document.getElementById("group");
+    const phoneEl = document.getElementById("phone");
+    const altPhoneEl = document.getElementById("altPhone");
+    const textsPreferredEl = document.getElementById("textsPreferred");
+    const canReceiveTextsEl = document.getElementById("canReceiveTexts");
+    const emailEl = document.getElementById("email");
+    const householdEl = document.getElementById("household");
+    const bagsEl = document.getElementById("bags");
+    const fullAddressEl = document.getElementById("fullAddress");
+    const streetEl = document.getElementById("street");
+    const cityEl = document.getElementById("city");
+    const stateEl = document.getElementById("state");
+    const postalEl = document.getElementById("postal");
+    const countryEl = document.getElementById("country");
+    const latEl = document.getElementById("lat");
+    const lngEl = document.getElementById("lng");
+    const distanceEl = document.getElementById("distance");
+    const driveTimeEl = document.getElementById("driveTime");
+    const driverNotesEl = document.getElementById("driverNotes");
+    const languageEl = document.getElementById("language");
+    const pronounsEl = document.getElementById("pronouns");
+    const raceEl = document.getElementById("race");
+    const notesEl = document.getElementById("notes");
+
+
     const data = {
-        groupAssignment: group.value,
-        name: name.value,
+        groupAssignment: groupEl.value,
+        name: nameEl.value,
 
         contact: {
-            primaryPhone: phone.value,
-            alternatePhone: altPhone.value,
-            email: email.value,
-            textsPreferred: toBool(textsPreferred.value),
-            canReceiveTexts: toBool(canReceiveTexts.value)
-        },
-
-        status: {
-            paired: toBool(paired.value),
-            pairedWith: pairedWith.value,
-            annualSurveyComplete: toBool(survey.value)
+            primaryPhone: phoneEl.value,
+            alternatePhone: altPhoneEl.value,
+            email: emailEl.value,
+            textsPreferred: toBool(textsPreferredEl.value),
+            canReceiveTexts: toBool(canReceiveTextsEl.value),
         },
 
         household: {
-            size: Number(household.value),
-            bags: Number(bags.value)
+            size: Number(householdEl.value),
+            bags: Number(bagsEl.value)
         },
 
         address: {
-            fullAddress: fullAddress.value,
-            street: street.value,
-            city: city.value,
-            state: state.value,
-            postalCode: postal.value,
-            country: country.value
+            fullAddress: fullAddressEl.value,
+            street: streetEl.value,
+            city: cityEl.value,
+            state: stateEl.value,
+            postalCode: postalEl.value,
+            country: countryEl.value
         },
 
         location: {
-            latitude: Number(lat.value),
-            longitude: Number(lng.value),
-            distanceFromFFS: distance.value,
-            driveTimeMinutes: driveTime.value
+            latitude: Number(latEl.value),
+            longitude: Number(lngEl.value),
+            distanceFromFFS: distanceEl.value,
+            driveTimeMinutes: driveTimeEl.value
         },
 
         delivery: {
-            lockedBuilding: toBool(locked.value),
-            driverNotes: driverNotes.value
+            driverNotes: driverNotesEl.value
         },
 
         demographics: {
-            preferredLanguage: language.value,
-            pronouns: pronouns.value,
-            raceEthnicity: race.value
-        },
-
-        medical: {
-            medicalConsent: toBool(medical.value)
+            preferredLanguage: languageEl.value,
+            pronouns: pronounsEl.value,
+            raceEthnicity: raceEl.value
         },
 
         notes: {
-            teamNotes: notes.value
+            teamNotes: notesEl.value
         },
 
         metadata: {
