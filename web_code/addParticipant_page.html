@@ -1,106 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Participant</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Participant</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+body {
+    font-family: Georgia, serif;
+    background: #f4f6fb;
+    margin: 0;
+}
 
-        body {
-            font-family: Georgia, serif;
-            background: #f4f6fb;
-            color: #1a1a2e;
-        }
+nav {
+    background: #1a2a5e;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
 
-        nav {
-            background-color: #1a2a5e;
-            height: 60px;
-            padding: 0 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+nav a, nav button {
+    color: white;
+    text-decoration: none;
+    font-family: Arial;
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
 
-        nav a,
-        nav button {
-            color: white;
-            text-decoration: none;
-            font-family: Arial, sans-serif;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-        }
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
 
-        nav a:hover,
-        nav button:hover {
-            text-decoration: underline;
-        }
+h1 {
+    color: #1a2a5e;
+}
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+.section {
+    margin-bottom: 20px;
+}
 
-        .card {
-            background: white;
-            border-radius: 6px;
-            padding: 30px;
-            border: 1px solid #dce3f0;
-            box-shadow: 0 2px 10px rgba(26,42,94,0.07);
-        }
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
 
-        h1 {
-            color: #1a2a5e;
-            margin-bottom: 25px;
-        }
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+}
 
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #1a2a5e;
-            font-weight: bold;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cfd7e6;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        textarea {
-            height: 90px;
-        }
-
-        .save-btn {
-            background: #1a2a5e;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .save-btn:hover {
-            opacity: 0.9;
-        }
-    </style>
+button.save {
+    margin-top: 20px;
+    background: #1a2a5e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+</style>
 </head>
 
 <body>
@@ -111,76 +79,194 @@
 </nav>
 
 <div class="container">
+<h1>Add Participant</h1>
 
-    <div class="card">
+<div class="section">
 
-        <h1>Add Participant</h1>
+<h3>Basic Info</h3>
 
-        <div class="form-group">
-            <label>Name</label>
-            <input id="name">
-        </div>
+<label>Name</label>
+<input id="name" required>
 
-        <div class="form-group">
-            <label>Phone Number</label>
-            <input id="phone">
-        </div>
+<label>Group Assignment</label>
+<input id="group" required>
 
-        <div class="form-group">
-            <label>Email</label>
-            <input id="email">
-        </div>
+</div>
 
-        <div class="form-group">
-            <label>Household Size</label>
-            <input id="household" type="number">
-        </div>
+<div class="section">
 
-        <div class="form-group">
-            <label>Address</label>
-            <input id="address">
-        </div>
+<h3>Contact</h3>
 
-        <div class="form-group">
-            <label>Preferred Language</label>
-            <input id="language">
-        </div>
+<label>Primary Phone</label>
+<input id="phone" required>
 
-        <div class="form-group">
-            <label>Group Assignment</label>
-            <input id="group">
-        </div>
+<label>Alternate Phone</label>
+<input id="altPhone" required>
 
-        <div class="form-group">
-            <label>Team Notes</label>
-            <textarea id="notes"></textarea>
-        </div>
+<label>Email</label>
+<input id="email" required>
 
-        <button class="save-btn" id="saveBtn">
-            Save Participant
-        </button>
+<label>Texts Preferred</label>
+<select id="textsPreferred" required>
+    <option value="">Select</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+    <option value="na">N/A</option>
+</select>
 
-    </div>
+<label>Can Receive Texts</label>
+<select id="canReceiveTexts" required>
+    <option value="">Select</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+    <option value="na">N/A</option>
+</select>
+
+</div>
+
+<div class="section">
+
+<h3>Status</h3>
+
+<label>Paired</label>
+<select id="paired" required>
+    <option value="">Select</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+    <option value="na">N/A</option>
+</select>
+
+<label>Paired With</label>
+<input id="pairedWith" required>
+
+<label>Annual Survey Complete</label>
+<select id="survey" required>
+    <option value="">Select</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+    <option value="na">N/A</option>
+</select>
+
+</div>
+
+<div class="section">
+
+<h3>Household</h3>
+
+<label>Household Size</label>
+<input type="number" id="household" required>
+
+<label>Number of Bags</label>
+<input type="number" id="bags" required>
+
+</div>
+
+<div class="section">
+
+<h3>Address</h3>
+
+<label>Full Address</label>
+<input id="fullAddress" required>
+
+<label>Street</label>
+<input id="street" required>
+
+<label>City</label>
+<input id="city" required>
+
+<label>State</label>
+<input id="state" required>
+
+<label>Postal Code</label>
+<input id="postal" required>
+
+<label>Country</label>
+<input id="country" required>
+
+</div>
+
+<div class="section">
+
+<h3>Location</h3>
+
+<label>Latitude</label>
+<input id="lat" type="number" step="any" required>
+
+<label>Longitude</label>
+<input id="lng" type="number" step="any" required>
+
+<label>Distance From FFS</label>
+<input id="distance" required>
+
+<label>Drive Time (minutes)</label>
+<input id="driveTime" required>
+
+</div>
+
+<div class="section">
+
+<h3>Delivery</h3>
+
+<label>Locked Building</label>
+<select id="locked" required>
+    <option value="">Select</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+    <option value="na">N/A</option>
+</select>
+
+<label>Driver Notes</label>
+<input id="driverNotes" required>
+
+</div>
+
+<div class="section">
+
+<h3>Demographics</h3>
+
+<label>Preferred Language</label>
+<input id="language" required>
+
+<label>Pronouns</label>
+<input id="pronouns" required>
+
+<label>Race/Ethnicity</label>
+<input id="race" required>
+
+</div>
+
+<div class="section">
+
+<h3>Medical</h3>
+
+<label>Medical Consent</label>
+<select id="medical" required>
+    <option value="">Select</option>
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+    <option value="na">N/A</option>
+</select>
+
+</div>
+
+<div class="section">
+
+<h3>Notes</h3>
+
+<label>Team Notes</label>
+<input id="notes" required>
+
+</div>
+
+<button class="save" id="saveBtn">Save Participant</button>
 
 </div>
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-
-import {
-    getAuth,
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-
-import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -195,102 +281,118 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const logoutBtn = document.getElementById("logoutBtn");
-
-logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "staffpage.html";
-});
 
 onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        window.location.href = "staffpage.html";
-    }
+    if (!user) window.location.href = "staffpage.html";
 });
 
-function generateParticipantID() {
-    return Math.floor(Math.random() * 4294967295)
+document.getElementById("logoutBtn").onclick = async () => {
+    await signOut(auth);
+    window.location.href = "staffpage.html";
+};
+
+
+function generateID() {
+    return Math.floor(Math.random()*4294967295)
         .toString(16)
         .toUpperCase()
-        .padStart(8, "0")
+        .padStart(8,"0")
         .slice(-5);
 }
 
-async function createUniqueID() {
-
-    let id;
-    let exists = true;
+async function uniqueID() {
+    let id, exists = true;
 
     while (exists) {
-
-        id = generateParticipantID();
-
-        const testDoc =
-            await getDoc(doc(db, "participants", id));
-
-        exists = testDoc.exists();
+        id = generateID();
+        const snap = await getDoc(doc(db,"participants",id));
+        exists = snap.exists();
     }
 
     return id;
 }
 
-document
-    .getElementById("saveBtn")
-    .addEventListener("click", async () => {
+function toBool(v){
+    if(v==="true") return true;
+    if(v==="false") return false;
+    return null;
+}
 
-        const participantID = await createUniqueID();
+document.getElementById("saveBtn").onclick = async () => {
 
-        const data = {
+    const id = await uniqueID();
 
-            name:
-                document.getElementById("name").value,
+    const today = new Date().toLocaleDateString();
 
-            groupAssignment:
-                document.getElementById("group").value,
+    const data = {
+        groupAssignment: group.value,
+        name: name.value,
 
-            contact: {
-                primaryPhone:
-                    document.getElementById("phone").value,
+        contact: {
+            primaryPhone: phone.value,
+            alternatePhone: altPhone.value,
+            email: email.value,
+            textsPreferred: toBool(textsPreferred.value),
+            canReceiveTexts: toBool(canReceiveTexts.value)
+        },
 
-                email:
-                    document.getElementById("email").value
-            },
+        status: {
+            paired: toBool(paired.value),
+            pairedWith: pairedWith.value,
+            annualSurveyComplete: toBool(survey.value)
+        },
 
-            household: {
-                size:
-                    Number(
-                        document.getElementById("household").value
-                    )
-            },
+        household: {
+            size: Number(household.value),
+            bags: Number(bags.value)
+        },
 
-            address: {
-                fullAddress:
-                    document.getElementById("address").value
-            },
+        address: {
+            fullAddress: fullAddress.value,
+            street: street.value,
+            city: city.value,
+            state: state.value,
+            postalCode: postal.value,
+            country: country.value
+        },
 
-            demographics: {
-                preferredLanguage:
-                    document.getElementById("language").value
-            },
+        location: {
+            latitude: Number(lat.value),
+            longitude: Number(lng.value),
+            distanceFromFFS: distance.value,
+            driveTimeMinutes: driveTime.value
+        },
 
-            notes: {
-                teamNotes:
-                    document.getElementById("notes").value
-            }
-        };
+        delivery: {
+            lockedBuilding: toBool(locked.value),
+            driverNotes: driverNotes.value
+        },
 
-        await setDoc(
-            doc(db, "participants", participantID),
-            data
-        );
+        demographics: {
+            preferredLanguage: language.value,
+            pronouns: pronouns.value,
+            raceEthnicity: race.value
+        },
 
-        alert(
-            "Participant added.\nID: " +
-            participantID
-        );
+        medical: {
+            medicalConsent: toBool(medical.value)
+        },
 
-        window.location.href = "dashboard.html";
-    });
+        notes: {
+            teamNotes: notes.value
+        },
+
+        metadata: {
+            geocodedDate: today
+        }
+    };
+
+    await setDoc(doc(db,"participants",id),data);
+
+    alert("Participant created. ID: " + id);
+
+    window.location.href = `participant.html?id=${id}`;
+};
 
 </script>
 
