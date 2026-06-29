@@ -38,6 +38,12 @@
             font-size: 15px;
         }
 
+        nav div {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
         nav a:hover,
         nav button:hover {
             text-decoration: underline;
@@ -96,7 +102,11 @@
 <body>
 
 <nav>
-    <a href="homepage.html">Home</a>
+     <div>
+        <a href="homepage.html">Home</a>
+        <a href="addparticipant.html">Add Participant</a>
+    </div>
+    
     <button id="logoutBtn">Logout</button>
 </nav>
 
