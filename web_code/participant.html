@@ -27,6 +27,12 @@
             height: 60px;
         }
 
+        nav div {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         nav a, nav button {
             color: white;
             font-family: Arial, sans-serif;
@@ -124,10 +130,29 @@
 
 <body>
 
-<nav>
-    <a href="dashboard.html">← Back to Dashboard</a>
-    <button id="logoutBtn">Logout</button>
-</nav>
+    <nav>
+
+        <div>
+            <a href="dashboard.html">← Back to Dashboard</a>
+        </div>
+    
+        <div>
+    
+            <button id="editBtn">Edit Participant</button>
+    
+            <button
+                id="saveBtn"
+                style="display:none;">
+                Save Changes
+            </button>
+    
+            <button id="logoutBtn">
+                Logout
+            </button>
+    
+        </div>
+    
+    </nav>
 
 <div class="container" id="content">
     Loading participant...
@@ -137,8 +162,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
+import {getFirestore, doc, getDoc, collection, getDocs, updateDoc} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -155,26 +179,69 @@ const db = getFirestore(app);
 
 const content = document.getElementById("content");
 const logoutBtn = document.getElementById("logoutBtn");
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
+
+let editing = false;
 
 logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
     window.location.href = "staffpage.html";
 });
 
+editBtn.addEventListener("click", () => {
+
+    editing = true;
+
+    editBtn.style.display = "none";
+
+    saveBtn.style.display = "inline-block";
+
+    loadParticipant(true);
+
+});
+
+
+saveBtn.addEventListener("click", async () => {
+
+    try {
+
+        const phone = document.getElementById("editPhone").value;
+
+        const docRef = doc(db, "participants", participantId);
+
+        await updateDoc(docRef, {
+            "contact.primaryPhone": phone
+        });
+
+        editing = false;
+
+        saveBtn.style.display = "none";
+        editBtn.style.display = "inline-block";
+
+        await loadParticipant();
+
+        alert("Changes saved successfully.");
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert("Unable to save changes.");
+
+    }
+
+});
+
+
 const urlParams = new URLSearchParams(window.location.search);
 const participantId = urlParams.get("id");
 
-onAuthStateChanged(auth, async (user) => {
+//
 
-    if (!user) {
-        window.location.href = "staffpage.html";
-        return;
-    }
-
-    if (!participantId) {
-        content.innerHTML = "No participant selected.";
-        return;
-    }
+async function loadParticipant(editMode = false) {
 
     try {
 
@@ -212,8 +279,18 @@ onAuthStateChanged(auth, async (user) => {
                 </div>
 
                 <div class="field">
+
                     <span class="label">Phone:</span>
-                    ${data.contact?.primaryPhone || ""}
+
+                    ${
+                        editMode
+                        ? `<input
+                                id="editPhone"
+                                value="${data.contact?.primaryPhone || ""}">
+                        `
+                        : `${data.contact?.primaryPhone || ""}`
+                    }
+
                 </div>
 
                 <div class="field">
@@ -273,10 +350,25 @@ onAuthStateChanged(auth, async (user) => {
             </div>
         `;
 
-    } catch (error) {
+        } catch (error) {
         console.error(error);
         content.innerHTML = "Error loading participant.";
+        }
+
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "staffpage.html";
+        return;
     }
+
+    if (!participantId) {
+        content.innerHTML = "No participant selected.";
+        return;
+    }
+
+    await loadParticipant();
 
 });
 
