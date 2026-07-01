@@ -235,6 +235,9 @@ saveBtn.addEventListener("click", async () => {
         const driverNotes = 
         document.getElementById("editDriverNotes").value;
 
+        const medicalConsent =
+            toBool(document.getElementById("editMedicalConsent").value);
+
         const docRef = doc(db, "participants", participantId);
 
         await updateDoc(docRef, {
@@ -251,7 +254,9 @@ saveBtn.addEventListener("click", async () => {
 
             "demographics.preferredLanguage": language,
 
-            "delivery.driverNotes": driverNotes
+            "delivery.driverNotes": driverNotes,
+
+            "medical.medicalConsent": medicalConsent
 
         });
 
@@ -456,7 +461,25 @@ async function loadParticipant(editMode = false) {
 
                 <div class="field">
                     <span class="label">Medical Consent:</span>
-                    ${data.medical?.medicalConsent || ""}
+
+                    ${
+                        editMode
+                        ? `
+                        <select id="editMedicalConsent">
+                            <option value="yes" ${data.medical?.medicalConsent === true ? "selected" : ""}>Yes</option>
+                            <option value="no" ${data.medical?.medicalConsent === false ? "selected" : ""}>No</option>
+                            <option value="na" ${data.medical?.medicalConsent === null ? "selected" : ""}>N/A</option>
+                        </select>
+                        `
+                        : `${
+                            data.medical?.medicalConsent === true
+                                ? "Yes"
+                                : data.medical?.medicalConsent === false
+                                    ? "No"
+                                    : "N/A"
+                        }`
+                    }
+
                 </div>
 
                 <div class="field">
