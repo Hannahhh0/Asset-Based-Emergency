@@ -214,12 +214,45 @@ saveBtn.addEventListener("click", async () => {
 
     try {
 
-        const phone = document.getElementById("editPhone").value;
+        const phone =
+        document.getElementById("editPhone").value;
+
+        const groupAssignment = 
+        document.getElementById("editGroupAssignment").value;
+
+        const email =
+        document.getElementById("editEmail").value;
+
+        const household =
+        Number(document.getElementById("editHousehold").value);
+
+        const address =
+        document.getElementById("editAddress").value;
+
+        const language =
+        document.getElementById("editLanguage").value;
+
+        const driverNotes = 
+        document.getElementById("editDriverNotes").value;
 
         const docRef = doc(db, "participants", participantId);
 
         await updateDoc(docRef, {
-            "contact.primaryPhone": phone
+
+            groupAssignment: groupAssignment,
+            
+            "contact.primaryPhone": phone,
+
+            "contact.email": email,
+
+            "household.size": household,
+
+            "address.fullAddress": address,
+
+            "demographics.preferredLanguage": language,
+
+            "delivery.driverNotes": driverNotes
+
         });
 
         editing = false;
@@ -249,7 +282,6 @@ try {
 
     const docRef = doc(db, "participants", participantId);
 
-    // Try to get the participant's name for the confirmation and audit log
     let participantName = "Unknown";
 
     try {
@@ -341,9 +373,19 @@ async function loadParticipant(editMode = false) {
 
                 <h1>${data.name || "No Name"}</h1>
 
+
                 <div class="field">
                     <span class="label">Group:</span>
-                    ${data.groupAssignment || ""}
+
+                    ${
+                        editMode
+                        ? `<input
+                                id="editGroupAssignment"
+                                value="${data.groupAssignment || ""}">
+                        `
+                        : `${data.groupAssignment || ""}`
+                    }
+
                 </div>
 
                 <div class="field">
@@ -363,22 +405,53 @@ async function loadParticipant(editMode = false) {
 
                 <div class="field">
                     <span class="label">Email:</span>
-                    ${data.contact?.email || ""}
+
+                    ${
+                        editMode
+                        ? `<input
+                                id="editEmail"
+                                value="${data.contact?.email || ""}">
+                        `
+                        : `${data.contact?.email || ""}`
+                    }
+
                 </div>
 
                 <div class="field">
                     <span class="label">Household Size:</span>
-                    ${data.household?.size || ""}
+                    ${
+                        editMode
+                        ? `<input
+                                id="editHousehold"
+                                type="number"
+                                value="${data.household?.size || ""}">
+                        `
+                        : `${data.household?.size || ""}`
+                    }
                 </div>
 
                 <div class="field">
                     <span class="label">Address:</span>
-                    ${data.address?.fullAddress || ""}
+                    ${
+                        editMode
+                        ? `<input
+                                id="editAddress"
+                                value="${data.address?.fullAddress || ""}">
+                        `
+                        : `${data.address?.fullAddress || ""}`
+                    }
                 </div>
 
                 <div class="field">
                     <span class="label">Language:</span>
-                    ${data.demographics?.preferredLanguage || ""}
+                    ${
+                        editMode
+                        ? `<input
+                                id="editLanguage"
+                                value="${data.demographics?.preferredLanguage || ""}">
+                        `
+                        : `${data.demographics?.preferredLanguage || ""}`
+                    }
                 </div>
 
                 <div class="field">
@@ -388,7 +461,16 @@ async function loadParticipant(editMode = false) {
 
                 <div class="field">
                     <span class="label">Driver Notes:</span>
-                    ${data.delivery?.driverNotes || ""}
+
+                    ${
+                        editMode
+                        ? `<input
+                                id="editDriverNotes"
+                                value="${data.delivery?.driverNotes || ""}">
+                        `
+                        : `${data.delivery?.driverNotes || ""}`
+                    }
+
                 </div>
 
             </div>
