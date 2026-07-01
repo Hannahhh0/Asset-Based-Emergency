@@ -145,6 +145,12 @@
                 style="display:none;">
                 Save Changes
             </button>
+
+            <button 
+                id="cancelBtn" 
+                style="display:none;">
+                Cancel
+            </button>
     
             <button id="logoutBtn">
                 Logout
@@ -188,9 +194,14 @@ const content = document.getElementById("content");
 const logoutBtn = document.getElementById("logoutBtn");
 const editBtn = document.getElementById("editBtn");
 const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
 const deleteBtn = document.getElementById("deleteBtn");
 
 let editing = false;
+
+
+
+//code for all the different buttons here
 
 logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
@@ -202,8 +213,8 @@ editBtn.addEventListener("click", () => {
     editing = true;
 
     editBtn.style.display = "none";
-
     saveBtn.style.display = "inline-block";
+    cancelBtn.style.display = "inline-block";
 
     loadParticipant(true);
 
@@ -263,6 +274,7 @@ saveBtn.addEventListener("click", async () => {
         editing = false;
 
         saveBtn.style.display = "none";
+        cancelBtn.style.display = "none";
         editBtn.style.display = "inline-block";
 
         await loadParticipant();
@@ -281,58 +293,71 @@ saveBtn.addEventListener("click", async () => {
 
 });
 
-deleteBtn.addEventListener("click", async () => {
+cancelBtn.addEventListener("click", async () => {
 
-try {
+    editing = false;
 
-    const docRef = doc(db, "participants", participantId);
+    cancelBtn.style.display = "none";
+    saveBtn.style.display = "none";
+    editBtn.style.display = "inline-block";
 
-    let participantName = "Unknown";
-
-    try {
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            participantName = docSnap.data()?.name || "Unknown";
-        }
-    } catch (e) {
-        console.log("Could not fetch participant name.");
-    }
-
-    const confirmDelete = confirm(
-        `Delete ${participantName}? This cannot be undone.`
-    );
-
-    if (!confirmDelete) return;
-
-    await createAuditLog(
-        "DELETE_PARTICIPANT",
-        participantId,
-        participantName
-    );
-
-    const callsSnap = await getDocs(collection(docRef, "calls"));
-
-    const deleteCalls = callsSnap.docs.map((d) =>
-        deleteDoc(doc(db, "participants", participantId, "calls", d.id))
-    );
-
-    await Promise.all(deleteCalls);
-
-    await deleteDoc(docRef);
-
-    alert("Participant deleted successfully.");
-
-    window.location.href = "dashboard.html";
-
-} catch (error) {
-    console.error(error);
-    alert("Error deleting participant.");
-}
+    await loadParticipant();
 
 });
 
-//
+deleteBtn.addEventListener("click", async () => {
+
+    try {
+
+        const docRef = doc(db, "participants", participantId);
+
+        let participantName = "Unknown";
+
+        try {
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                participantName = docSnap.data()?.name || "Unknown";
+            }
+        } catch (e) {
+            console.log("Could not fetch participant name.");
+        }
+
+        const confirmDelete = confirm(
+            `Delete ${participantName}? This cannot be undone.`
+        );
+
+        if (!confirmDelete) return;
+
+        await createAuditLog(
+            "DELETE_PARTICIPANT",
+            participantId,
+            participantName
+        );
+
+        const callsSnap = await getDocs(collection(docRef, "calls"));
+
+        const deleteCalls = callsSnap.docs.map((d) =>
+            deleteDoc(doc(db, "participants", participantId, "calls", d.id))
+        );
+
+        await Promise.all(deleteCalls);
+
+        await deleteDoc(docRef);
+
+        alert("Participant deleted successfully.");
+
+        window.location.href = "dashboard.html";
+
+    } catch (error) {
+        console.error(error);
+        alert("Error deleting participant.");
+    }
+
+});
+
+//audit-log code here
+
 async function createAuditLog(action, participantId, participantName) {
 
 const user = auth.currentUser;
@@ -346,6 +371,9 @@ await addDoc(collection(db, "auditLogs"), {
 });
 
 }
+
+//loading participants code here (fields you see)
+
 async function loadParticipant(editMode = false) {
 
     try {
