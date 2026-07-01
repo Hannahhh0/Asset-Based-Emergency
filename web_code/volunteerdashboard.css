@@ -1,0 +1,29 @@
+.user-badge {
+  position: fixed;
+  top: 75px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #1a2a5e;
+  border-radius: 12px;
+  gap: 10px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.user-badge img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-badge p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.user-badge small {
+  color: #555;
+}

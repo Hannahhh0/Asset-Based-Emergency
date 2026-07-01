@@ -48,7 +48,7 @@
         window.signInWithGoogle = function () {
             signInWithPopup(auth, provider)
                 .then(async (result) => {
-                    const email = result.user.email;
+                    const email = result.user.email.trim().toLowerCase();
                     const docRef = doc(db, "authorizedVolunteers", email);
                     try {
                         const staffRef = doc(db, "authorizedStaff", email);
