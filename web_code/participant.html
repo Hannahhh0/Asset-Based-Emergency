@@ -149,6 +149,10 @@
             <button id="logoutBtn">
                 Logout
             </button>
+
+            <button id="deleteBtn" style="color:#ff6b6b;">
+                Delete Participant
+            </button>
     
         </div>
     
@@ -162,7 +166,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import {getFirestore, doc, getDoc, collection, getDocs, updateDoc} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import {getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, addDoc} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -177,10 +181,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const urlParams = new URLSearchParams(window.location.search);
+const participantId = urlParams.get("id");
+
 const content = document.getElementById("content");
 const logoutBtn = document.getElementById("logoutBtn");
 const editBtn = document.getElementById("editBtn");
 const saveBtn = document.getElementById("saveBtn");
+const deleteBtn = document.getElementById("deleteBtn");
 
 let editing = false;
 
@@ -235,12 +243,72 @@ saveBtn.addEventListener("click", async () => {
 
 });
 
+deleteBtn.addEventListener("click", async () => {
 
-const urlParams = new URLSearchParams(window.location.search);
-const participantId = urlParams.get("id");
+try {
+
+    const docRef = doc(db, "participants", participantId);
+
+    // Try to get the participant's name for the confirmation and audit log
+    let participantName = "Unknown";
+
+    try {
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            participantName = docSnap.data()?.name || "Unknown";
+        }
+    } catch (e) {
+        console.log("Could not fetch participant name.");
+    }
+
+    const confirmDelete = confirm(
+        `Delete ${participantName}? This cannot be undone.`
+    );
+
+    if (!confirmDelete) return;
+
+    await createAuditLog(
+        "DELETE_PARTICIPANT",
+        participantId,
+        participantName
+    );
+
+    const callsSnap = await getDocs(collection(docRef, "calls"));
+
+    const deleteCalls = callsSnap.docs.map((d) =>
+        deleteDoc(doc(db, "participants", participantId, "calls", d.id))
+    );
+
+    await Promise.all(deleteCalls);
+
+    await deleteDoc(docRef);
+
+    alert("Participant deleted successfully.");
+
+    window.location.href = "dashboard.html";
+
+} catch (error) {
+    console.error(error);
+    alert("Error deleting participant.");
+}
+
+});
 
 //
+async function createAuditLog(action, participantId, participantName) {
 
+const user = auth.currentUser;
+
+await addDoc(collection(db, "auditLogs"), {
+    action: action,
+    participantId: participantId,
+    participantName: participantName || "Unknown",
+    userEmail: user?.email || "Unknown user",
+    timestamp: new Date().toISOString()
+});
+
+}
 async function loadParticipant(editMode = false) {
 
     try {
