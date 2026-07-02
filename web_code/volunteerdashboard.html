@@ -48,7 +48,7 @@
         <a href="homepage.html">Home</a>
     </nav>
 
-    <div class="user-badge">
+    <div id="user-badge" class="user-badge">
         <img id="userPhoto" src="profile.png" alt="Profile photo">
         <div>
             <p id="userName"></p>
@@ -56,11 +56,16 @@
         </div>
     </div>
 
+    <main>
+        <h1>Delivery Assignments</h1>
+        <div id="participantList"></div>
+    </main>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
+        import { getFirestore, doc, getDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { updateDoc, collection, query, where} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
             authDomain: "asset-based-emergency.firebaseapp.com",
@@ -96,12 +101,84 @@
             document.getElementById("userName").textContent = displayName;
             document.getElementById("userEmail").textContent = user.email;
             document.getElementById("user-badge").style.visibility = "visible";
+     
+            await loadAssignments(user.email);
         });
 
-        document.getElementById("user-badge").addEventListener("click", () => {
-            document.getElementById("nameInput").value = document.getElementById("userName").textContent;
-            document.getElementById("editNameModal").showModal();
-        });
+        async function loadAssignments(email) {
+            const q = query(
+                collection(db, "driverAssignments"),
+                where("driverEmail", "==", email)
+            );
+
+            const assignmentSnap = await getDocs(q);
+            const container = document.getElementById("participantList");
+
+            if (assignmentSnap.empty) {
+                container.innerHTML = "<p style='text-align:center; color:#666; margin-top:40px;'>No assignments yet.</p>";
+                return;
+            }
+
+            for (const assignDoc of assignmentSnap.docs) {
+                const assignmentId = assignDoc.id;
+                const data = assignDoc.data();
+                const participantList = data.participantList || [];
+                const date = data.date;
+                const deliveryStatus = data.deliveryStatus || {};
+
+                const card = document.createElement("div");
+                card.className = "assignment-card";
+                const formattedDate = date.toDate().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                });
+
+                card.innerHTML = `<h3>Delivery Date: ${formattedDate}</h3>`;
+
+                for (const participantId of participantList) {
+                    const participantSnap = await getDoc(doc(db, "participants", participantId));
+                    const participantData = participantSnap.data();
+                    const address = participantData?.address;
+                    const delivered = deliveryStatus[participantId] || false;
+
+                    const row = document.createElement("div");
+                    row.className = "participant-row";
+                    row.innerHTML = `
+                        <div>
+                            <p><strong>${participantId}</strong></p>
+                            <p style="font-size:13px; color:#555;">${address?.street || ""}, ${address?.city || ""}</p>
+                        </div>
+                        <button
+                            class="delivery-btn ${delivered ? 'delivered' : 'not-delivered'}"
+                            data-assignment="${assignmentId}"
+                            data-participant="${participantId}"
+                            data-status="${delivered}">
+                            ${delivered ? "✓ Delivered" : "Not Delivered"}
+                        </button>
+                    `;
+
+                    row.querySelector(".delivery-btn").addEventListener("click", async (e) => {
+                        const btn = e.target;
+                        const currentStatus = btn.dataset.status === "true";
+                        const newStatus = !currentStatus;
+
+                        await updateDoc(doc(db, "driverAssignments", assignmentId), {
+                            [`deliveryStatus.${participantId}`]: newStatus
+                        });
+
+                        btn.dataset.status = newStatus;
+                        btn.textContent = newStatus ? "✓ Delivered" : "Not Delivered";
+                        btn.className = `delivery-btn ${newStatus ? "delivered" : "not-delivered"}`;
+                    });
+
+                    card.appendChild(row);
+                }
+
+                container.appendChild(card);
+            }
+        }
     </script>
+
 </body>
 </html>
