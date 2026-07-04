@@ -243,34 +243,89 @@ editBtn.addEventListener("click", () => {
 
 });
 
+function toBool(value) {
+    if (value === "yes") return true;
+    if (value === "no") return false;
+    return null;
+
+}
 
 saveBtn.addEventListener("click", async () => {
 
     try {
 
-        const phone =
-        document.getElementById("editPhone").value;
-
         const groupAssignment = 
         document.getElementById("editGroupAssignment").value;
-
+        
+        const phone =
+        document.getElementById("editPhone").value;
+        const alternatePhone = 
+        document.getElementById("editAlternatePhone").value;
+        const textsPreferred = 
+        toBool(document.getElementById("editTextsPreferred").value);
+        const canReceiveTexts = 
+        toBool(document.getElementById("editCanReceiveTexts").value);
         const email =
         document.getElementById("editEmail").value;
 
         const household =
         Number(document.getElementById("editHousehold").value);
+        const bags = 
+        Number(document.getElementById("editBags").value);
 
         const address =
         document.getElementById("editAddress").value;
+        const street =
+        document.getElementById("editStreet").value;
+        const city =
+        document.getElementById("editCity").value;
+        const state = 
+        document.getElementById("editState").value;
+        const postalCode = 
+        document.getElementById("editPostalCode").value;
+        const country = 
+        document.getElementById("editCountry").value;
 
         const language =
         document.getElementById("editLanguage").value;
+        const pronouns = 
+        document.getElementById("editPronouns").value;
+        const raceEthnicity = 
+        document.getElementById("editRaceEthnicity").value;
 
         const driverNotes = 
         document.getElementById("editDriverNotes").value;
+        const lockedBuildingRaw =
+        document.getElementById("editLockedBuilding").value;
+        const lockedBuilding =
+        lockedBuildingRaw === "true"
+            ? true
+            : lockedBuildingRaw === "false"
+            ? false
+            : null;
+        const distanceFromFFS =
+        document.getElementById("editDistanceFromFFS").value;
+        const driveTimeMinutes =
+        Number(document.getElementById("editDriveTime").value);
+        const latitude =
+        Number(document.getElementById("editLatitude").value);
+        const longitude =
+        Number(document.getElementById("editLongitude").value);
+        const geocodedDate =
+        document.getElementById("editGeocodedDate").value;
 
         const medicalConsent =
-            toBool(document.getElementById("editMedicalConsent").value);
+        toBool(document.getElementById("editMedicalConsent").value);
+
+        const annualSurveyComplete =
+        toBool(document.getElementById("editAnnualSurveyComplete").value);
+        const paired =
+        toBool(document.getElementById("editPaired").value);
+        const pairedWith =
+        document.getElementById("editPairedWith").value;
+
+        const teamNotes = 
+        document.getElementById("editTeamNotes").value;
 
         const docRef = doc(db, "participants", participantId);
 
@@ -279,18 +334,42 @@ saveBtn.addEventListener("click", async () => {
             groupAssignment: groupAssignment,
             
             "contact.primaryPhone": phone,
-
+            "contact.alternatePhone": alternatePhone,
+            "contact.textsPreferred": textsPreferred,
+            "contact.canReceiveTexts": canReceiveTexts,
             "contact.email": email,
 
             "household.size": household,
+            "household.bags": bags,
 
             "address.fullAddress": address,
+            "address.street": street,
+            "address.city": city,
+            "address.state": state,
+            "address.postalCode": postalCode,
+            "address.country": country,
 
             "demographics.preferredLanguage": language,
+            "demographics.pronouns": pronouns,
+            "demographics.raceEthnicity": raceEthnicity,
 
+            "location.distanceFromFFS": distanceFromFFS,
+            "location.driveTimeMinutes": driveTimeMinutes,
+            "location.latitude": latitude,
+            "location.longitude": longitude,
+
+            "metadata.geocodedDate": geocodedDate,
+
+            "delivery.lockedBuilding": lockedBuilding,
             "delivery.driverNotes": driverNotes,
 
-            "medical.medicalConsent": medicalConsent
+            "medical.medicalConsent": medicalConsent,
+
+            "status.annualSurveyComplete": annualSurveyComplete,
+            "status.paired": paired,
+            "status.pairedWith": pairedWith || null,
+
+            "notes.teamNotes": teamNotes
 
         });
 
@@ -379,7 +458,13 @@ deleteBtn.addEventListener("click", async () => {
 
 });
 
-//audit-log code here
+//helper func bool to yes/no
+function formatYesNo(value) {
+    if (value === null || value === undefined) return "";
+    return value ? "Yes" : "No";
+}
+
+//audit-log code here (need to make separate page for this)
 
 async function createAuditLog(action, participantId, participantName) {
 
@@ -395,7 +480,7 @@ await addDoc(collection(db, "auditLogs"), {
 
 }
 
-//loading participants code here (fields you see)
+//loading participants code here (has all fields you see in firestore)
 
 async function loadParticipant(editMode = false) {
 
@@ -428,6 +513,11 @@ async function loadParticipant(editMode = false) {
             <div class="card">
 
                 <h1>${data.name || "No Name"}</h1>
+
+                <div class="field">
+                    <span class="label">Unique ID:</span>
+                    ${participantId}
+                </div>
 
                 <div class="field">
                     <span class="label">Group:</span>
@@ -467,12 +557,30 @@ async function loadParticipant(editMode = false) {
 
                         <div class="field">
                             <span class="label">Pronouns:</span>
-                            ${data.demographics?.pronouns || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editPronouns"
+                                        value="${data.demographics?.pronouns || ""}">
+                                `
+                                : `${data.demographics?.pronouns || ""}`
+                            }
+
                         </div>
 
                         <div class="field">
                             <span class="label">Race/Ethnicity:</span>
-                            ${data.demographics?.raceEthnicity || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editRaceEthnicity"
+                                        value="${data.demographics?.raceEthnicity || ""}">
+                                `
+                                : `${data.demographics?.raceEthnicity || ""}`
+                            }
+
                         </div>
 
                     </div>
@@ -503,7 +611,14 @@ async function loadParticipant(editMode = false) {
 
                         <div class="field">
                             <span class="label">Alternate Phone:</span>
-                            ${data.contact?.alternatePhone || ""}
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editAlternatePhone"
+                                        value="${data.contact?.alternatePhone || ""}">
+                                `
+                                : `${data.contact?.alternatePhone || ""}`
+                            }
                         </div>
 
                         <div class="field">
@@ -520,12 +635,36 @@ async function loadParticipant(editMode = false) {
 
                         <div class="field">
                             <span class="label">Texts Preferred:</span>
-                            ${data.contact?.textsPreferred ?? ""}
+
+                            ${
+                                editMode
+                                ? `
+                                <select id="editTextsPreferred">
+                                    <option value="yes" ${data.contact?.textsPreferred === true ? "selected" : ""}>Yes</option>
+                                    <option value="no" ${data.contact?.textsPreferred === false ? "selected" : ""}>No</option>
+                                    <option value="na" ${data.contact?.textsPreferred == null ? "selected" : ""}>N/A</option>
+                                </select>
+                                `
+                                : `${formatYesNo(data.contact?.textsPreferred)}`
+                            }
+
                         </div>
 
                         <div class="field">
                             <span class="label">Can Receive Texts:</span>
-                            ${data.contact?.canReceiveTexts ?? ""}
+
+                            ${
+                                editMode
+                                ? `
+                                <select id="editCanReceiveTexts">
+                                    <option value="yes" ${data.contact?.canReceiveTexts === true ? "selected" : ""}>Yes</option>
+                                    <option value="no" ${data.contact?.canReceiveTexts === false ? "selected" : ""}>No</option>
+                                    <option value="na" ${data.contact?.canReceiveTexts == null ? "selected" : ""}>N/A</option>
+                                </select>
+                                `
+                                : `${formatYesNo(data.contact?.canReceiveTexts)}`
+                            }
+
                         </div>
 
                     </div>
@@ -557,7 +696,15 @@ async function loadParticipant(editMode = false) {
 
                         <div class="field">
                             <span class="label">Number of Bags:</span>
-                            ${data.household?.bags || ""}
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editBags"
+                                        type="number"
+                                        value="${data.household?.bags || ""}">
+                                `
+                                : `${data.household?.bags || ""}`
+                            }
                         </div>
 
                     </div>
@@ -587,27 +734,72 @@ async function loadParticipant(editMode = false) {
 
                         <div class="field">
                             <span class="label">Street:</span>
-                            ${data.address?.street || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editStreet"
+                                        value="${data.address?.street || ""}">
+                                `
+                                : `${data.address?.street || ""}`
+                            }
+
                         </div>
 
                         <div class="field">
                             <span class="label">City:</span>
-                            ${data.address?.city || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editCity"
+                                        value="${data.address?.city || ""}">
+                                `
+                                : `${data.address?.city || ""}`
+                            }
+
                         </div>
 
                         <div class="field">
                             <span class="label">State:</span>
-                            ${data.address?.state || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editState"
+                                        value="${data.address?.state || ""}">
+                                `
+                                : `${data.address?.state || ""}`
+                            }
+
                         </div>
 
                         <div class="field">
                             <span class="label">Postal Code:</span>
-                            ${data.address?.postalCode || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editPostalCode"
+                                        value="${data.address?.postalCode || ""}">
+                                `
+                                : `${data.address?.postalCode || ""}`
+                            }
+
                         </div>
 
                         <div class="field">
                             <span class="label">Country:</span>
-                            ${data.address?.country || ""}
+
+                            ${
+                                editMode
+                                ? `<input
+                                        id="editCountry"
+                                        value="${data.address?.country || ""}">
+                                `
+                                : `${data.address?.country || ""}`
+                            }
+
                         </div>
 
                     </div>
@@ -634,13 +826,7 @@ async function loadParticipant(editMode = false) {
                                     <option value="na" ${data.medical?.medicalConsent === null ? "selected" : ""}>N/A</option>
                                 </select>
                                 `
-                                : `${
-                                    data.medical?.medicalConsent === true
-                                        ? "Yes"
-                                        : data.medical?.medicalConsent === false
-                                            ? "No"
-                                            : "N/A"
-                                }`
+                                : `${formatYesNo(data.medical?.medicalConsent)}`
                             }
                         </div>
 
@@ -670,27 +856,122 @@ async function loadParticipant(editMode = false) {
                         </div>
 
                         <div class="field">
+                            <span class="label">Locked Building:</span>
+
+                            ${
+                                editMode
+                                ? `<select id="editLockedBuilding">
+                                        <option value="true" ${data.delivery?.lockedBuilding === true ? "selected" : ""}>True</option>
+                                        <option value="false" ${data.delivery?.lockedBuilding === false ? "selected" : ""}>False</option>
+                                        <option value="null" ${data.delivery?.lockedBuilding == null ? "selected" : ""}>Null</option>
+                                </select>`
+                                : `${formatYesNo(data.delivery?.lockedBuilding)}`
+                            }
+                        </div>
+
+                        <div class="field">
                             <span class="label">Distance From FFS:</span>
-                            ${data.location?.distanceFromFFS || ""}
+                            ${
+                                editMode
+                                ? `<input id="editDistanceFromFFS" value="${data.location?.distanceFromFFS || ""}">`
+                                : `${data.location?.distanceFromFFS || ""}`
+                            }
                         </div>
 
                         <div class="field">
                             <span class="label">Drive Time (minutes):</span>
-                            ${data.location?.driveTimeMinutes || ""}
+                            ${
+                                editMode
+                                ? `<input id="editDriveTime" value="${data.location?.driveTimeMinutes || ""}">`
+                                : `${data.location?.driveTimeMinutes || ""}`
+                            }
                         </div>
 
                         <div class="field">
                             <span class="label">Latitude:</span>
-                            ${data.location?.latitude || ""}
+                            ${
+                                editMode
+                                ? `<input id="editLatitude" value="${data.location?.latitude || ""}">`
+                                : `${data.location?.latitude || ""}`
+                            }
                         </div>
 
                         <div class="field">
                             <span class="label">Longitude:</span>
-                            ${data.location?.longitude || ""}
+                            ${
+                                editMode
+                                ? `<input id="editLongitude" value="${data.location?.longitude || ""}">`
+                                : `${data.location?.longitude || ""}`
+                            }
+                        </div>
+
+                        <div class="field">
+                            <span class="label">Geocoded Date:</span>
+                            ${data.metadata?.geocodedDate || ""}
                         </div>
 
                     </div>
                 </div>
+
+
+
+
+                 <div class="section">
+                    <button class="section-header" onclick="toggleSection('status')">
+                        Status ▼
+                    </button>
+
+                    <div class="section-body hidden" id="status">
+
+                        <div class="field">
+                            <span class="label">Annual Survey Complete:</span>
+
+                            ${
+                                editMode
+                                ? `<select id="editAnnualSurveyComplete">
+                                        <option value="true" ${data.status?.annualSurveyComplete ? "selected" : ""}>True</option>
+                                        <option value="false" ${!data.status?.annualSurveyComplete ? "selected" : ""}>False</option>
+                                </select>`
+                                : `${formatYesNo(data.status?.annualSurveyComplete)}`
+                            }
+                        </div>
+
+                        <div class="field">
+                            <span class="label">Paired:</span>
+
+                            ${
+                                editMode
+                                ? `<select id="editPaired">
+                                        <option value="true" ${data.status?.paired ? "selected" : ""}>True</option>
+                                        <option value="false" ${!data.status?.paired ? "selected" : ""}>False</option>
+                                </select>`
+                                : `${formatYesNo(data.status?.paired)}`
+                            }
+                        </div>
+
+                        <div class="field">
+                            <span class="label">Paired With:</span>
+
+                            ${
+                                editMode
+                                ? `<input id="editPairedWith" value="${data.status?.pairedWith || ""}">`
+                                : `${data.status?.pairedWith || ""}`
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="field">
+                    <span class="label">Team Notes:</span>
+
+                    ${
+                        editMode
+                        ? `<input id="editTeamNotes" value="${data.notes?.teamNotes || ""}">`
+                        : `${data.notes?.teamNotes || ""}`
+                    }
+                 </div>
 
             </div>
 
