@@ -57,7 +57,7 @@
             signInWithPopup(auth, provider)
                 .then(async (result) => {
                     const email = result.user.email;
-                    const docRef = doc(db, "authorizedStaff", email);
+                    const docRef = doc(db, "users", email);
 
                     try {
                         const docSnap = await getDoc(docRef);

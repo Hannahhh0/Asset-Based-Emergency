@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Volunteer Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            background: #1a2a5e;
+            color: white;
+            padding: 20px;
+        }
+
+        .tab {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            border-radius: 6px;
+
+            /* FIX: start disabled visually + interaction disabled */
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* MAIN AREA */
+        .main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            max-width: 1000px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        #routeParticipants {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        #participantSearch {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h3>Menu</h3>
+
+        <div id="tab-driver" class="tab" onclick="showSection('driver')">
+            Driver
+        </div>
+
+        <div id="tab-caller" class="tab" onclick="showSection('caller')">
+            Caller
+        </div>
+
+        <div id="tab-packer" class="tab" onclick="showSection('packer')">
+            Packer
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+        <div id="driver" class="section">
+            <h2>Driver Tools</h2>
+
+            <div id="driver-view" style="display:none;">
+                <button onclick="window.location.href='volunteerdashboard.html'">
+                    Open Driver App
+                </button>
+            </div>
+
+            <div id="staff-driver-view" style="display:none;">
+                <h3>Drivers</h3>
+                <div id="driverList"></div>
+
+                <hr>
+
+                <h3>Add Driver</h3>
+                <input id="newDriverEmail" placeholder="driver email">
+                <button onclick="addDriver()">Add Driver</button>
+
+                <hr>
+
+                <h3>Create Route</h3>
+
+                <label>Group:</label>
+                <select id="routeGroup"></select>
+
+                <br><br>
+
+                <label>Driver:</label>
+                <select id="routeDriver"></select>
+
+                <br><br>
+
+                <h4>Participants</h4>
+
+                <input
+                    type="text"
+                    id="participantSearch"
+                    placeholder="Search participant..."
+                >
+
+                <br><br>
+
+                <div id="routeParticipants"></div>
+
+                <br>
+
+                <button onclick="createRoute()">Create Route</button>
+            </div>
+        </div>
+
+        <div id="caller" class="section">
+            <h2>Caller Tools</h2>
+            <p>Caller dashboard goes here</p>
+        </div>
+
+        <div id="packer" class="section">
+            <h2>Packer Tools</h2>
+
+            <label>Select Group:</label>
+            <select id="groupSelect" onchange="loadGroupData()"></select>
+
+            <h3>Total Bags: <span id="totalBags">0</span></h3>
+
+            <h3>Driver Breakdown</h3>
+            <div id="driverBreakdown"></div>
+
+            <h3 id="validation"></h3>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } 
+        from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+            authDomain: "asset-based-emergency.firebaseapp.com",
+            projectId: "asset-based-emergency",
+            storageBucket: "asset-based-emergency.firebasestorage.app",
+            messagingSenderId: "166630111593",
+            appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // =========================
+        // TAB SWITCH FUNCTION
+        // =========================
+        window.showSection = function(id) {
+            const sections = document.querySelectorAll(".section");
+
+            sections.forEach(sec => {
+                sec.classList.remove("active");
+            });
+
+            const target = document.getElementById(id);
+            if (target) target.classList.add("active");
+        };
+        // =========================
+        // loadGroups code to get group options
+        // =========================
+        window.loadGroups = async function () {
+
+            const snapshot = await getDocs(collection(db, "participants"));
+
+            const groupSet = new Set();
+
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+
+                const group = data.groupAssignment;
+
+                if (group) {
+                    groupSet.add(group);
+                }
+            });
+
+            const select = document.getElementById("groupSelect");
+            select.innerHTML = "";
+
+            Array.from(groupSet).sort().forEach(group => {
+
+                const option = document.createElement("option");
+                option.value = group;
+                option.textContent = "Group " + group;
+
+                select.appendChild(option);
+            });
+
+            if (select.options.length > 0) {
+                select.value = select.options[0].value;
+                loadGroupData();
+            }
+        };
+
+        window.loadDriverList = async function () {
+
+            const snapshot = await getDocs(collection(db, "users"));
+
+            const container = document.getElementById("driverList");
+            container.innerHTML = "";
+
+            snapshot.forEach(docSnap => {
+
+                const data = docSnap.data();
+
+                if (!data.roles || !data.roles.includes("driver")) return;
+
+                const driverDiv = document.createElement("div");
+
+                driverDiv.style.padding = "10px";
+                driverDiv.style.border = "1px solid #ccc";
+                driverDiv.style.marginBottom = "8px";
+
+                driverDiv.innerHTML = `
+                    <b>${data.name || docSnap.id}</b>
+                    <br>
+                    <small>${docSnap.id}</small>
+                    <br>
+                    <button onclick="viewDriverRoutes('${docSnap.id}')">
+                        View Routes
+                    </button>
+                `;
+
+                container.appendChild(driverDiv);
+            });
+        };
+
+        window.viewDriverRoutes = async function (email) {
+            const q = query(
+                collection(db, "driverAssignments"),
+                where("driverEmail", "==", email)
+            );
+
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                alert("No routes assigned to this driver.");
+                return;
+            }
+
+            let message = `Routes for ${email}:\n\n`;
+
+            snap.forEach(doc => {
+                const data = doc.data();
+
+                message += `Route: ${doc.id}\n`;
+                message += `Stops: ${data.participantList.length}\n\n`;
+            });
+
+            alert(message);
+        };
+
+        window.addDriver = async function () {
+            const email = document.getElementById("newDriverEmail").value.trim();
+
+            if (!email) {
+                alert("Enter email");
+                return;
+            }
+
+            await setDoc(doc(db, "users", email), {
+                roles: ["driver"]
+            });
+
+            alert("Driver added!");
+
+            loadDriverList();
+        };
+
+        window.loadRouteBuilder = async function () {
+
+            const snapshot = await getDocs(collection(db, "participants"));
+
+            const groupSet = new Set();
+
+            snapshot.forEach(docSnap => {
+                const g = docSnap.data().groupAssignment;
+                if (g) groupSet.add(g);
+            });
+
+            const groupSelect = document.getElementById("routeGroup");
+            groupSelect.innerHTML = "";
+
+            groupSet.forEach(g => {
+                const opt = document.createElement("option");
+                opt.value = g;
+                opt.textContent = "Group " + g;
+                groupSelect.appendChild(opt);
+            });
+            groupSelect.addEventListener("change", loadParticipantsForRoute);
+
+            loadParticipantsForRoute();
+        };
+
+        window.loadParticipantsForRoute = async function () {
+
+            const group = document.getElementById("routeGroup").value;
+
+            const snapshot = await getDocs(collection(db, "participants"));
+
+            const container = document.getElementById("routeParticipants");
+            container.innerHTML = "";
+
+            snapshot.forEach(docSnap => {
+
+                const data = docSnap.data();
+
+                if ((data.groupAssignment || "").trim().toUpperCase() !== group.trim().toUpperCase()) return;
+
+                const div = document.createElement("div");
+
+                div.innerHTML = `
+                    <label>
+                        <input type="checkbox" value="${docSnap.id}">
+                        ${data.name || "No Name"} (${data.household?.bags || 0} bags)
+                    </label>
+                `;
+
+                container.appendChild(div);
+            });
+        };
+
+        window.loadDriversForRoute = async function () {
+
+            const snapshot = await getDocs(collection(db, "users"));
+
+            const driverSelect = document.getElementById("routeDriver");
+            driverSelect.innerHTML = "";
+
+            snapshot.forEach(docSnap => {
+
+                const data = docSnap.data();
+
+                if (!data.roles?.includes("driver")) return;
+
+                const opt = document.createElement("option");
+                opt.value = docSnap.id;
+                opt.textContent = data.name || docSnap.id;
+
+                driverSelect.appendChild(opt);
+            });
+        };
+
+        window.createRoute = async function () {
+
+            const group = document.getElementById("routeGroup").value;
+            const driver = document.getElementById("routeDriver").value;
+
+            const checkboxes = document.querySelectorAll("#routeParticipants input:checked");
+
+            const participants = Array.from(checkboxes).map(cb => cb.value);
+
+            if (participants.length === 0) {
+                alert("Select participants");
+                return;
+            }
+
+            const routeRef = doc(collection(db, "driverAssignments"));
+
+            await setDoc(routeRef, {
+                driverEmail: driver,
+                group: group,
+                participantList: participants,
+                date: new Date(),
+                deliveryStatus: {}
+            });
+
+            alert("Route created!");
+
+            loadParticipantsForRoute();
+        };
+
+        // =========================
+        // PACKER FUNCTION
+        // =========================
+        window.loadGroupData = async function () {
+
+            const group = document.getElementById("groupSelect").value;
+
+            try {
+                const snapshot = await getDocs(collection(db, "participants"));
+
+                let totalBags = 0;
+                const driverMap = {};
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+
+                    if (data.groupAssignment !== group) return;
+
+                    const bags = Number(data.household?.bags || 0);
+                    const driver = data.driverAssigned || "Unassigned";
+
+                    totalBags += bags;
+
+                    if (!driverMap[driver]) {
+                        driverMap[driver] = 0;
+                    }
+
+                    driverMap[driver] += bags;
+                });
+
+                document.getElementById("totalBags").innerText = totalBags;
+
+                const breakdownDiv = document.getElementById("driverBreakdown");
+                breakdownDiv.innerHTML = "";
+
+                let sumDrivers = 0;
+
+                Object.keys(driverMap).forEach(driver => {
+                    const bags = driverMap[driver];
+                    sumDrivers += bags;
+
+                    breakdownDiv.innerHTML += `<p><b>${driver}</b>: ${bags} bags</p>`;
+                });
+
+                const validation = document.getElementById("validation");
+
+            } catch (error) {
+                console.error("Error loading packer data:", error);
+                alert("Failed to load data. Check console.");
+            }
+        };
+
+        // =========================
+        // AUTH + ROLE LOGIC
+        // =========================
+        onAuthStateChanged(auth, async (user) => {
+
+            if (!user) {
+                window.location.href = "staffpage.html";
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "users", user.email);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    alert("No permissions found");
+                    await auth.signOut();
+                    return;
+                }
+
+                const roles = docSnap.data().roles || [];
+                console.log("Roles:", roles);
+
+                loadGroups();
+
+                const driverTab = document.getElementById("tab-driver");
+                const callerTab = document.getElementById("tab-caller");
+                const packerTab = document.getElementById("tab-packer");
+
+                const driverView = document.getElementById("driver-view");
+                const staffView = document.getElementById("staff-driver-view");
+
+                // RESET EVERYTHING FIRST
+                [driverTab, callerTab, packerTab].forEach(tab => {
+                    tab.style.opacity = "0.2";
+                    tab.style.pointerEvents = "none";
+                });
+
+                driverView.style.display = "none";
+                staffView.style.display = "none";
+
+                let firstTab = null;
+
+                // =====================
+                // STAFF (FULL ACCESS)
+                // =====================
+                if (roles.includes("staff")) {
+
+                    [driverTab, callerTab, packerTab].forEach(tab => {
+                        tab.style.opacity = "1";
+                        tab.style.pointerEvents = "auto";
+                    });
+
+                    driverView.style.display = "none";
+                    staffView.style.display = "block";
+
+                    showSection("driver");
+                    loadDriverList();
+                    loadRouteBuilder();
+                    loadDriversForRoute();
+
+                    return;
+                }
+
+                // =====================
+                // DRIVER
+                // =====================
+                if (roles.includes("driver")) {
+                    driverTab.style.opacity = "1";
+                    driverTab.style.pointerEvents = "auto";
+                    driverView.style.display = "block";
+
+                    firstTab = "driver";
+                }
+
+                // =====================
+                // CALLER
+                // =====================
+                if (roles.includes("caller")) {
+                    callerTab.style.opacity = "1";
+                    callerTab.style.pointerEvents = "auto";
+                    firstTab = firstTab || "caller";
+                }
+
+                // =====================
+                // PACKER
+                // =====================
+                if (roles.includes("packer")) {
+                    packerTab.style.opacity = "1";
+                    packerTab.style.pointerEvents = "auto";
+                    firstTab = firstTab || "packer";
+                }
+
+                // DEFAULT VIEW
+                if (firstTab) {
+                    showSection(firstTab);
+                }
+
+            } catch (error) {
+                console.error("FULL ERROR:", error.code, error.message);
+                alert(error.message);
+            }
+        });
+
+    </script>
+
+</body>
+</html>
