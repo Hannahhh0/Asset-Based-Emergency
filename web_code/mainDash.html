@@ -55,6 +55,19 @@
             display: block;
         }
 
+        .driver-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .route-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding-right: 5px;
+        }
+
         #routeParticipants {
             max-height: 350px;
             overflow-y: auto;
@@ -107,7 +120,19 @@
 
             <div id="staff-driver-view" style="display:none;">
                 <h3>Drivers</h3>
-                <div id="driverList"></div>
+                <input 
+                    id="driverSearch"
+                    placeholder="Search drivers..."
+                    style="
+                        width:100%;
+                        padding:10px;
+                        margin-bottom:10px;
+                    "
+                >
+                <div class="driver-container">
+                    <div id="driverList"></div>
+                </div>
+
                 <div id="routeStops"></div>
 
                 <hr>
@@ -198,6 +223,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const selectedParticipants = new Set();
+        let allDrivers = [];
 
         // =========================
         // TAB SWITCH FUNCTION
@@ -250,11 +276,9 @@
         };
 
         window.loadDriverList = async function () {
+            allDrivers = [];
 
             const snapshot = await getDocs(collection(db, "users"));
-
-            const container = document.getElementById("driverList");
-            container.innerHTML = "";
 
             snapshot.forEach(docSnap => {
 
@@ -262,33 +286,73 @@
 
                 if (!data.roles || !data.roles.includes("driver")) return;
 
+                allDrivers.push({
+                    email: docSnap.id,
+                    ...data
+                });
+
+            });
+
+            renderDrivers(allDrivers);
+            };
+
+        window.renderDrivers = function(drivers) {
+            const container = document.getElementById("driverList");
+
+            container.innerHTML = "";
+
+            drivers.forEach(driver => {
+
                 const driverDiv = document.createElement("div");
 
-                driverDiv.style.padding = "10px";
                 driverDiv.style.border = "1px solid #ccc";
-                driverDiv.style.marginBottom = "8px";
+                driverDiv.style.padding = "10px";
+                driverDiv.style.marginBottom = "10px";
+
 
                 driverDiv.innerHTML = `
-                    <b>${data.name || docSnap.id}</b>
+                    <b>${driver.name || driver.email}</b>
                     <br>
-                    <small>${docSnap.id}</small>
+                    <small>${driver.email}</small>
 
                     <br><br>
 
-                    <button 
-                        onclick="viewDriverRoutes('${docSnap.id}', this)">
+                    <button onclick="viewDriverRoutes('${driver.email}', this)">
                         View Routes
                     </button>
 
                     <div 
-                        id="routes-${docSnap.id}" 
-                        style="margin-top:10px;">
+                        id="routes-${driver.email}" 
+                        class="route-container">
                     </div>
                 `;
 
+
                 container.appendChild(driverDiv);
+
             });
-        };
+            };
+
+            document.getElementById("driverSearch")
+            .addEventListener("input", function() {
+
+                const search = this.value.toLowerCase();
+
+
+                const filtered = allDrivers.filter(driver =>
+                    (driver.name || "")
+                    .toLowerCase()
+                    .includes(search)
+                    ||
+                    driver.email
+                    .toLowerCase()
+                    .includes(search)
+                );
+
+
+                renderDrivers(filtered);
+
+            });
 
         window.viewDriverRoutes = async function(email, button) {
             const container = document.getElementById(`routes-${email}`);
