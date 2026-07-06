@@ -139,6 +139,13 @@
 
                 <br><br>
 
+                <label>
+                    <input type="checkbox" id="hideChecked">
+                    Show only unchecked participants
+                </label>
+                
+                <br><br>
+
                 <div id="routeParticipants"></div>
 
                 <br>
@@ -171,7 +178,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs } 
+        import { getFirestore, doc, getDoc, collection, getDocs, setDoc } 
         from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -186,6 +193,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const selectedParticipants = new Set();
 
         // =========================
         // TAB SWITCH FUNCTION
@@ -332,7 +340,16 @@
                 opt.textContent = "Group " + g;
                 groupSelect.appendChild(opt);
             });
+
             groupSelect.addEventListener("change", loadParticipantsForRoute);
+
+            document
+                .getElementById("participantSearch")
+                .addEventListener("input", loadParticipantsForRoute);
+
+            document
+                .getElementById("hideChecked")
+                .addEventListener("change", loadParticipantsForRoute);
 
             loadParticipantsForRoute();
         };
@@ -340,6 +357,11 @@
         window.loadParticipantsForRoute = async function () {
 
             const group = document.getElementById("routeGroup").value;
+            const search = document.getElementById("participantSearch")
+                .value
+                .trim()
+                .toLowerCase();
+            const hideChecked = document.getElementById("hideChecked").checked;
 
             const snapshot = await getDocs(collection(db, "participants"));
 
@@ -350,23 +372,53 @@
 
                 const data = docSnap.data();
 
-                if ((data.groupAssignment || "").trim().toUpperCase() !== group.trim().toUpperCase()) return;
+                if (data.groupAssignment !== group) return;
 
-                const div = document.createElement("div");
+                const name = (data.name || "").toLowerCase();
 
-                div.innerHTML = `
-                    <label>
-                        <input type="checkbox" value="${docSnap.id}">
-                        ${data.name || "No Name"} (${data.household?.bags || 0} bags)
-                    </label>
-                `;
+                if (!name.includes(search)) return;
 
-                container.appendChild(div);
+                if (hideChecked && selectedParticipants.has(docSnap.id)) {
+                    return;
+                }
+
+                    const div = document.createElement("div");
+
+                    const checked = selectedParticipants.has(docSnap.id);
+
+                    div.innerHTML = `
+                        <label>
+                            <input
+                                type="checkbox"
+                                value="${docSnap.id}"
+                                ${checked ? "checked" : ""}
+                            >
+                            ${data.name || "No Name"} (${data.household?.bags || 0} bags)
+                        </label>
+                    `;
+
+                    const checkbox = div.querySelector("input");
+
+                    checkbox.addEventListener("change", () => {
+
+                        if (checkbox.checked) {
+                            selectedParticipants.add(docSnap.id);
+                        } else {
+                            selectedParticipants.delete(docSnap.id);
+                        }
+
+                        // Refresh list if "Show only unchecked" is on
+                        if (document.getElementById("hideChecked").checked) {
+                            loadParticipantsForRoute();
+                        }
+                    });
+
+                    container.appendChild(div);
             });
         };
 
         window.loadDriversForRoute = async function () {
-
+            
             const snapshot = await getDocs(collection(db, "users"));
 
             const driverSelect = document.getElementById("routeDriver");
