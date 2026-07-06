@@ -112,7 +112,10 @@
                 <hr>
 
                 <h3>Add Driver</h3>
-                <input id="newDriverEmail" placeholder="driver email">
+                <input id="newDriverName" placeholder="Driver full name">
+
+                <input id="newDriverEmail" placeholder="Driver email">
+                
                 <button onclick="addDriver()">Add Driver</button>
 
                 <hr>
@@ -304,18 +307,25 @@
         };
 
         window.addDriver = async function () {
+
+            const name = document.getElementById("newDriverName").value.trim();
             const email = document.getElementById("newDriverEmail").value.trim();
 
-            if (!email) {
-                alert("Enter email");
+            if (!name || !email) {
+                alert("Enter name and email");
                 return;
             }
 
             await setDoc(doc(db, "users", email), {
-                roles: ["driver"]
+                name: name,
+                email: email,
+                roles: ["driver"],
             });
 
             alert("Driver added!");
+
+            document.getElementById("newDriverName").value = "";
+            document.getElementById("newDriverEmail").value = "";
 
             loadDriverList();
         };
