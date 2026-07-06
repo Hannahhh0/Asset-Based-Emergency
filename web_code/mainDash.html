@@ -108,6 +108,7 @@
             <div id="staff-driver-view" style="display:none;">
                 <h3>Drivers</h3>
                 <div id="driverList"></div>
+                <div id="routeStops"></div>
 
                 <hr>
 
@@ -181,7 +182,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, setDoc } 
+        import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where} 
         from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -271,39 +272,108 @@
                     <b>${data.name || docSnap.id}</b>
                     <br>
                     <small>${docSnap.id}</small>
-                    <br>
-                    <button onclick="viewDriverRoutes('${docSnap.id}')">
+
+                    <br><br>
+
+                    <button 
+                        onclick="viewDriverRoutes('${docSnap.id}', this)">
                         View Routes
                     </button>
+
+                    <div 
+                        id="routes-${docSnap.id}" 
+                        style="margin-top:10px;">
+                    </div>
                 `;
 
                 container.appendChild(driverDiv);
             });
         };
 
-        window.viewDriverRoutes = async function (email) {
+        window.viewDriverRoutes = async function(email, button) {
+            const container = document.getElementById(`routes-${email}`);
+
+            if (button.textContent === "Hide Routes") {
+                container.innerHTML = "";
+                button.textContent = "View Routes";
+                return;
+            }
+            container.innerHTML = `
+                <h3>Routes for ${email}</h3>
+                <p>Loading...</p>
+            `;
+
+
             const q = query(
                 collection(db, "driverAssignments"),
                 where("driverEmail", "==", email)
             );
 
+
             const snap = await getDocs(q);
 
+
             if (snap.empty) {
-                alert("No routes assigned to this driver.");
+
+                container.innerHTML = `
+                    <h3>Routes for ${email}</h3>
+                    <p>No routes assigned.</p>
+                `;
+
+                button.textContent = "Hide Routes";
+
                 return;
             }
 
-            let message = `Routes for ${email}:\n\n`;
 
-            snap.forEach(doc => {
-                const data = doc.data();
+            container.innerHTML = `
+                <h3>Routes for ${email}</h3>
+            `;
 
-                message += `Route: ${doc.id}\n`;
-                message += `Stops: ${data.participantList.length}\n\n`;
+
+            snap.forEach(routeDoc => {
+
+                const data = routeDoc.data();
+
+                const routeDiv = document.createElement("div");
+
+                routeDiv.style.border = "1px solid #ccc";
+                routeDiv.style.padding = "10px";
+                routeDiv.style.marginBottom = "10px";
+
+                const stopContainerID = `stops-${routeDoc.id}`;
+
+                routeDiv.innerHTML = `
+                    <b>Date:</b>
+                    ${data.date.toDate().toLocaleDateString()}
+                    <br>
+
+                    <b>Group:</b>
+                    ${data.group}
+
+                    <br>
+
+                    <b>Stops:</b>
+                    ${data.participantList.length}
+
+                    <br><br>
+
+                    <button 
+                        onclick="viewRouteStops('${routeDoc.id}', '${stopContainerID}', this)">
+                        View Stops
+                    </button>
+
+                    <div id="${stopContainerID}"></div>
+                `;
+
+
+                container.appendChild(routeDiv);
+
             });
 
-            alert(message);
+
+            button.textContent = "Hide Routes";
+
         };
 
         window.addDriver = async function () {
@@ -475,6 +545,119 @@
             alert("Route created!");
 
             loadParticipantsForRoute();
+        };
+
+        window.viewRouteStops = async function(routeID, containerID, button) {
+
+            const container = document.getElementById(containerID);
+
+            if (button.textContent === "Hide Stops") {
+                container.innerHTML = "";
+                button.textContent = "View Stops";
+                return;
+            }
+
+
+            // Load stops
+            container.dataset.route = routeID;
+
+            container.innerHTML = `
+                <h3>Route Stops</h3>
+                <p>Loading...</p>
+            `;
+
+
+            const routeSnap = await getDoc(
+                doc(db, "driverAssignments", routeID)
+            );
+
+
+            if (!routeSnap.exists()) {
+                container.innerHTML = "Route not found.";
+                return;
+            }
+
+
+            const routeData = routeSnap.data();
+
+
+            container.innerHTML = `
+                <h3>Route Stops</h3>
+            `;
+
+
+            for (const participantID of routeData.participantList) {
+
+                const participantSnap = await getDoc(
+                    doc(db, "participants", participantID)
+                );
+
+
+                if (!participantSnap.exists()) continue;
+
+
+                const data = participantSnap.data();
+
+
+                const div = document.createElement("div");
+
+                div.style.border = "1px solid #ccc";
+                div.style.padding = "10px";
+                div.style.marginBottom = "10px";
+
+
+                div.innerHTML = `
+                    <button class="stop-header" style="
+                        width:100%;
+                        text-align:left;
+                        padding:10px;
+                        cursor:pointer;
+                        background:#f4f6fb;
+                        border:1px solid #ccc;
+                        border-radius:5px;
+                    ">
+                        Participant ID: ${participantID}
+                    </button>
+
+                    <div class="stop-details" style="
+                        display:none;
+                        padding:10px;
+                        border:1px solid #ccc;
+                        border-top:none;
+                    ">
+                        <p>
+                            <b>Address:</b>
+                            ${data.address?.fullAddress || "No address"}
+                        </p>
+
+                        <p>
+                            <b>Bags:</b>
+                            ${data.household?.bags || 0}
+                        </p>
+                    </div>
+                `;
+
+
+                const header = div.querySelector(".stop-header");
+                const details = div.querySelector(".stop-details");
+
+
+                header.addEventListener("click", () => {
+
+                    details.style.display =
+                        details.style.display === "none"
+                        ? "block"
+                        : "none";
+
+                });
+
+
+                container.appendChild(div);
+            }
+
+
+            button.textContent = "Hide Stops";
+
         };
 
         // =========================
