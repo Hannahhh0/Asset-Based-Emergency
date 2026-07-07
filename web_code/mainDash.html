@@ -207,7 +207,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where} 
+        import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where, updateDoc, deleteField} 
         from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -517,6 +517,7 @@
                 const data = docSnap.data();
 
                 if (data.groupAssignment !== group) return;
+                const assigned = !!data.currentAssignment;
 
                 const name = (data.name || "").toLowerCase();
 
@@ -527,6 +528,9 @@
                 }
 
                     const div = document.createElement("div");
+                    if (assigned) {
+                        div.style.opacity = "0.55";
+                    }
 
                     const checked = selectedParticipants.has(docSnap.id);
 
@@ -536,8 +540,18 @@
                                 type="checkbox"
                                 value="${docSnap.id}"
                                 ${checked ? "checked" : ""}
+                                ${assigned ? "disabled" : ""}
                             >
-                            ${data.name || "No Name"} (${data.household?.bags || 0} bags)
+                            ${data.name || "No Name"}
+                            (${data.household?.bags || 0} bags)
+
+                            ${
+                            assigned
+                            ? `<span style="color:red">
+                            Assigned to ${data.currentAssignment.driverEmail}
+                            </span>`
+                            : ""
+                            }
                         </label>
                     `;
 
@@ -606,6 +620,20 @@
                 deliveryStatus: {}
             });
 
+            for (const participantID of participants) {
+                await updateDoc(
+                    doc(db, "participants", participantID),
+                    {
+                        currentAssignment: {
+                            driverEmail: driver,
+                            routeId: routeRef.id,
+                            deliveryDate: new Date().toISOString().split("T")[0]
+                        }
+                    }
+                );
+
+            }
+
             alert("Route created!");
 
             loadParticipantsForRoute();
@@ -669,7 +697,6 @@
                 div.style.padding = "10px";
                 div.style.marginBottom = "10px";
 
-
                 div.innerHTML = `
                     <button class="stop-header" style="
                         width:100%;
@@ -689,15 +716,19 @@
                         border:1px solid #ccc;
                         border-top:none;
                     ">
-                        <p>
-                            <b>Address:</b>
-                            ${data.address?.fullAddress || "No address"}
-                        </p>
 
-                        <p>
-                            <b>Bags:</b>
-                            ${data.household?.bags || 0}
-                        </p>
+                        <p><b>Address:</b> ${data.address?.fullAddress || "No address"}</p>
+
+                        <p><b>Bags:</b> ${data.household?.bags || 0}</p>
+
+                        <button
+                            onclick="removeParticipantFromRoute(
+                                '${routeID}',
+                                '${participantID}'
+                            )">
+                            Remove From Route
+                        </button>
+
                     </div>
                 `;
 
@@ -723,6 +754,36 @@
             button.textContent = "Hide Stops";
 
         };
+
+        window.removeParticipantFromRoute = async function(routeID, participantID) {
+            if (!confirm("Remove this participant from the route?")) return;
+
+            const routeRef = doc(db, "driverAssignments", routeID);
+            const participantRef = doc(db, "participants", participantID);
+
+            const routeSnap = await getDoc(routeRef);
+
+            if (!routeSnap.exists()) return;
+
+            const data = routeSnap.data();
+
+            // Remove participant from route list
+            const updatedList = data.participantList.filter(
+                id => id !== participantID
+            );
+
+            await updateDoc(routeRef, {
+                participantList: updatedList
+            });
+
+            // Clear assignment on participant
+            await updateDoc(participantRef, {
+                currentAssignment: deleteField()
+            });
+
+            alert("Participant removed from route.");
+
+            };
 
         // =========================
         // PACKER FUNCTION

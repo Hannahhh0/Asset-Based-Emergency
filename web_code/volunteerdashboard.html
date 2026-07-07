@@ -65,7 +65,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-        import { updateDoc, collection, query, where} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { updateDoc, collection, query, where, serverTimestamp} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
             authDomain: "asset-based-emergency.firebaseapp.com",
@@ -124,6 +124,7 @@
                 const data = assignDoc.data();
                 const participantList = data.participantList || [];
                 const date = data.date;
+                const deliveryDate = date.toDate().toISOString().split("T")[0];
                 const deliveryStatus = data.deliveryStatus || {};
 
                 const card = document.createElement("div");
@@ -162,10 +163,53 @@
                         const btn = e.target;
                         const currentStatus = btn.dataset.status === "true";
                         const newStatus = !currentStatus;
+                        const confirmed = confirm(
+                            newStatus 
+                                ? "Mark this delivery as completed?"
+                                : "Are you sure you want to undo this delivery?"
+                        );
+                        if (!confirmed) {
+                            return;
+                        }
 
                         await updateDoc(doc(db, "driverAssignments", assignmentId), {
                             [`deliveryStatus.${participantId}`]: newStatus
                         });
+
+                        if (newStatus) {
+                            await setDoc(
+                                doc(
+                                    db,
+                                    "participants",
+                                    participantId,
+                                    "deliveryHistory",
+                                    deliveryDate
+                                ),
+                                {
+                                    status: "Delivered",
+                                    driverEmail: currentUserEmail,
+                                    confirmedAt: serverTimestamp(),
+                                    cancelledAt: null
+                                }
+                            );
+
+                            } else {
+
+                            await updateDoc(
+                                doc(
+                                    db,
+                                    "participants",
+                                    participantId,
+                                    "deliveryHistory",
+                                    deliveryDate
+                                ),
+                                {
+                                    status: "Cancelled",
+                                    cancelledAt: serverTimestamp()
+                                }
+                            );
+
+                        }
 
                         btn.dataset.status = newStatus;
                         btn.textContent = newStatus ? "✓ Delivered" : "Not Delivered";

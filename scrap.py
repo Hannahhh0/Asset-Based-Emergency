@@ -1,33 +1,231 @@
 ##This code is a scrap worksheet, can edit and change to test or explore data
 
-import pandas as pd
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Dashboard</title>
+    <link rel="stylesheet" href="volunteerdashboard.css">
+</head>
+<body>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            color: #1a1a2e;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+           
+            display: grid;
+        }
+    
+        /* ── NAV ── */
+        nav {
+        background-color: #1a2a5e;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        gap: 60px;
+        }
+    
+        nav a {
+        color: #ffffff;
+        text-decoration: none;
+        font-family: 'Arial', sans-serif;
+        font-size: 15px;
+        letter-spacing: 0.03em;
+        opacity: 0.9;
+        transition: opacity 0.2s;
+        }
+ 
+        nav a:hover { opacity: 1; text-decoration: underline; }
+    </style>
 
-file = "dummy_data.xlsx"
-sheet = "FPP 2026"
 
-df = pd.read_excel(file, sheet_name=sheet)
+    <nav class="nav">
+        <a href="homepage.html">Home</a>
+    </nav>
 
+    <div id="user-badge" class="user-badge">
+        <img id="userPhoto" src="profile.png" alt="Profile photo">
+        <div>
+            <p id="userName"></p>
+            <small id="userEmail"></small>
+        </div>
+    </div>
 
-df.columns = df.columns.str.strip()
+    <main>
+        <h1>Delivery Assignments</h1>
+        <div id="participantList"></div>
+    </main>
 
-print("\nTOTAL ROWS:", len(df))
-print("\nCOLUMNS:\n")
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { updateDoc, collection, query, where, serverTimestamp} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+            authDomain: "asset-based-emergency.firebaseapp.com",
+            projectId: "asset-based-emergency",
+            storageBucket: "asset-based-emergency.firebasestorage.app",
+            messagingSenderId: "166630111593",
+            appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
 
-for i, col in enumerate(df.columns):
-    print(i, repr(col))
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-print("\nCALL NOTE COLUMNS ONLY:\n")
-call_cols = [c for c in df.columns if "Call Notes" in str(c)]
-for c in call_cols:
-    print("-", repr(c))
+        let currentUserEmail = null;
 
-print("\nUNNAMED COLUMNS:\n")
-print([c for c in df.columns if "Unnamed" in str(c)])
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "volunteerlogin.html";
+                return;
+            }
 
-print("\nFIRST ROW SAMPLE:\n")
-print(df.head(1).to_dict())
+            currentUserEmail = user.email;
 
+            const userRef = doc(db, "authorizedVolunteers", user.email);
+            const userSnap = await getDoc(userRef);
 
+            let displayName = user.displayName || "Volunteer";
+            if (userSnap.exists() && userSnap.data().Name) {
+                displayName = userSnap.data().Name;
+            }
 
+            document.getElementById("userPhoto").src = user.photoURL || "default-profile.png";
+            document.getElementById("userName").textContent = displayName;
+            document.getElementById("userEmail").textContent = user.email;
+            document.getElementById("user-badge").style.visibility = "visible";
+     
+            await loadAssignments(user.email);
+        });
 
+        async function loadAssignments(email) {
+            const q = query(
+                collection(db, "driverAssignments"),
+                where("driverEmail", "==", email)
+            );
+
+            const assignmentSnap = await getDocs(q);
+            const container = document.getElementById("participantList");
+
+            if (assignmentSnap.empty) {
+                container.innerHTML = "<p style='text-align:center; color:#666; margin-top:40px;'>No assignments yet.</p>";
+                return;
+            }
+
+            for (const assignDoc of assignmentSnap.docs) {
+                const assignmentId = assignDoc.id;
+                const data = assignDoc.data();
+                const participantList = data.participantList || [];
+                const date = data.date;
+                const deliveryDate = date.toDate().toISOString().split("T")[0];
+                const deliveryStatus = data.deliveryStatus || {};
+
+                const card = document.createElement("div");
+                card.className = "assignment-card";
+                const formattedDate = date.toDate().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                });
+
+                card.innerHTML = `<h3>Delivery Date: ${formattedDate}</h3>`;
+
+                for (const participantId of participantList) {
+                    const participantSnap = await getDoc(doc(db, "participants", participantId));
+                    const participantData = participantSnap.data();
+                    const address = participantData?.address;
+                    const delivered = deliveryStatus[participantId] || false;
+
+                    const row = document.createElement("div");
+                    row.className = "participant-row";
+                    row.innerHTML = `
+                        <div>
+                            <p><strong>${participantId}</strong></p>
+                            <p style="font-size:13px; color:#555;">${address?.street || ""}, ${address?.city || ""}</p>
+                        </div>
+                        <button
+                            class="delivery-btn ${delivered ? 'delivered' : 'not-delivered'}"
+                            data-assignment="${assignmentId}"
+                            data-participant="${participantId}"
+                            data-status="${delivered}">
+                            ${delivered ? "✓ Delivered" : "Not Delivered"}
+                        </button>
+                    `;
+
+                    row.querySelector(".delivery-btn").addEventListener("click", async (e) => {
+                        const btn = e.target;
+                        const currentStatus = btn.dataset.status === "true";
+                        const newStatus = !currentStatus;
+                        const confirmed = confirm(
+                            newStatus 
+                                ? "Mark this delivery as completed?"
+                                : "Are you sure you want to undo this delivery?"
+                        );
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        await updateDoc(doc(db, "driverAssignments", assignmentId), {
+                            [`deliveryStatus.${participantId}`]: newStatus
+                        });
+
+                        if (newStatus) {
+                            await setDoc(
+                                doc(
+                                    db,
+                                    "participants",
+                                    participantId,
+                                    "deliveryHistory",
+                                    deliveryDate
+                                ),
+                                {
+                                    status: "Delivered",
+                                    driverEmail: currentUserEmail,
+                                    confirmedAt: serverTimestamp(),
+                                    cancelledAt: null
+                                }
+                            );
+
+                            } else {
+
+                            await updateDoc(
+                                doc(
+                                    db,
+                                    "participants",
+                                    participantId,
+                                    "deliveryHistory",
+                                    deliveryDate
+                                ),
+                                {
+                                    status: "Cancelled",
+                                    cancelledAt: serverTimestamp()
+                                }
+                            );
+
+                        }
+
+                        btn.dataset.status = newStatus;
+                        btn.textContent = newStatus ? "✓ Delivered" : "Not Delivered";
+                        btn.className = `delivery-btn ${newStatus ? "delivered" : "not-delivered"}`;
+                    });
+
+                    card.appendChild(row);
+                }
+
+                container.appendChild(card);
+            }
+        }
+    </script>
+
+</body>
+</html>
 
