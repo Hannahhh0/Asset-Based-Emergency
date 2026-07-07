@@ -28,6 +28,10 @@
   color: #555;
 }
 
+main {
+    padding: 30px;
+}
+
 #assignmentList {
     max-width: 700px;
     margin: 30px auto;
