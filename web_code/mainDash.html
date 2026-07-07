@@ -179,7 +179,12 @@
 
                 <br>
 
-                <button onclick="createRoute()">Create Route</button>
+                <button onclick="createRoute()">
+                    Create Route
+                </button>
+                <button onclick="resetRoutes()" style="margin-top:10px;">
+                    Reset Routes
+                </button>
             </div>
         </div>
 
@@ -207,7 +212,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where, updateDoc, deleteField} 
+        import { getFirestore, doc, getDoc, collection, getDocs, 
+            setDoc, query, where, updateDoc, deleteField, deleteDoc} 
         from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -523,7 +529,7 @@
 
                 if (!name.includes(search)) return;
 
-                if (hideChecked && selectedParticipants.has(docSnap.id)) {
+                if (hideChecked && (selectedParticipants.has(docSnap.id) || assigned)) {
                     return;
                 }
 
@@ -548,7 +554,7 @@
                             ${
                             assigned
                             ? `<span style="color:red">
-                            Assigned to ${data.currentAssignment.driverEmail}
+                            Assigned to ${data.currentAssignment.driverName}
                             </span>`
                             : ""
                             }
@@ -626,17 +632,52 @@
                     {
                         currentAssignment: {
                             driverEmail: driver,
+                            driverName: document
+                                .getElementById("routeDriver")
+                                .selectedOptions[0]
+                                .textContent,
                             routeId: routeRef.id,
                             deliveryDate: new Date().toISOString().split("T")[0]
                         }
                     }
                 );
-
             }
-
             alert("Route created!");
-
+            selectedParticipants.clear();
             loadParticipantsForRoute();
+        };
+
+        window.resetRoutes = async function () {
+            const confirmReset = confirm(
+                "Are you sure you want to reset all routes?"
+            );
+
+            if (!confirmReset) {
+                return;
+            }
+            const snapshot = await getDocs(
+                collection(db, "driverAssignments")
+            );
+            for (const docSnap of snapshot.docs) {
+                await deleteDoc(
+                    doc(db, "driverAssignments", docSnap.id)
+                );
+            }
+            const participantSnapshot = await getDocs(
+                collection(db, "participants")
+            );
+
+            for (const participantDoc of participantSnapshot.docs) {
+                if (participantDoc.data().currentAssignment) {
+                    await updateDoc(
+                        doc(db, "participants", participantDoc.id),
+                        {
+                            currentAssignment: deleteField()
+                        }
+                    );
+                }
+            }
+            alert("Routes reset!");
         };
 
         window.viewRouteStops = async function(routeID, containerID, button) {
@@ -794,7 +835,17 @@
 
             try {
                 const snapshot = await getDocs(collection(db, "participants"));
+                const assignmentSnapshot = await getDocs(collection(db, "driverAssignments"));
+                const participantDriverMap = {};
 
+                assignmentSnapshot.forEach(assignDoc => {
+                    const assignment = assignDoc.data();
+                    const driver = assignment.driverEmail;
+                    const participants = assignment.participantList || [];
+                    participants.forEach(participantId => {
+                        participantDriverMap[participantId] = driver;
+                    });
+                });
                 let totalBags = 0;
                 const driverMap = {};
 
@@ -804,7 +855,7 @@
                     if (data.groupAssignment !== group) return;
 
                     const bags = Number(data.household?.bags || 0);
-                    const driver = data.driverAssigned || "Unassigned";
+                    const driver = participantDriverMap[docSnap.id] || "Unassigned";
 
                     totalBags += bags;
 
