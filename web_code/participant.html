@@ -1012,14 +1012,23 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "staffpage.html";
         return;
     }
-
+    const staffRef = doc(db, "authorizedStaff", user.email);
+    const staffSnap = await getDoc(staffRef);
+    if (!staffSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "staffpage.html";
+        return;
+    }
+    const role = staffSnap.data().role;
+    if (role === "volunteer") {
+        editBtn.style.display = "none";
+        deleteBtn.style.display = "none";
+    }
     if (!participantId) {
         content.innerHTML = "No participant selected.";
         return;
     }
-
     await loadParticipant();
-
 });
 
 window.toggleNote = function(index) {
