@@ -89,19 +89,37 @@
 
             currentUserEmail = user.email;
 
-            const userRef = doc(db, "authorizedVolunteers", user.email);
+            const userRef = doc(db, "users", user.email);
             const userSnap = await getDoc(userRef);
 
-            let displayName = user.displayName || "Volunteer";
-            if (userSnap.exists() && userSnap.data().Name) {
-                displayName = userSnap.data().Name;
+            // User must exist
+            if (!userSnap.exists()) {
+                await signOut(auth);
+                window.location.href = "volunteerlogin.html";
+                return;
             }
 
-            document.getElementById("userPhoto").src = user.photoURL || "default-profile.png";
+            const userData = userSnap.data();
+            const roles = userData.roles || [];
+
+            if (!roles.includes("driver")) {
+                await signOut(auth);
+                window.location.href = "volunteerlogin.html";
+                return;
+            }
+
+            let displayName = user.displayName || "Driver";
+
+            if (userData.Name) {
+                displayName = userData.Name;
+            }
+
+            document.getElementById("userPhoto").src =
+                user.photoURL || "default-profile.png";
             document.getElementById("userName").textContent = displayName;
             document.getElementById("userEmail").textContent = user.email;
             document.getElementById("user-badge").style.visibility = "visible";
-     
+
             await loadAssignments(user.email);
         });
 
