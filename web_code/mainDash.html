@@ -300,7 +300,7 @@
             });
 
             renderDrivers(allDrivers);
-            };
+        };
 
         window.renderDrivers = function(drivers) {
             const container = document.getElementById("driverList");
@@ -317,11 +317,8 @@
 
 
                 driverDiv.innerHTML = `
-                    <b>${driver.name || driver.email}</b>
-                    <br>
-                    <small>${driver.email}</small>
-
-                    <br><br>
+                <b>${driver.name || "Unnamed Driver"}</b>
+                <br><br>
 
                     <button onclick="viewDriverRoutes('${driver.email}', this)">
                         View Routes
@@ -337,7 +334,7 @@
                 container.appendChild(driverDiv);
 
             });
-            };
+        };
 
             document.getElementById("driverSearch")
             .addEventListener("input", function() {
@@ -911,11 +908,24 @@
 
                 let sumDrivers = 0;
 
+                const driverSnapshot = await getDocs(collection(db, "users"));
+                const driverNames = {};
+
+                driverSnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+
+                    if (data.roles?.includes("driver")) {
+                        driverNames[docSnap.id] = data.name || docSnap.id;
+                    }
+                });
+
                 Object.keys(driverMap).forEach(driver => {
                     const bags = driverMap[driver];
+                    const displayName = driverNames[driver] || driver;
                     sumDrivers += bags;
-
-                    breakdownDiv.innerHTML += `<p><b>${driver}</b>: ${bags} bags</p>`;
+                    breakdownDiv.innerHTML += `
+                        <p><b>${displayName}</b>: ${bags} bags</p>
+                    `;
                 });
 
                 const validation = document.getElementById("validation");
