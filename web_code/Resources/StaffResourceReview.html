@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Resource Submissions | Root Causes Staff</title>
+<style>
+  :root {
+    --deep-green: #24402A;
+    --deep-green-dark: #1A2F1F;
+    --sage: #819077;
+    --sage-light: #9BAB92;
+    --sage-pale: #E8EDE5;
+    --navy: #1B2A41;
+    --cream: #F7F7F4;
+    --card-border: #DDE3D8;
+    --red: #8C3B3B;
+    --red-bg: #F6E8E8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--cream);
+    color: var(--navy);
+  }
+  .topbar {
+    background: var(--deep-green);
+    color: white;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; }
+  .brand-mark {
+    width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
+  }
+  .brand-sub { font-size: 0.85rem; font-weight: normal; color: var(--sage-light); font-family: Arial, sans-serif; }
+  .topbar-actions a {
+    color: white; text-decoration: none; font-family: Arial, sans-serif; font-size: 0.95rem; opacity: 0.9;
+  }
+  .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
+ 
+  /* ---------- Sidebar layout ---------- */
+  .layout { display: flex; align-items: flex-start; min-height: calc(100vh - 71px); }
+  .sidebar {
+    width: 250px; flex-shrink: 0; background: var(--sage);
+    padding: 32px 20px; min-height: calc(100vh - 71px);
+  }
+  .sidebar h2 {
+    color: white; font-family: Arial, sans-serif; font-weight: 800;
+    font-size: 1.35rem; margin: 0 0 22px;
+  }
+  .sidebar a.nav-btn {
+    display: block; background: rgba(255,255,255,0.18); color: white;
+    text-decoration: none; font-family: Arial, sans-serif; font-weight: 600;
+    font-size: 0.95rem; padding: 14px 18px; border-radius: 10px; margin-bottom: 14px;
+    transition: background 0.15s ease;
+  }
+  .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
+  .sidebar a.nav-btn.active { background: var(--deep-green); }
+  .main-content { flex: 1; min-width: 0; }
+  @media (max-width: 720px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; min-height: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .sidebar h2 { width: 100%; margin-bottom: 4px; }
+    .sidebar a.nav-btn { margin-bottom: 0; }
+  }
+ 
+  .page { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
+ 
+  .page-header h1 { font-size: 1.9rem; margin: 0 0 6px; color: var(--deep-green-dark); }
+  .page-header p { font-family: Arial, sans-serif; color: #566057; margin: 0; font-size: 0.95rem; }
+ 
+  .tabs { display: flex; gap: 10px; margin: 26px 0 20px; font-family: Arial, sans-serif; }
+  .tab {
+    padding: 9px 18px; border-radius: 999px; border: 1.5px solid var(--card-border);
+    background: white; color: var(--navy); cursor: pointer; font-size: 0.9rem; font-weight: 600;
+  }
+  .tab.active { background: var(--sage); border-color: var(--sage); color: white; }
+  .tab .count {
+    display: inline-block; margin-left: 6px; background: rgba(0,0,0,0.08);
+    border-radius: 999px; padding: 1px 8px; font-size: 0.78rem;
+  }
+  .tab.active .count { background: rgba(255,255,255,0.25); }
+ 
+  .empty-state {
+    font-family: Arial, sans-serif; color: #7A8578; text-align: center;
+    padding: 60px 20px; border: 1px dashed var(--card-border); border-radius: 12px; background: white;
+  }
+ 
+  .submission-card {
+    background: white; border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 24px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .submission-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .submission-title { font-size: 1.2rem; color: var(--deep-green-dark); margin: 0; }
+  .badge {
+    font-family: Arial, sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  }
+  .badge.pending { background: #FBF0DD; color: #6B5416; }
+  .badge.approved { background: var(--sage-pale); color: var(--deep-green-dark); }
+  .badge.rejected { background: var(--red-bg); color: var(--red); }
+  .cat-pill {
+    display: inline-block; font-family: Arial, sans-serif; font-size: 0.8rem;
+    background: var(--sage-pale); color: var(--deep-green-dark); padding: 3px 10px;
+    border-radius: 999px; margin: 8px 0 12px;
+  }
+  .submission-desc { font-family: Arial, sans-serif; font-size: 0.95rem; color: #384339; line-height: 1.5; margin: 0 0 14px; }
+  .meta-grid {
+    font-family: Arial, sans-serif; font-size: 0.85rem; color: #566057;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 20px;
+    border-top: 1px solid var(--card-border); padding-top: 12px; margin-bottom: 16px;
+  }
+  .meta-grid strong { color: var(--navy); }
+ 
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.9rem; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; }
+  .btn-approve { background: var(--sage); color: white; }
+  .btn-approve:hover { background: var(--deep-green); }
+  .btn-reject { background: white; color: var(--red); border: 1.5px solid var(--red-bg); }
+  .btn-reject:hover { background: var(--red-bg); }
+  .btn-undo { background: white; color: var(--navy); border: 1.5px solid var(--card-border); }
+ 
+  .loading { font-family: Arial, sans-serif; color: #7A8578; text-align: center; padding: 40px; }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">RC</div>
+      <div>
+        Root Causes
+        <div class="brand-sub">Staff — Resource Review</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <a href="staffpage.html">&larr; Back to Staff Portal</a>
+    </div>
+  </div>
+ 
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Menu</h2>
+      <a href="resourceDashboard.html" class="nav-btn">Dashboard</a>
+      <a href="shareResource.html" class="nav-btn">Add a Resource</a>
+      <a href="staffResourceReview.html" class="nav-btn active">Staff Review</a>
+    </aside>
+ 
+    <main class="main-content">
+  <div class="page">
+    <div class="page-header">
+      <h1>Resource Submissions</h1>
+      <p>Review community-submitted resources before they go live on the public dashboard.</p>
+    </div>
+ 
+    <div class="tabs">
+      <div class="tab active" data-filter="pending">Pending <span class="count" id="countPending">0</span></div>
+      <div class="tab" data-filter="approved">Approved <span class="count" id="countApproved">0</span></div>
+      <div class="tab" data-filter="rejected">Rejected <span class="count" id="countRejected">0</span></div>
+    </div>
+ 
+    <div id="loading" class="loading">Loading submissions...</div>
+    <div id="listContainer"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">Nothing here yet.</div>
+  </div>
+    </main>
+  </div>
+ 
+<script type="module">
+  // TODO: If app_config.js already exports a firebaseConfig object, replace
+  // the block below with: import { firebaseConfig } from './app_config.js';
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+ 
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+ 
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+ 
+  let allSubmissions = [];
+  let currentFilter = 'pending';
+ 
+  const listContainer = document.getElementById('listContainer');
+  const emptyState = document.getElementById('emptyState');
+  const loading = document.getElementById('loading');
+ 
+  const q = query(collection(db, 'resourceSubmissions'), orderBy('createdAt', 'desc'));
+  onSnapshot(q, (snapshot) => {
+    loading.style.display = 'none';
+    allSubmissions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateCounts();
+    render();
+  }, (err) => {
+    loading.textContent = 'Could not load submissions. Check your Firebase config / security rules.';
+    console.error(err);
+  });
+ 
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      render();
+    });
+  });
+ 
+  function updateCounts() {
+    document.getElementById('countPending').textContent = allSubmissions.filter(s => s.status === 'pending').length;
+    document.getElementById('countApproved').textContent = allSubmissions.filter(s => s.status === 'approved').length;
+    document.getElementById('countRejected').textContent = allSubmissions.filter(s => s.status === 'rejected').length;
+  }
+ 
+  function render() {
+    const items = allSubmissions.filter(s => s.status === currentFilter);
+    listContainer.innerHTML = '';
+    emptyState.style.display = items.length ? 'none' : 'block';
+ 
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'submission-card';
+ 
+      const displayName = item.anonymous ? 'Anonymous submitter' : (item.name || 'Unknown');
+      const dateStr = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString() : '';
+ 
+      card.innerHTML = `
+        <div class="submission-top">
+          <h3 class="submission-title">${escapeHtml(item.title || 'Untitled resource')}</h3>
+          <span class="badge ${item.status}">${item.status}</span>
+        </div>
+        <span class="cat-pill">${escapeHtml(item.category || 'Uncategorized')}</span>
+        <p class="submission-desc">${escapeHtml(item.description || '')}</p>
+        <div class="meta-grid">
+          <div><strong>Location:</strong> ${escapeHtml(item.location || '—')}</div>
+          <div><strong>Submitted by:</strong> ${escapeHtml(displayName)}</div>
+          <div><strong>Phone:</strong> ${escapeHtml(item.phone || '—')}</div>
+          <div><strong>Email:</strong> ${escapeHtml(item.email || '—')}</div>
+          <div><strong>Date:</strong> ${dateStr || '—'}</div>
+        </div>
+        <div class="action-row"></div>
+      `;
+ 
+      const actionRow = card.querySelector('.action-row');
+      if (item.status === 'pending') {
+        actionRow.appendChild(makeBtn('Approve', 'btn-approve', () => setStatus(item.id, 'approved')));
+        actionRow.appendChild(makeBtn('Reject', 'btn-reject', () => setStatus(item.id, 'rejected')));
+      } else {
+        actionRow.appendChild(makeBtn('Move back to Pending', 'btn-undo', () => setStatus(item.id, 'pending')));
+      }
+ 
+      listContainer.appendChild(card);
+    });
+  }
+ 
+  function makeBtn(label, cls, onClick) {
+    const btn = document.createElement('button');
+    btn.className = 'btn ' + cls;
+    btn.textContent = label;
+    btn.addEventListener('click', onClick);
+    return btn;
+  }
+ 
+  async function setStatus(id, status) {
+    try {
+      await updateDoc(doc(db, 'resourceSubmissions', id), { status });
+    } catch (err) {
+      console.error('Error updating status:', err);
+      alert('Could not update this submission. Please try again.');
+    }
+  }
+ 
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+</script>
+ 
+</body>
+</html>

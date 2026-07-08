@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Resources | Root Causes</title>
+<style>
+  :root {
+    --deep-green: #24402A;
+    --deep-green-dark: #1A2F1F;
+    --sage: #819077;
+    --sage-light: #9BAB92;
+    --sage-pale: #E8EDE5;
+    --navy: #1B2A41;
+    --cream: #F7F7F4;
+    --card-border: #DDE3D8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--cream);
+    color: var(--navy);
+  }
+  .topbar {
+    background: var(--deep-green);
+    color: white;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; }
+  .brand-mark {
+    width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
+  }
+  .brand-sub { font-size: 0.85rem; font-weight: normal; color: var(--sage-light); font-family: Arial, sans-serif; }
+  .topbar-actions a {
+    color: white; text-decoration: none; font-family: Arial, sans-serif; font-size: 0.95rem; opacity: 0.9;
+  }
+  .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
+ 
+  /* ---------- Sidebar layout ---------- */
+  .layout { display: flex; align-items: flex-start; min-height: calc(100vh - 71px); }
+  .sidebar {
+    width: 250px; flex-shrink: 0; background: var(--sage);
+    padding: 32px 20px; min-height: calc(100vh - 71px);
+  }
+  .sidebar h2 {
+    color: white; font-family: Arial, sans-serif; font-weight: 800;
+    font-size: 1.35rem; margin: 0 0 22px;
+  }
+  .sidebar a.nav-btn {
+    display: block; background: rgba(255,255,255,0.18); color: white;
+    text-decoration: none; font-family: Arial, sans-serif; font-weight: 600;
+    font-size: 0.95rem; padding: 14px 18px; border-radius: 10px; margin-bottom: 14px;
+    transition: background 0.15s ease;
+  }
+  .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
+  .sidebar a.nav-btn.active { background: var(--deep-green); }
+  .main-content { flex: 1; min-width: 0; }
+  @media (max-width: 720px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; min-height: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .sidebar h2 { width: 100%; margin-bottom: 4px; }
+    .sidebar a.nav-btn { margin-bottom: 0; }
+  }
+ 
+  .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+ 
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .page-header h1 { font-size: 1.9rem; margin: 0 0 6px; color: var(--deep-green-dark); }
+  .page-header p { font-family: Arial, sans-serif; color: #566057; margin: 0; font-size: 0.95rem; max-width: 55ch; }
+ 
+  .add-btn {
+    background: var(--sage); color: white; border: none; padding: 12px 22px;
+    border-radius: 8px; font-family: Arial, sans-serif; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block;
+  }
+  .add-btn:hover { background: var(--deep-green); }
+ 
+  .filter-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0; }
+  .chip {
+    font-family: Arial, sans-serif; font-size: 0.88rem; padding: 8px 16px; border-radius: 999px;
+    border: 1.5px solid var(--card-border); background: white; color: var(--navy);
+    cursor: pointer; user-select: none;
+  }
+  .chip:hover { border-color: var(--sage-light); }
+  .chip.selected { background: var(--sage); border-color: var(--sage); color: white; }
+ 
+  .search-box {
+    width: 100%; font-family: Arial, sans-serif; font-size: 0.95rem; padding: 12px 16px;
+    border: 1.5px solid var(--card-border); border-radius: 8px; background: white; margin-bottom: 10px;
+  }
+  .search-box:focus { outline: none; border-color: var(--sage); }
+ 
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 10px;
+  }
+  .resource-card {
+    background: white; border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; flex-direction: column;
+  }
+  .cat-pill {
+    align-self: flex-start; font-family: Arial, sans-serif; font-size: 0.78rem;
+    background: var(--sage-pale); color: var(--deep-green-dark); padding: 3px 10px;
+    border-radius: 999px; margin-bottom: 10px;
+  }
+  .resource-card h3 { margin: 0 0 8px; font-size: 1.15rem; color: var(--deep-green-dark); }
+  .resource-card p {
+    font-family: Arial, sans-serif; font-size: 0.9rem; color: #384339; line-height: 1.5;
+    margin: 0 0 14px; flex-grow: 1;
+  }
+  .resource-loc {
+    font-family: Arial, sans-serif; font-size: 0.85rem; color: #566057;
+    border-top: 1px solid var(--card-border); padding-top: 10px; margin-top: auto;
+  }
+ 
+  .empty-state, .loading {
+    font-family: Arial, sans-serif; color: #7A8578; text-align: center;
+    padding: 60px 20px; border: 1px dashed var(--card-border); border-radius: 12px; background: white;
+  }
+</style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">RC</div>
+      <div>
+        Root Causes
+        <div class="brand-sub">Community Resource Board</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <a href="homepage.html">&larr; Back to Home</a>
+    </div>
+  </div>
+ 
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Menu</h2>
+      <a href="ResourceDashboard.html" class="nav-btn active">Dashboard</a>
+      <a href="shareResource.html" class="nav-btn">Add a Resource</a>
+      <a href="StaffResourceReview.html" class="nav-btn">Staff Review</a>
+    </aside>
+ 
+    <main class="main-content">
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1>Community Resources</h1>
+        <p>Browse resources shared and approved by your community — food, housing, healthcare, and more.</p>
+      </div>
+      <a class="add-btn" href="Resources/ShareResource.html">+ Add a Resource</a>
+    </div>
+ 
+    <input type="text" class="search-box" id="searchBox" placeholder="Search resources...">
+ 
+    <div class="filter-row" id="filterRow">
+      <div class="chip selected" data-cat="All">All</div>
+      <div class="chip" data-cat="Food">Food Assistance</div>
+      <div class="chip" data-cat="Housing">Housing</div>
+      <div class="chip" data-cat="Healthcare">Healthcare</div>
+      <div class="chip" data-cat="Education">Education</div>
+      <div class="chip" data-cat="Transportation">Transportation</div>
+      <div class="chip" data-cat="Financial">Financial Assistance</div>
+      <div class="chip" data-cat="Childcare">Childcare</div>
+      <div class="chip" data-cat="Other">Other</div>
+    </div>
+ 
+    <div id="loading" class="loading">Loading resources...</div>
+    <div class="grid" id="grid"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">No resources match your search yet.</div>
+  </div>
+    </main>
+  </div>
+ 
+<script type="module">
+  // TODO: If app_config.js already exports a firebaseConfig object, replace
+  // the block below with: import { firebaseConfig } from './app_config.js';
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot, query, where, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+ 
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+ 
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+ 
+  let allResources = [];
+  let activeCategory = 'All';
+  let searchTerm = '';
+ 
+  const grid = document.getElementById('grid');
+  const emptyState = document.getElementById('emptyState');
+  const loading = document.getElementById('loading');
+ 
+  const q = query(
+    collection(db, 'resourceSubmissions'),
+    where('status', '==', 'approved'),
+    orderBy('createdAt', 'desc')
+  );
+ 
+  onSnapshot(q, (snapshot) => {
+    loading.style.display = 'none';
+    allResources = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }, (err) => {
+    loading.textContent = 'Could not load resources. Check your Firebase config / security rules.';
+    console.error(err);
+  });
+ 
+  document.getElementById('filterRow').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('chip')) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    e.target.classList.add('selected');
+    activeCategory = e.target.dataset.cat;
+    render();
+  });
+ 
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    searchTerm = e.target.value.toLowerCase();
+    render();
+  });
+ 
+  function render() {
+    let items = allResources;
+    if (activeCategory !== 'All') {
+      items = items.filter(r => r.category === activeCategory);
+    }
+    if (searchTerm) {
+      items = items.filter(r =>
+        (r.title || '').toLowerCase().includes(searchTerm) ||
+        (r.description || '').toLowerCase().includes(searchTerm)
+      );
+    }
+ 
+    grid.innerHTML = '';
+    emptyState.style.display = items.length ? 'none' : 'block';
+ 
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'resource-card';
+      card.innerHTML = `
+        <span class="cat-pill">${escapeHtml(item.category || 'Other')}</span>
+        <h3>${escapeHtml(item.title || 'Untitled resource')}</h3>
+        <p>${escapeHtml(item.description || '')}</p>
+        ${item.location ? `<div class="resource-loc">📍 ${escapeHtml(item.location)}</div>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+  }
+ 
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+</script>
+ 
+</body>
+</html>

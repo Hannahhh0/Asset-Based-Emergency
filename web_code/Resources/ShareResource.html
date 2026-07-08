@@ -17,16 +17,16 @@
     --warn-bg: #FBF0DD;
     --warn-border: #E8C77E;
   }
-
+ 
   * { box-sizing: border-box; }
-
+ 
   body {
     margin: 0;
     font-family: 'Georgia', 'Iowan Old Style', serif;
     background: var(--cream);
     color: var(--navy);
   }
-
+ 
   /* ---------- Top bar ---------- */
   .topbar {
     background: var(--deep-green);
@@ -38,7 +38,7 @@
     flex-wrap: wrap;
     gap: 12px;
   }
-
+ 
   .brand {
     display: flex;
     align-items: center;
@@ -46,7 +46,7 @@
     font-size: 1.25rem;
     letter-spacing: 0.02em;
   }
-
+ 
   .brand-mark {
     width: 34px;
     height: 34px;
@@ -59,14 +59,14 @@
     color: var(--deep-green-dark);
     font-family: Georgia, serif;
   }
-
+ 
   .brand-sub {
     font-size: 0.85rem;
     font-weight: normal;
     color: var(--sage-light);
     font-family: Arial, sans-serif;
   }
-
+ 
   .topbar-actions a {
     color: white;
     text-decoration: none;
@@ -75,14 +75,40 @@
     opacity: 0.9;
   }
   .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
-
+ 
+  /* ---------- Sidebar layout ---------- */
+  .layout { display: flex; align-items: flex-start; min-height: calc(100vh - 71px); }
+  .sidebar {
+    width: 250px; flex-shrink: 0; background: var(--sage);
+    padding: 32px 20px; min-height: calc(100vh - 71px);
+  }
+  .sidebar h2 {
+    color: white; font-family: Arial, sans-serif; font-weight: 800;
+    font-size: 1.35rem; margin: 0 0 22px;
+  }
+  .sidebar a.nav-btn {
+    display: block; background: rgba(255,255,255,0.18); color: white;
+    text-decoration: none; font-family: Arial, sans-serif; font-weight: 600;
+    font-size: 0.95rem; padding: 14px 18px; border-radius: 10px; margin-bottom: 14px;
+    transition: background 0.15s ease;
+  }
+  .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
+  .sidebar a.nav-btn.active { background: var(--deep-green); }
+  .main-content { flex: 1; min-width: 0; }
+  @media (max-width: 720px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; min-height: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .sidebar h2 { width: 100%; margin-bottom: 4px; }
+    .sidebar a.nav-btn { margin-bottom: 0; }
+  }
+ 
   /* ---------- Layout ---------- */
   .page {
     max-width: 900px;
     margin: 0 auto;
     padding: 36px 24px 80px;
   }
-
+ 
   .page-header {
     display: flex;
     align-items: flex-start;
@@ -91,13 +117,13 @@
     margin-bottom: 8px;
     flex-wrap: wrap;
   }
-
+ 
   .page-header h1 {
     font-size: 1.9rem;
     margin: 0;
     color: var(--deep-green-dark);
   }
-
+ 
   .page-header p {
     font-family: Arial, sans-serif;
     color: #566057;
@@ -105,7 +131,7 @@
     font-size: 0.95rem;
     max-width: 55ch;
   }
-
+ 
   .new-thread-btn {
     background: var(--sage);
     color: white;
@@ -120,7 +146,7 @@
     transition: background 0.15s ease;
   }
   .new-thread-btn:hover { background: var(--deep-green); }
-
+ 
   /* ---------- Card / form ---------- */
   .card {
     background: white;
@@ -130,7 +156,7 @@
     margin-top: 28px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
-
+ 
   .field-label {
     font-family: Arial, sans-serif;
     font-size: 0.85rem;
@@ -141,14 +167,14 @@
     margin-bottom: 8px;
     display: block;
   }
-
+ 
   .field-hint {
     font-family: Arial, sans-serif;
     font-size: 0.82rem;
     color: #7A8578;
     margin: -4px 0 10px;
   }
-
+ 
   input[type="text"], input[type="tel"], input[type="email"], textarea {
     width: 100%;
     font-family: Arial, sans-serif;
@@ -159,24 +185,24 @@
     background: var(--cream);
     color: var(--navy);
   }
-
+ 
   input:focus, textarea:focus {
     outline: none;
     border-color: var(--sage);
     background: white;
   }
-
+ 
   textarea { min-height: 120px; resize: vertical; }
-
+ 
   .section { margin-bottom: 26px; }
-
+ 
   /* Category chips */
   .chip-row {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
   }
-
+ 
   .chip {
     font-family: Arial, sans-serif;
     font-size: 0.9rem;
@@ -195,7 +221,7 @@
     border-color: var(--sage);
     color: white;
   }
-
+ 
   /* Contact info grid */
   .contact-grid {
     display: grid;
@@ -206,7 +232,7 @@
   @media (max-width: 560px) {
     .contact-grid { grid-template-columns: 1fr; }
   }
-
+ 
   /* Toggle: Anonymous */
   .toggle-row {
     display: flex;
@@ -214,14 +240,14 @@
     flex-wrap: wrap;
     padding-top: 6px;
   }
-
+ 
   .toggle-option {
     display: flex;
     align-items: flex-start;
     gap: 10px;
     max-width: 320px;
   }
-
+ 
   .toggle-option input[type="checkbox"] {
     margin-top: 4px;
     width: 18px;
@@ -229,7 +255,7 @@
     accent-color: var(--sage);
     flex-shrink: 0;
   }
-
+ 
   .toggle-option label {
     font-family: Arial, sans-serif;
     font-weight: 700;
@@ -237,7 +263,7 @@
     color: var(--deep-green-dark);
     cursor: pointer;
   }
-
+ 
   .toggle-option .toggle-desc {
     font-family: Arial, sans-serif;
     font-weight: normal;
@@ -246,7 +272,7 @@
     display: block;
     margin-top: 2px;
   }
-
+ 
   /* Warning banner */
   .warning {
     display: none;
@@ -262,7 +288,7 @@
     margin-bottom: 20px;
   }
   .warning.show { display: flex; }
-
+ 
   /* Review notice */
   .review-notice {
     display: flex;
@@ -276,7 +302,7 @@
     color: #3C4A3B;
     margin-bottom: 26px;
   }
-
+ 
   .form-footer {
     display: flex;
     justify-content: flex-end;
@@ -286,7 +312,7 @@
     padding-top: 22px;
     margin-top: 8px;
   }
-
+ 
   .btn-secondary {
     background: none;
     border: 1.5px solid var(--card-border);
@@ -298,7 +324,7 @@
     cursor: pointer;
   }
   .btn-secondary:hover { border-color: var(--sage-light); }
-
+ 
   .btn-primary {
     background: var(--sage);
     color: white;
@@ -312,7 +338,7 @@
     transition: background 0.15s ease;
   }
   .btn-primary:hover { background: var(--deep-green); }
-
+ 
   /* Success state */
   .success-card {
     display: none;
@@ -345,7 +371,7 @@
 </style>
 </head>
 <body>
-
+ 
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark">RC</div>
@@ -358,9 +384,18 @@
       <a href="homepage.html">&larr; Back to Home</a>
     </div>
   </div>
-
+ 
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Menu</h2>
+      <a href="resourceDashboard.html" class="nav-btn">Dashboard</a>
+      <a href="shareResource.html" class="nav-btn active">Add a Resource</a>
+      <a href="staffResourceReview.html" class="nav-btn">Staff Review</a>
+    </aside>
+ 
+    <main class="main-content">
   <div class="page">
-
+ 
     <div class="page-header">
       <div>
         <h1>Share a Community Resource</h1>
@@ -368,26 +403,26 @@
       </div>
       <button class="new-thread-btn" type="button" onclick="document.getElementById('resourceForm').scrollIntoView({behavior:'smooth'})">+ New Resource Post</button>
     </div>
-
+ 
     <!-- FORM CARD -->
-    <form class="card" id="resourceForm" onsubmit="return handleSubmit(event)">
-
+    <form class="card" id="resourceForm">
+ 
       <div class="review-notice">
         <span>&#128712;</span>
         <span>Submissions are reviewed by Root Causes staff before they're published. This usually takes 1&ndash;2 business days.</span>
       </div>
-
+ 
       <div class="warning" id="categoryWarning">
         <span>&#9888;&#65039;</span>
         <span>Please select a category before submitting.</span>
       </div>
-
+ 
       <!-- Title -->
       <div class="section">
         <label class="field-label" for="title">Resource Title</label>
         <input type="text" id="title" name="title" placeholder="e.g. Free flu shots at Durham Community Clinic" required>
       </div>
-
+ 
       <!-- Category -->
       <div class="section">
         <label class="field-label">Category</label>
@@ -403,21 +438,21 @@
         </div>
         <input type="hidden" id="categoryValue" name="category">
       </div>
-
+ 
       <!-- Description -->
       <div class="section">
         <label class="field-label" for="description">Description</label>
         <div class="field-hint">What is this resource? Who is it for? Any eligibility requirements or hours?</div>
         <textarea id="description" name="description" placeholder="Describe the resource..." required></textarea>
       </div>
-
+ 
       <!-- Location / link -->
       <div class="section">
         <label class="field-label" for="location">Location or Website</label>
         <div class="field-hint">An address, or a link if it's an online resource.</div>
         <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Durham, NC or https://...">
       </div>
-
+ 
       <!-- Contact info -->
       <div class="section">
         <label class="field-label">Your Contact Info</label>
@@ -428,7 +463,7 @@
           <input type="email" placeholder="Email" name="email" class="full" required>
         </div>
       </div>
-
+ 
       <!-- Anonymous -->
       <div class="section toggle-row">
         <div class="toggle-option">
@@ -439,13 +474,13 @@
           </div>
         </div>
       </div>
-
+ 
       <div class="form-footer">
         <button type="button" class="btn-secondary" onclick="window.location.href='homepage.html'">Cancel</button>
         <button type="submit" class="btn-primary">Submit for Review</button>
       </div>
     </form>
-
+ 
     <!-- SUCCESS CARD -->
     <div class="card success-card" id="successCard">
       <div class="success-icon">&#10003;</div>
@@ -453,10 +488,32 @@
       <p>Our team will review it shortly. Approved resources will appear on the community map.</p>
       <a href="homepage.html">&larr; Back to Home</a>
     </div>
-
+ 
   </div>
-
-<script>
+    </main>
+  </div>
+ 
+<script type="module">
+  // ---------- Firebase setup ----------
+  // TODO: If app_config.js already exports a firebaseConfig object, replace
+  // the block below with: import { firebaseConfig } from './app_config.js';
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+ 
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+ 
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+ 
+  // ---------- Category chips ----------
   const chips = document.querySelectorAll('.chip');
   const categoryValue = document.getElementById('categoryValue');
   chips.forEach(chip => {
@@ -467,23 +524,49 @@
       document.getElementById('categoryWarning').classList.remove('show');
     });
   });
-
-  function handleSubmit(e) {
+ 
+  // ---------- Submit handler ----------
+  const form = document.getElementById('resourceForm');
+  form.addEventListener('submit', handleSubmit);
+ 
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!categoryValue.value) {
       document.getElementById('categoryWarning').classList.add('show');
       document.getElementById('categoryWarning').scrollIntoView({behavior:'smooth', block:'center'});
       return false;
     }
-
-    // TODO: replace this with your real submit logic (e.g. fetch() to your backend/Firestore)
-    console.log('Resource submission:', Object.fromEntries(new FormData(e.target)));
-
-    document.getElementById('resourceForm').style.display = 'none';
-    document.getElementById('successCard').classList.add('show');
+ 
+    const data = Object.fromEntries(new FormData(e.target));
+    const submitBtn = form.querySelector('.btn-primary');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+ 
+    try {
+      await addDoc(collection(db, 'resourceSubmissions'), {
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        location: data.location || '',
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        anonymous: !!data.anonymous,
+        status: 'pending',          // pending -> approved / rejected
+        createdAt: serverTimestamp()
+      });
+ 
+      form.style.display = 'none';
+      document.getElementById('successCard').classList.add('show');
+    } catch (err) {
+      console.error('Error submitting resource:', err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit for Review';
+      alert('Something went wrong submitting your resource. Please try again.');
+    }
     return false;
   }
 </script>
-
+ 
 </body>
 </html>
