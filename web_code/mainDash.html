@@ -104,6 +104,9 @@
         <div id="tab-packer" class="tab" onclick="showSection('packer')">
             Packer
         </div>
+        <div id="tab-volunteers" class="tab" onclick="showSection('volunteers')" style="display:none;">
+            Volunteer Management
+        </div>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -206,6 +209,30 @@
 
             <h3 id="validation"></h3>
         </div>
+        <div id="volunteers" class="section">
+            <h2>Volunteer Management</h2>
+            <h3>Add New Volunteer</h3>
+            <input 
+                id="newVolunteerName"
+                placeholder="Name"
+            >
+            <input 
+                id="newVolunteerEmail"
+                placeholder="Email"
+            >
+            <input 
+                id="newVolunteerRoles"
+                placeholder="Roles (example: driver, packer)"
+            >
+            <button onclick="addVolunteer()">
+                Add Volunteer
+            </button>
+            <hr>
+            <h3>Current Volunteers</h3>
+            <div id="volunteerList">
+                Loading volunteers...
+            </div>
+        </div>
 
     </div>
 
@@ -243,6 +270,11 @@
 
             const target = document.getElementById(id);
             if (target) target.classList.add("active");
+
+            console.log("Opening volunteers section");
+            if (id === "volunteers") {
+                loadVolunteerList();
+            }
         };
         // =========================
         // loadGroups code to get group options
@@ -300,6 +332,113 @@
             });
 
             renderDrivers(allDrivers);
+        };
+
+        window.loadVolunteerList = async function () {
+            const container = document.getElementById("volunteerList");
+            container.innerHTML = "Loading volunteers...";
+
+            try {
+                const snapshot = await getDocs(collection(db, "users"));
+                container.innerHTML = "";
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const volunteerDiv = document.createElement("div");
+
+                    volunteerDiv.style.border = "1px solid #ccc";
+                    volunteerDiv.style.padding = "10px";
+                    volunteerDiv.style.marginBottom = "10px";
+
+                    volunteerDiv.innerHTML = `
+                        <b>${data.name || "No Name"}</b>
+                        <br>Email: ${docSnap.id}<br>
+                        Roles: ${data.roles ? data.roles.join(", ") : "No roles"}
+                        <br><br>
+                        <button onclick="editVolunteerRoles('${docSnap.id}')">
+                            Change Roles
+                        </button>
+                        <button onclick="deleteVolunteer('${docSnap.id}')"
+                            style="
+                                background:#c0392b;
+                                color:white;
+                                margin-left:10px;
+                            ">
+                            Delete
+                        </button>
+                    `;
+                    container.appendChild(volunteerDiv);
+                });
+
+            } catch (error) {
+                console.error("Error loading volunteers:", error);
+                container.innerHTML = "Failed to load volunteers.";
+            }
+        };
+
+        window.editVolunteerRoles = async function(email) {
+            const newRoles = prompt(
+                "Enter roles separated by commas:\n\nOptions: staff, driver, caller, packer"
+            );
+
+            if (!newRoles) {
+                return;
+            }
+
+            const rolesArray = newRoles
+                .split(",")
+                .map(role => role.trim());
+
+            await updateDoc(
+                doc(db, "users", email),
+                {
+                    roles: rolesArray
+                }
+            );
+
+            alert("Roles updated!");
+            loadVolunteerList();
+        };
+
+        window.addVolunteer = async function() {
+            const name = document.getElementById("newVolunteerName").value.trim();
+            const email = document.getElementById("newVolunteerEmail").value.trim();
+            const rolesInput = document.getElementById("newVolunteerRoles").value.trim();
+            if (!name || !email || !rolesInput) {
+                alert("Please fill out all fields.");
+                return;
+            }
+            const roles = rolesInput
+                .split(",")
+                .map(role => role.trim());
+            await setDoc(
+                doc(db, "users", email),
+                {
+                    name: name,
+                    roles: roles
+                }
+            );
+            alert("Volunteer added!");
+
+            document.getElementById("newVolunteerName").value = "";
+            document.getElementById("newVolunteerEmail").value = "";
+            document.getElementById("newVolunteerRoles").value = "";
+
+            loadVolunteerList();
+
+        };
+
+        window.deleteVolunteer = async function(email) {
+            const confirmDelete = confirm(
+                `Are you sure you want to remove ${email} from the volunteer system?`
+            );
+            if (!confirmDelete) {
+                return;
+            }
+            await deleteDoc(
+                doc(db, "users", email)
+            );
+            alert("Volunteer removed.");
+            loadVolunteerList();
         };
 
         window.renderDrivers = function(drivers) {
@@ -859,6 +998,7 @@
             alert("Participant removed from route.");
 
             loadParticipantsForRoute();
+            loadGroupData();
         };
 
         // =========================
@@ -964,12 +1104,15 @@
                 const driverTab = document.getElementById("tab-driver");
                 const callerTab = document.getElementById("tab-caller");
                 const packerTab = document.getElementById("tab-packer");
+                const volunteerTab = document.getElementById("tab-volunteers");
+
+                console.log("Volunteer tab:", volunteerTab);
 
                 const driverView = document.getElementById("driver-view");
                 const staffView = document.getElementById("staff-driver-view");
 
                 // RESET EVERYTHING FIRST
-                [driverTab, callerTab, packerTab].forEach(tab => {
+                [driverTab, callerTab, packerTab, volunteerTab].forEach(tab => {
                     tab.style.opacity = "0.2";
                     tab.style.pointerEvents = "none";
                 });
@@ -983,8 +1126,8 @@
                 // STAFF (FULL ACCESS)
                 // =====================
                 if (roles.includes("staff")) {
-
-                    [driverTab, callerTab, packerTab].forEach(tab => {
+                    [driverTab, callerTab, packerTab, volunteerTab].forEach(tab => {
+                        tab.style.display = "block";
                         tab.style.opacity = "1";
                         tab.style.pointerEvents = "auto";
                     });
