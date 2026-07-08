@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteer Dashboard</title>
-    <link rel="stylesheet" href="volunteerdashboard.css">
+    <link rel="stylesheet" href="driverPortal.css">
 </head>
 <body>
     <style>
@@ -92,7 +92,6 @@
             const userRef = doc(db, "users", user.email);
             const userSnap = await getDoc(userRef);
 
-            // User must exist
             if (!userSnap.exists()) {
                 await signOut(auth);
                 window.location.href = "volunteerlogin.html";
@@ -166,7 +165,7 @@
                     row.innerHTML = `
                         <div>
                             <p><strong>${participantId}</strong></p>
-                            <p style="font-size:13px; color:#555;">${address?.street || ""}, ${address?.city || ""}</p>
+                            <p style="font-size:13px; color:#555;">${address?.fullAddress || ""}, ${address?.city || ""}</p>
                         </div>
                         <button
                             class="delivery-btn ${delivered ? 'delivered' : 'not-delivered'}"
