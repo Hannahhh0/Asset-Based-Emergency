@@ -53,33 +53,36 @@
             await auth.signOut();
         });
 
-        window.signInWithGoogle = function () {
-            signInWithPopup(auth, provider)
-                .then(async (result) => {
-                    const email = result.user.email;
-                    const docRef = doc(db, "users", email);
+        window.signInWithGoogle = async function () {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const email = result.user.email;
 
-                    try {
-                        const docSnap = await getDoc(docRef);
+                const docRef = doc(db, "users", email);
+                const docSnap = await getDoc(docRef);
 
-                        if (docSnap.exists()) {
-                            console.log("Access granted");
-                            window.location.href = "dashboard.html";
-                        } else {
-                            console.log("Access denied");
-                            modal.showModal();
-                            await auth.signOut();
-                        }
-                    } catch (error) {
-                        // This catches the permission-denied error from Firestore rules
-                        console.log("Access denied:", error.code);
-                        modal.showModal();
-                        await auth.signOut();
-                    }
-                })
-                .catch((error) => {
-                    console.error("Sign-in error:", error);
-                });
+                if (!docSnap.exists()) {
+                    modal.showModal();
+                    await auth.signOut();
+                    return;
+                }
+
+                const roles = docSnap.data().roles || [];
+
+                if (roles.includes("staff")) {
+                    console.log("Admin access granted");
+                    window.location.href = "dashboard.html";
+                } else {
+                    console.log("Not an admin");
+                    modal.showModal();
+                    await auth.signOut();
+                }
+
+            } catch (error) {
+                console.error(error);
+                modal.showModal();
+                await auth.signOut();
+            }
         };
 
         onAuthStateChanged(auth, (user) => {

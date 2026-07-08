@@ -794,7 +794,7 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    if (roles.includes("staff") || roles.includes("admin")) {
+    if (roles.includes("staff")) {
         await loadParticipant(false, "staff");
         return;
     }
