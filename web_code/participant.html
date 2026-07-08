@@ -482,10 +482,8 @@ await addDoc(collection(db, "auditLogs"), {
 
 //loading participants code here (has all fields you see in firestore)
 
-async function loadParticipant(editMode = false) {
-
+async function loadParticipant(editMode = false, role = "staff") {
     try {
-
         const docRef = doc(db, "participants", participantId);
         const docSnap = await getDoc(docRef);
 
@@ -498,20 +496,18 @@ async function loadParticipant(editMode = false) {
         const callsSnap = await getDocs(collection(docRef, "calls"));
 
         let calls = [];
-
-        callsSnap.forEach(c => {
-            calls.push(c.data());
-        });
-
+        callsSnap.forEach(c => calls.push({ id: c.id, ...c.data() }));
         calls.sort((a, b) => {
             const [am, ad] = a.date.split("/").map(Number);
             const [bm, bd] = b.date.split("/").map(Number);
-
             return new Date(2026, am - 1, ad) - new Date(2026, bm - 1, bd);
         });
+
+        // caller sees limited fields only
+        const callerView = role === "caller";
+
         content.innerHTML = `
             <div class="card">
-
                 <h1>${data.name || "No Name"}</h1>
 
                 <div class="field">
@@ -521,514 +517,300 @@ async function loadParticipant(editMode = false) {
 
                 <div class="field">
                     <span class="label">Group:</span>
-
-                    ${
-                        editMode
-                        ? `<input
-                                id="editGroupAssignment"
-                                value="${data.groupAssignment || ""}">
-                        `
-                        : `${data.groupAssignment || ""}`
-                    }
-
+                    ${editMode
+                        ? `<input id="editGroupAssignment" value="${data.groupAssignment || ""}">`
+                        : data.groupAssignment || ""}
                 </div>
 
-
-
+                <!-- CALLER AND STAFF ACCESS -->
                 <div class="section">
-
-                    <button class="section-header" onclick="toggleSection('demographics')">
-                        Demographics ▼
-                    </button>
-
-                    <div class="section-body hidden" id="demographics">
-
-                        <div class="field">
-                            <span class="label">Language:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editLanguage"
-                                        value="${data.demographics?.preferredLanguage || ""}">
-                                `
-                                : `${data.demographics?.preferredLanguage || ""}`
-                            }
-                        </div>
-
-                        <div class="field">
-                            <span class="label">Pronouns:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editPronouns"
-                                        value="${data.demographics?.pronouns || ""}">
-                                `
-                                : `${data.demographics?.pronouns || ""}`
-                            }
-
-                        </div>
-
-                        <div class="field">
-                            <span class="label">Race/Ethnicity:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editRaceEthnicity"
-                                        value="${data.demographics?.raceEthnicity || ""}">
-                                `
-                                : `${data.demographics?.raceEthnicity || ""}`
-                            }
-
-                        </div>
-
-                    </div>
-                </div>
-
-
-
-
-                <div class="section">
-
-                    <button class="section-header" onclick="toggleSection('contact')">
-                        Contact ▼
-                    </button>
-
+                    <button class="section-header" onclick="toggleSection('contact')">Contact ▼</button>
                     <div class="section-body hidden" id="contact">
 
                         <div class="field">
                             <span class="label">Phone:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editPhone"
-                                        value="${data.contact?.primaryPhone || ""}">
-                                `
-                                : `${data.contact?.primaryPhone || ""}`
-                            }
+                            ${editMode
+                                ? `<input id="editPhone" value="${data.contact?.primaryPhone || ""}">`
+                                : data.contact?.primaryPhone || ""}
                         </div>
 
                         <div class="field">
                             <span class="label">Alternate Phone:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editAlternatePhone"
-                                        value="${data.contact?.alternatePhone || ""}">
-                                `
-                                : `${data.contact?.alternatePhone || ""}`
-                            }
+                            ${editMode
+                                ? `<input id="editAlternatePhone" value="${data.contact?.alternatePhone || ""}">`
+                                : data.contact?.alternatePhone || ""}
                         </div>
 
                         <div class="field">
                             <span class="label">Email:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editEmail"
-                                        value="${data.contact?.email || ""}">
-                                `
-                                : `${data.contact?.email || ""}`
-                            }
+                            ${editMode
+                                ? `<input id="editEmail" value="${data.contact?.email || ""}">`
+                                : data.contact?.email || ""}
                         </div>
 
                         <div class="field">
                             <span class="label">Texts Preferred:</span>
-
-                            ${
-                                editMode
-                                ? `
-                                <select id="editTextsPreferred">
+                            ${editMode
+                                ? `<select id="editTextsPreferred">
                                     <option value="yes" ${data.contact?.textsPreferred === true ? "selected" : ""}>Yes</option>
                                     <option value="no" ${data.contact?.textsPreferred === false ? "selected" : ""}>No</option>
                                     <option value="na" ${data.contact?.textsPreferred == null ? "selected" : ""}>N/A</option>
-                                </select>
-                                `
-                                : `${formatYesNo(data.contact?.textsPreferred)}`
-                            }
-
+                                </select>`
+                                : formatYesNo(data.contact?.textsPreferred)}
                         </div>
 
                         <div class="field">
                             <span class="label">Can Receive Texts:</span>
-
-                            ${
-                                editMode
-                                ? `
-                                <select id="editCanReceiveTexts">
+                            ${editMode
+                                ? `<select id="editCanReceiveTexts">
                                     <option value="yes" ${data.contact?.canReceiveTexts === true ? "selected" : ""}>Yes</option>
                                     <option value="no" ${data.contact?.canReceiveTexts === false ? "selected" : ""}>No</option>
                                     <option value="na" ${data.contact?.canReceiveTexts == null ? "selected" : ""}>N/A</option>
-                                </select>
-                                `
-                                : `${formatYesNo(data.contact?.canReceiveTexts)}`
-                            }
-
+                                </select>`
+                                : formatYesNo(data.contact?.canReceiveTexts)}
                         </div>
 
                     </div>
                 </div>
 
-
-
-
+                <!-- CALLER AND STAFF ACCESS -->
                 <div class="section">
+                    <button class="section-header" onclick="toggleSection('demographics')">Demographics ▼</button>
+                    <div class="section-body hidden" id="demographics">
 
-                    <button class="section-header" onclick="toggleSection('household')">
-                        Household ▼
-                    </button>
+                        <div class="field">
+                            <span class="label">Language:</span>
+                            ${editMode
+                                ? `<input id="editLanguage" value="${data.demographics?.preferredLanguage || ""}">`
+                                : data.demographics?.preferredLanguage || ""}
+                        </div>
 
+                        <!-- hide pronouns/race from callers if not needed -->
+                        ${!callerView ? `
+                        <div class="field">
+                            <span class="label">Pronouns:</span>
+                            ${editMode
+                                ? `<input id="editPronouns" value="${data.demographics?.pronouns || ""}">`
+                                : data.demographics?.pronouns || ""}
+                        </div>
+                        <div class="field">
+                            <span class="label">Race/Ethnicity:</span>
+                            ${editMode
+                                ? `<input id="editRaceEthnicity" value="${data.demographics?.raceEthnicity || ""}">`
+                                : data.demographics?.raceEthnicity || ""}
+                        </div>
+                        ` : ""}
+
+                    </div>
+                </div>
+
+                <!-- CALLER AND STAFF ACCESS -->
+                <div class="section">
+                    <button class="section-header" onclick="toggleSection('household')">Household ▼</button>
                     <div class="section-body hidden" id="household">
-
                         <div class="field">
                             <span class="label">Household Size:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editHousehold"
-                                        type="number"
-                                        value="${data.household?.size || ""}">
-                                `
-                                : `${data.household?.size || ""}`
-                            }
+                            ${editMode
+                                ? `<input id="editHousehold" type="number" value="${data.household?.size || ""}">`
+                                : data.household?.size || ""}
                         </div>
-
                         <div class="field">
                             <span class="label">Number of Bags:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editBags"
-                                        type="number"
-                                        value="${data.household?.bags || ""}">
-                                `
-                                : `${data.household?.bags || ""}`
-                            }
+                            ${editMode
+                                ? `<input id="editBags" type="number" value="${data.household?.bags || ""}">`
+                                : data.household?.bags || ""}
                         </div>
-
                     </div>
                 </div>
 
-
-
+                <!-- STAFF ONLY -->
+                ${!callerView ? `
                 <div class="section">
-
-                    <button class="section-header" onclick="toggleSection('address')">
-                        Address ▼
-                    </button>
-
+                    <button class="section-header" onclick="toggleSection('address')">Address ▼</button>
                     <div class="section-body hidden" id="address">
-
                         <div class="field">
                             <span class="label">Full Address:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editAddress"
-                                        value="${data.address?.fullAddress || ""}">
-                                `
-                                : `${data.address?.fullAddress || ""}`
-                            }
+                            ${data.address?.fullAddress || ""}
                         </div>
-
-                        <div class="field">
-                            <span class="label">Street:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editStreet"
-                                        value="${data.address?.street || ""}">
-                                `
-                                : `${data.address?.street || ""}`
-                            }
-
-                        </div>
-
-                        <div class="field">
-                            <span class="label">City:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editCity"
-                                        value="${data.address?.city || ""}">
-                                `
-                                : `${data.address?.city || ""}`
-                            }
-
-                        </div>
-
-                        <div class="field">
-                            <span class="label">State:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editState"
-                                        value="${data.address?.state || ""}">
-                                `
-                                : `${data.address?.state || ""}`
-                            }
-
-                        </div>
-
-                        <div class="field">
-                            <span class="label">Postal Code:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editPostalCode"
-                                        value="${data.address?.postalCode || ""}">
-                                `
-                                : `${data.address?.postalCode || ""}`
-                            }
-
-                        </div>
-
-                        <div class="field">
-                            <span class="label">Country:</span>
-
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editCountry"
-                                        value="${data.address?.country || ""}">
-                                `
-                                : `${data.address?.country || ""}`
-                            }
-
-                        </div>
-
                     </div>
                 </div>
+                ` : ""}
 
-
-
+                <!-- STAFF ONLY -->
+                ${!callerView ? `
                 <div class="section">
-
-                    <button class="section-header" onclick="toggleSection('medical')">
-                        Medical ▼
-                    </button>
-
+                    <button class="section-header" onclick="toggleSection('medical')">Medical ▼</button>
                     <div class="section-body hidden" id="medical">
-
                         <div class="field">
                             <span class="label">Medical Consent:</span>
-                            ${
-                                editMode
-                                ? `
-                                <select id="editMedicalConsent">
+                            ${editMode
+                                ? `<select id="editMedicalConsent">
                                     <option value="yes" ${data.medical?.medicalConsent === true ? "selected" : ""}>Yes</option>
                                     <option value="no" ${data.medical?.medicalConsent === false ? "selected" : ""}>No</option>
                                     <option value="na" ${data.medical?.medicalConsent === null ? "selected" : ""}>N/A</option>
-                                </select>
-                                `
-                                : `${formatYesNo(data.medical?.medicalConsent)}`
-                            }
+                                </select>`
+                                : formatYesNo(data.medical?.medicalConsent)}
                         </div>
-
                     </div>
                 </div>
+                ` : ""}
 
-
-
+                <!-- STAFF ONLY -->
+                ${!callerView ? `
                 <div class="section">
-
-                    <button class="section-header" onclick="toggleSection('delivery')">
-                        Delivery ▼
-                    </button>
-
+                    <button class="section-header" onclick="toggleSection('delivery')">Delivery ▼</button>
                     <div class="section-body hidden" id="delivery">
-
                         <div class="field">
                             <span class="label">Driver Notes:</span>
-                            ${
-                                editMode
-                                ? `<input
-                                        id="editDriverNotes"
-                                        value="${data.delivery?.driverNotes || ""}">
-                                `
-                                : `${data.delivery?.driverNotes || ""}`
-                            }
+                            ${editMode
+                                ? `<input id="editDriverNotes" value="${data.delivery?.driverNotes || ""}">`
+                                : data.delivery?.driverNotes || ""}
                         </div>
-
                         <div class="field">
                             <span class="label">Locked Building:</span>
-
-                            ${
-                                editMode
+                            ${editMode
                                 ? `<select id="editLockedBuilding">
-                                        <option value="true" ${data.delivery?.lockedBuilding === true ? "selected" : ""}>True</option>
-                                        <option value="false" ${data.delivery?.lockedBuilding === false ? "selected" : ""}>False</option>
-                                        <option value="null" ${data.delivery?.lockedBuilding == null ? "selected" : ""}>Null</option>
+                                    <option value="true" ${data.delivery?.lockedBuilding === true ? "selected" : ""}>True</option>
+                                    <option value="false" ${data.delivery?.lockedBuilding === false ? "selected" : ""}>False</option>
+                                    <option value="null" ${data.delivery?.lockedBuilding == null ? "selected" : ""}>Null</option>
                                 </select>`
-                                : `${formatYesNo(data.delivery?.lockedBuilding)}`
-                            }
+                                : formatYesNo(data.delivery?.lockedBuilding)}
                         </div>
-
                         <div class="field">
                             <span class="label">Distance From FFS:</span>
-                            ${
-                                editMode
+                            ${editMode
                                 ? `<input id="editDistanceFromFFS" value="${data.location?.distanceFromFFS || ""}">`
-                                : `${data.location?.distanceFromFFS || ""}`
-                            }
+                                : data.location?.distanceFromFFS || ""}
                         </div>
-
                         <div class="field">
                             <span class="label">Drive Time (minutes):</span>
-                            ${
-                                editMode
+                            ${editMode
                                 ? `<input id="editDriveTime" value="${data.location?.driveTimeMinutes || ""}">`
-                                : `${data.location?.driveTimeMinutes || ""}`
-                            }
+                                : data.location?.driveTimeMinutes || ""}
                         </div>
-
-                        <div class="field">
-                            <span class="label">Latitude:</span>
-                            ${
-                                editMode
-                                ? `<input id="editLatitude" value="${data.location?.latitude || ""}">`
-                                : `${data.location?.latitude || ""}`
-                            }
-                        </div>
-
-                        <div class="field">
-                            <span class="label">Longitude:</span>
-                            ${
-                                editMode
-                                ? `<input id="editLongitude" value="${data.location?.longitude || ""}">`
-                                : `${data.location?.longitude || ""}`
-                            }
-                        </div>
-
-                        <div class="field">
-                            <span class="label">Geocoded Date:</span>
-                            ${data.metadata?.geocodedDate || ""}
-                        </div>
-
                     </div>
                 </div>
+                ` : ""}
 
-
-
-
-                 <div class="section">
-                    <button class="section-header" onclick="toggleSection('status')">
-                        Status ▼
-                    </button>
-
+                <!-- STAFF ONLY -->
+                ${!callerView ? `
+                <div class="section">
+                    <button class="section-header" onclick="toggleSection('status')">Status ▼</button>
                     <div class="section-body hidden" id="status">
-
                         <div class="field">
                             <span class="label">Annual Survey Complete:</span>
-
-                            ${
-                                editMode
+                            ${editMode
                                 ? `<select id="editAnnualSurveyComplete">
-                                        <option value="true" ${data.status?.annualSurveyComplete ? "selected" : ""}>True</option>
-                                        <option value="false" ${!data.status?.annualSurveyComplete ? "selected" : ""}>False</option>
+                                    <option value="true" ${data.status?.annualSurveyComplete ? "selected" : ""}>True</option>
+                                    <option value="false" ${!data.status?.annualSurveyComplete ? "selected" : ""}>False</option>
                                 </select>`
-                                : `${formatYesNo(data.status?.annualSurveyComplete)}`
-                            }
+                                : formatYesNo(data.status?.annualSurveyComplete)}
                         </div>
-
                         <div class="field">
                             <span class="label">Paired:</span>
-
-                            ${
-                                editMode
+                            ${editMode
                                 ? `<select id="editPaired">
-                                        <option value="true" ${data.status?.paired ? "selected" : ""}>True</option>
-                                        <option value="false" ${!data.status?.paired ? "selected" : ""}>False</option>
+                                    <option value="true" ${data.status?.paired ? "selected" : ""}>True</option>
+                                    <option value="false" ${!data.status?.paired ? "selected" : ""}>False</option>
                                 </select>`
-                                : `${formatYesNo(data.status?.paired)}`
-                            }
+                                : formatYesNo(data.status?.paired)}
                         </div>
-
                         <div class="field">
                             <span class="label">Paired With:</span>
-
-                            ${
-                                editMode
+                            ${editMode
                                 ? `<input id="editPairedWith" value="${data.status?.pairedWith || ""}">`
-                                : `${data.status?.pairedWith || ""}`
-                            }
+                                : data.status?.pairedWith || ""}
                         </div>
-
                     </div>
-
                 </div>
+                ` : ""}
 
+                <!-- STAFF ONLY -->
+                ${!callerView ? `
                 <div class="field">
                     <span class="label">Team Notes:</span>
-
-                    ${
-                        editMode
+                    ${editMode
                         ? `<input id="editTeamNotes" value="${data.notes?.teamNotes || ""}">`
-                        : `${data.notes?.teamNotes || ""}`
-                    }
-                 </div>
+                        : data.notes?.teamNotes || ""}
+                </div>
+                ` : ""}
 
             </div>
 
+            <!-- CALLER AND STAFF ACCESS -->
             <div class="card">
-
                 <h2>Call History</h2>
 
-                ${
-                    calls.length === 0
+                ${calls.length === 0
                     ? "<p>No call history.</p>"
                     : calls.map((c, index) => `
                         <div class="call-item">
-
                             <button class="call-date" onclick="toggleNote(${index})">
                                 ${c.date}
                             </button>
-
                             <div class="call-note" id="note-${index}">
                                 ${c.notes}
                             </div>
-
                         </div>
-                    `).join("")
-                }
+                    `).join("")}
+
+                <!-- CALLER AND STAFF ACCESS -->
+                <div class="add-call" style="margin-top: 16px;">
+                    <h3>Log a Call</h3>
+                    <input type="text" id="newCallDate" placeholder="Date (MM/DD)" style="margin-bottom:8px; display:block;">
+                    <textarea id="newCallNotes" placeholder="Call notes..." rows="3" style="width:100%; margin-bottom:8px;"></textarea>
+                    <button id="saveCallBtn" onclick="saveCall()">Save Call</button>
+                </div>
 
             </div>
         `;
 
-        } catch (error) {
+    } catch (error) {
         console.error(error);
         content.innerHTML = "Error loading participant.";
-        }
-
+    }
 }
+
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "staffpage.html";
         return;
     }
-    const staffRef = doc(db, "authorizedStaff", user.email);
-    const staffSnap = await getDoc(staffRef);
-    if (!staffSnap.exists()) {
+
+    const userRef = doc(db, "users", user.email);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
         await signOut(auth);
         window.location.href = "staffpage.html";
         return;
     }
-    const role = staffSnap.data().role;
-    if (role === "volunteer") {
-        editBtn.style.display = "none";
-        deleteBtn.style.display = "none";
-    }
+
+    const roles = userSnap.data().roles || [];
+
     if (!participantId) {
         content.innerHTML = "No participant selected.";
         return;
     }
-    await loadParticipant();
+
+    if (roles.includes("staff") || roles.includes("admin")) {
+        await loadParticipant(false, "staff");
+        return;
+    }
+
+    if (roles.includes("caller")) {
+        editBtn.style.display = "none";
+        deleteBtn.style.display = "none";
+        saveBtn.style.display = "none";
+        cancelBtn.style.display = "none";
+
+        await loadParticipant(false, "caller");
+        return;
+    }
+
+    await signOut(auth);
+    window.location.href = "staffpage.html";
 });
 
 window.toggleNote = function(index) {
