@@ -372,17 +372,11 @@
                 <h3>Routes for ${email}</h3>
                 <p>Loading...</p>
             `;
-
-
             const q = query(
                 collection(db, "driverAssignments"),
                 where("driverEmail", "==", email)
             );
-
-
             const snap = await getDocs(q);
-
-
             if (snap.empty) {
 
                 container.innerHTML = `
@@ -394,18 +388,13 @@
 
                 return;
             }
-
-
             container.innerHTML = `
                 <h3>Routes for ${email}</h3>
             `;
-
-
             snap.forEach(routeDoc => {
-
                 const data = routeDoc.data();
-
                 const routeDiv = document.createElement("div");
+                routeDiv.id = `route-${routeDoc.id}`;
 
                 routeDiv.style.border = "1px solid #ccc";
                 routeDiv.style.padding = "10px";
@@ -424,13 +413,29 @@
                     <br>
 
                     <b>Stops:</b>
-                    ${data.participantList.length}
+                    <span id="stop-count-${routeDoc.id}">
+                        ${data.participantList.length}
+                    </span>
 
                     <br><br>
 
                     <button 
                         onclick="viewRouteStops('${routeDoc.id}', '${stopContainerID}', this)">
                         View Stops
+                    </button>
+
+                    <button
+                        onclick="deleteRoute('${routeDoc.id}')"
+                        style="
+                            margin-left:10px;
+                            background:#c0392b;
+                            color:white;
+                            padding:8px 12px;
+                            border:none;
+                            border-radius:5px;
+                            cursor:pointer;
+                        ">
+                        Delete Route
                     </button>
 
                     <div id="${stopContainerID}"></div>
@@ -689,9 +694,6 @@
                 button.textContent = "View Stops";
                 return;
             }
-
-
-            // Load stops
             container.dataset.route = routeID;
 
             container.innerHTML = `
@@ -699,40 +701,30 @@
                 <p>Loading...</p>
             `;
 
-
             const routeSnap = await getDoc(
                 doc(db, "driverAssignments", routeID)
             );
-
 
             if (!routeSnap.exists()) {
                 container.innerHTML = "Route not found.";
                 return;
             }
 
-
             const routeData = routeSnap.data();
-
-
             container.innerHTML = `
                 <h3>Route Stops</h3>
             `;
 
-
             for (const participantID of routeData.participantList) {
-
                 const participantSnap = await getDoc(
                     doc(db, "participants", participantID)
                 );
 
-
                 if (!participantSnap.exists()) continue;
 
-
                 const data = participantSnap.data();
-
-
                 const div = document.createElement("div");
+                div.id = `stop-${participantID}`;
 
                 div.style.border = "1px solid #ccc";
                 div.style.padding = "10px";
@@ -765,7 +757,7 @@
                         <button
                             onclick="removeParticipantFromRoute(
                                 '${routeID}',
-                                '${participantID}'
+                                '${participantID}',
                             )">
                             Remove From Route
                         </button>
@@ -773,10 +765,8 @@
                     </div>
                 `;
 
-
                 const header = div.querySelector(".stop-header");
                 const details = div.querySelector(".stop-details");
-
 
                 header.addEventListener("click", () => {
 
@@ -784,16 +774,49 @@
                         details.style.display === "none"
                         ? "block"
                         : "none";
-
                 });
-
 
                 container.appendChild(div);
             }
-
-
             button.textContent = "Hide Stops";
+        };
 
+        window.deleteRoute = async function(routeID) {
+            const confirmDelete = confirm(
+                "Are you sure you want to delete this entire route?"
+            );
+            if (!confirmDelete) {
+                return;
+            }
+            const routeSnap = await getDoc(
+                doc(db, "driverAssignments", routeID)
+            );
+
+            if (!routeSnap.exists()) {
+                alert("Route not found.");
+                return;
+            }
+            const routeData = routeSnap.data();
+            for (const participantID of routeData.participantList) {
+                await updateDoc(
+                    doc(db, "participants", participantID),
+                    {
+                        currentAssignment: deleteField()
+                    }
+                );
+            }
+            await deleteDoc(
+                doc(db, "driverAssignments", routeID)
+            );
+
+            const routeDiv = document.getElementById(`route-${routeID}`);
+
+            if (routeDiv) {
+                routeDiv.remove();
+            }
+
+            alert("Route deleted!");
+            loadParticipantsForRoute();
         };
 
         window.removeParticipantFromRoute = async function(routeID, participantID) {
@@ -807,24 +830,39 @@
             if (!routeSnap.exists()) return;
 
             const data = routeSnap.data();
-
-            // Remove participant from route list
             const updatedList = data.participantList.filter(
                 id => id !== participantID
             );
+            const updatedDeliveryStatus = {
+                ...data.deliveryStatus
+            };
+            delete updatedDeliveryStatus[participantID];
 
             await updateDoc(routeRef, {
-                participantList: updatedList
+                participantList: updatedList,
+                deliveryStatus: updatedDeliveryStatus
             });
 
-            // Clear assignment on participant
             await updateDoc(participantRef, {
                 currentAssignment: deleteField()
             });
+            const stopDiv = document.getElementById(`stop-${participantID}`);
+            
+            if (stopDiv) {
+                stopDiv.remove();
+            }
+            const count = document.getElementById(
+                `stop-count-${routeID}`
+            );
+
+            if (count) {
+                count.textContent = Number(count.textContent) - 1;
+            }
 
             alert("Participant removed from route.");
 
-            };
+            loadParticipantsForRoute();
+        };
 
         // =========================
         // PACKER FUNCTION
