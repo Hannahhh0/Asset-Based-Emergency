@@ -172,6 +172,40 @@
       .hero-content h1 { font-size: 34px; }
       nav { gap: 30px; }
     }
+
+    .login-btn {
+      background: white;
+      color: #1a2a5e;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+    }
+
+    .user-badge img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    .user-info small {
+      color: rgba(255,255,255,0.8);
+    }
   </style>
 </head>
 <body>
@@ -183,7 +217,32 @@
     <a href="https://rootcauses.wixsite.com/rootcauses/contact">Contact Us</a>
     <a href="resources.html">Additional Resources</a>
     <a href="https://rootcauses.wixsite.com/rootcauses/volunteer">Get Involved</a>
+
+    <div style="margin-left:auto;">
+
+      <!-- Logged out -->
+      <div id="loggedOut">
+          <button class="login-btn" onclick="window.location.href='login.html'">
+              Sign In
+          </button>
+      </div>
+
+      <!-- Logged in -->
+      <div id="loggedIn" style="display:none;">
+          <div id="user-badge" class="user-badge">
+              <img id="userPhoto" src="default-profile.png" alt="Profile">
+              <div class="user-info">
+                  <div id="userName"></div>
+                  <small id="userEmail"></small>
+              </div>
+              <button id="logoutBtn" class="login-btn">
+                  Sign Out
+              </button>
+          </div>
+      </div>
+  </div>
   </nav>
+  
  
   <!-- HERO -->
   <section class="hero">
@@ -228,7 +287,65 @@
       </div>
  
     </div>
+
   </section>
- 
+
+  <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { updateDoc, collection, query, where, serverTimestamp} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+            authDomain: "asset-based-emergency.firebaseapp.com",
+            projectId: "asset-based-emergency",
+            storageBucket: "asset-based-emergency.firebasestorage.app",
+            messagingSenderId: "166630111593",
+            appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+
+          if (!user) {
+              document.getElementById("loggedOut").style.display = "block";
+              document.getElementById("loggedIn").style.display = "none";
+              return;
+          }
+
+          const userRef = doc(db, "users", user.email);
+          const userSnap = await getDoc(userRef);
+
+          if (!userSnap.exists()) {
+              await signOut(auth);
+              return;
+          }
+
+          const userData = userSnap.data();
+
+          const displayName =
+              userData.Name ||
+              user.displayName ||
+              "User";
+
+          document.getElementById("loggedOut").style.display = "none";
+          document.getElementById("loggedIn").style.display = "block";
+          document.getElementById("logoutBtn").addEventListener("click", async () => {
+              await signOut(auth);
+          });
+
+          document.getElementById("userPhoto").src =
+              user.photoURL || "default-profile.png";
+
+          document.getElementById("userName").textContent =
+              displayName;
+
+          document.getElementById("userEmail").textContent =
+              user.email;
+        });
+  </script>
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>staff login</title>
-    <link rel="stylesheet" href="staffpage.css">
+    <title>login</title>
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
 
@@ -20,7 +20,7 @@
 
     <div class="page-content">
         <div class="login-box">
-            <h1>Staff Login</h1>
+            <h1>Login</h1>
             <p>Please sign in with your authorized google account</p>
             <button onclick="signInWithGoogle()">Sign in with Google</button>
         </div>
@@ -48,9 +48,11 @@
 
         const modal = document.getElementById("myModal");
         const closeModal = document.getElementById("closeModal");
+
         closeModal.addEventListener("click", async () => {
             modal.close();
             await auth.signOut();
+            window.location.href = "homepage.html";
         });
 
         window.signInWithGoogle = async function () {
@@ -58,26 +60,14 @@
                 const result = await signInWithPopup(auth, provider);
                 const email = result.user.email;
 
-                const docRef = doc(db, "users", email);
-                const docSnap = await getDoc(docRef);
+                const docSnap = await getDoc(doc(db, "users", email));
 
                 if (!docSnap.exists()) {
                     modal.showModal();
                     await auth.signOut();
                     return;
                 }
-
-                const roles = docSnap.data().roles || [];
-
-                if (roles.includes("staff")) {
-                    console.log("Admin access granted");
-                    window.location.href = "dashboard.html";
-                } else {
-                    console.log("Not an admin");
-                    modal.showModal();
-                    await auth.signOut();
-                }
-
+                window.location.href = "homepage.html";
             } catch (error) {
                 console.error(error);
                 modal.showModal();
@@ -92,8 +82,12 @@
                 console.log("No user logged in");
             }
         });
-    </script>
 
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+            await auth.signOut();
+        });
+    </script>
+    
     
 </body>
 </html>
