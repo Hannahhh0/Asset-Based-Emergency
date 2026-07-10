@@ -99,7 +99,7 @@
     </style>
 </head>
 
-<body>
+<body style="display:none;">
 
 <nav>
      <div>
@@ -124,7 +124,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 
 const firebaseConfig = {
@@ -148,16 +148,30 @@ let participants = [];
 
 logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "staffpage.html";
+    window.location.href = "homepage.html";
 });
 
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
-        window.location.href = "staffpage.html";
+        window.location.replace("homepage.html");
         return;
     }
 
+    const userSnap = await getDoc(doc(db, "users", user.email));
+
+    if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.replace("homepage.html");
+        return;
+    }
+    const roles = userSnap.data().roles || [];
+
+    if (!roles.includes("staff")) {
+        window.location.replace("homepage.html");
+        return;
+    }
+    document.body.style.display = "block";
     const snapshot = await getDocs(collection(db, "participants"));
 
     participants = [];
