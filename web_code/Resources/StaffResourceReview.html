@@ -178,21 +178,21 @@
   // TODO: If app_config.js already exports a firebaseConfig object, replace
   // the block below with: import { firebaseConfig } from './app_config.js';
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
- 
+  import {getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+    authDomain: "asset-based-emergency.firebaseapp.com",
+    projectId: "asset-based-emergency",
+    storageBucket: "asset-based-emergency.firebasestorage.app",
+    messagingSenderId: "166630111593",
+    appId: "1:166630111593:web:9f8942e7301ca552e565f8"
   };
  
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
  
   let allSubmissions = [];
   let currentFilter = 'pending';
