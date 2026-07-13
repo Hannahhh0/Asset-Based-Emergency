@@ -137,7 +137,7 @@
       </div>
     </div>
     <div class="topbar-actions">
-      <a href="homepage.html">&larr; Back to Home</a>
+      <a href="../homepage.html">&larr; Back to Home</a>
     </div>
   </div>
  
@@ -185,6 +185,9 @@
   import {
     getFirestore, collection, onSnapshot, query, where, orderBy
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
  
   const firebaseConfig = {
     apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -197,6 +200,7 @@
  
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
  
   let allResources = [];
   let activeCategory = 'All';
