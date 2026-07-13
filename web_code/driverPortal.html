@@ -193,39 +193,50 @@
                             [`deliveryStatus.${participantId}`]: newStatus
                         });
 
-                        if (newStatus) {
-                            await setDoc(
-                                doc(
-                                    db,
-                                    "participants",
-                                    participantId,
-                                    "deliveryHistory",
-                                    deliveryDate
-                                ),
-                                {
-                                    status: "Delivered",
-                                    driverEmail: currentUserEmail,
-                                    confirmedAt: serverTimestamp(),
-                                    cancelledAt: null
-                                }
-                            );
+                        try {
+
+                            if (newStatus) {
+                                await setDoc(
+                                    doc(
+                                        db,
+                                        "participants",
+                                        participantId,
+                                        "deliveryHistory",
+                                        deliveryDate
+                                    ),
+                                    {
+                                        status: "Delivered",
+                                        driverEmail: currentUserEmail,
+                                        confirmedAt: serverTimestamp(),
+                                        cancelledAt: null
+                                    }
+                                );
+
+                                console.log("Delivery history saved:", participantId, deliveryDate);
 
                             } else {
 
-                            await updateDoc(
-                                doc(
-                                    db,
-                                    "participants",
-                                    participantId,
-                                    "deliveryHistory",
-                                    deliveryDate
-                                ),
-                                {
-                                    status: "Cancelled",
-                                    cancelledAt: serverTimestamp()
-                                }
-                            );
+                                await setDoc(
+                                    doc(
+                                        db,
+                                        "participants",
+                                        participantId,
+                                        "deliveryHistory",
+                                        deliveryDate
+                                    ),
+                                    {
+                                        status: "Cancelled",
+                                        driverEmail: currentUserEmail,
+                                        confirmedAt: null,
+                                        cancelledAt: serverTimestamp()
+                                    },
+                                    { merge: true }
+                                );
 
+                            }
+                        } catch (error) {
+                        console.error("Delivery history error:", error);
+                        alert("Could not update delivery history: " + error.message);
                         }
 
                         btn.dataset.status = newStatus;

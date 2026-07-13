@@ -503,8 +503,22 @@ async function loadParticipant(editMode = false, role = "staff") {
             return new Date(2026, am - 1, ad) - new Date(2026, bm - 1, bd);
         });
 
-        // caller sees limited fields only
         const callerView = role === "caller";
+
+        let deliveries = [];
+        if (!callerView) {
+            const deliverySnap = await getDocs(
+                collection(docRef, "deliveryHistory")
+            );
+
+            deliverySnap.forEach(d => {
+                deliveries.push({
+                    id: d.id,
+                    ...d.data()
+                });
+            });
+            deliveries.sort((a, b) => b.id.localeCompare(a.id));
+        }
 
         content.innerHTML = `
             <div class="card">
@@ -763,6 +777,38 @@ async function loadParticipant(editMode = false, role = "staff") {
                 </div>
 
             </div>
+            <!-- STAFF ONLY -->
+            ${!callerView ? `
+            <div class="card">
+                <h2>Delivery History</h2>
+
+                ${deliveries.length === 0
+                    ? "<p>No delivery history.</p>"
+                    : deliveries.map((d, index) => `
+                        <div class="call-item">
+                            <button class="call-date" onclick="toggleDelivery(${index})">
+                                ${d.id}
+                            </button>
+
+                            <div class="call-note" id="delivery-note-${index}">
+                                <strong>Status:</strong> ${d.status || "Unknown"}<br>
+                                <strong>Driver:</strong> ${d.driverEmail || "Unknown"}<br>
+                                <strong>Confirmed:</strong> ${
+                                    d.confirmedAt?.toDate
+                                        ? d.confirmedAt.toDate().toLocaleString()
+                                        : "—"
+                                }<br>
+                                ${
+                                    d.cancelledAt
+                                        ? `<strong>Cancelled:</strong> ${d.cancelledAt.toDate().toLocaleString()}`
+                                        : ""
+                                }
+                            </div>
+                        </div>
+                    `).join("")}
+
+            </div>
+            ` : ""}
         `;
 
     } catch (error) {
@@ -824,6 +870,16 @@ window.toggleNote = function(index) {
             note.style.display = "none";
         }
     });
+};
+
+window.toggleDelivery = function(index) {
+    const note = document.getElementById(`delivery-note-${index}`);
+
+    if (note.style.display === "block") {
+        note.style.display = "none";
+    } else {
+        note.style.display = "block";
+    }
 };
 
 window.toggleSection = function(id) {
