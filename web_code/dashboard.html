@@ -167,10 +167,11 @@ onAuthStateChanged(auth, async (user) => {
     }
     const roles = userSnap.data().roles || [];
 
-    if (!roles.includes("staff")) {
+    if (!roles.includes("staff") && !roles.includes("caller")) {
         window.location.replace("homepage.html");
         return;
     }
+    
     document.body.style.display = "block";
     const snapshot = await getDocs(collection(db, "participants"));
 
