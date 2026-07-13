@@ -195,7 +195,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import {getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, addDoc} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import {getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, addDoc, setDoc} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
             apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -771,7 +771,6 @@ async function loadParticipant(editMode = false, role = "staff") {
                 <!-- CALLER AND STAFF ACCESS -->
                 <div class="add-call" style="margin-top: 16px;">
                     <h3>Log a Call</h3>
-                    <input type="text" id="newCallDate" placeholder="Date (MM/DD)" style="margin-bottom:8px; display:block;">
                     <textarea id="newCallNotes" placeholder="Call notes..." rows="3" style="width:100%; margin-bottom:8px;"></textarea>
                     <button id="saveCallBtn" onclick="saveCall()">Save Call</button>
                 </div>
@@ -892,6 +891,37 @@ window.toggleSection = function(id) {
         section.classList.remove("hidden");
     } else {
         section.classList.add("hidden");
+    }
+};
+
+window.saveCall = async function() {
+    const notes = document.getElementById("newCallNotes").value.trim();
+
+    if (!notes) {
+        alert("Please enter call notes.");
+        return;
+    }
+
+    const now = new Date();
+    const date = `${now.getMonth() + 1}-${now.getDate()}`;
+    const dateDash = `${now.getMonth() + 1}/${now.getDate()}`;
+    const docId = `${now.getMonth() + 1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}`;
+
+    try {
+        const callDocRef = doc(db, "participants", participantId, "calls", date);
+        await setDoc(callDocRef, {
+            date: dateDash,
+            notes: notes,
+            loggedBy: auth.currentUser.email,
+            timestamp: now.toISOString()
+        });
+
+        document.getElementById("newCallNotes").value = "";
+        alert("Call logged successfully.");
+
+    } catch (error) {
+        console.error(error.code, error.message);
+        alert("Error saving call.");
     }
 };
 
