@@ -1131,7 +1131,6 @@
 
             } catch (error) {
                 console.error("Error loading packer data:", error);
-                alert("Failed to load data. Check console.");
             }
         };
 
@@ -1225,10 +1224,10 @@
                 // =====================
                 // PACKER
                 // =====================
-                if (roles.includes("packer")) {
+                if (roles.includes("staff")) {
                     packerTab.style.opacity = "1";
                     packerTab.style.pointerEvents = "auto";
-                    firstTab = firstTab || "packer";
+                    firstTab = firstTab || "staff";
                 }
 
                 // DEFAULT VIEW
