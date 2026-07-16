@@ -343,9 +343,14 @@ document.getElementById("saveBtn").onclick = async () => {
     const distanceEl = document.getElementById("distance");
     const driveTimeEl = document.getElementById("driveTime");
     const driverNotesEl = document.getElementById("driverNotes");
+    const lockedEl = document.getElementById("locked");
     const languageEl = document.getElementById("language");
     const pronounsEl = document.getElementById("pronouns");
     const raceEl = document.getElementById("race");
+    const medicalEl = document.getElementById("medical");
+    const pairedEl = document.getElementById("paired");
+    const pairedWithEl = document.getElementById("pairedWith");
+    const surveyEl = document.getElementById("survey");
     const notesEl = document.getElementById("notes");
 
 
@@ -379,11 +384,22 @@ document.getElementById("saveBtn").onclick = async () => {
             latitude: Number(latEl.value),
             longitude: Number(lngEl.value),
             distanceFromFFS: distanceEl.value,
-            driveTimeMinutes: driveTimeEl.value
+            driveTimeMinutes: Number(driveTimeEl.value)
         },
 
         delivery: {
-            driverNotes: driverNotesEl.value
+            driverNotes: driverNotesEl.value,
+            lockedBuilding: toBool(lockedEl.value)
+        },
+
+        medical: {
+            medicalConsent: toBool(medicalEl.value)
+        },
+
+        status: {
+            paired: toBool(pairedEl.value),
+            pairedWith: pairedWithEl.value || null,
+            annualSurveyComplete: toBool(surveyEl.value)
         },
 
         demographics: {
