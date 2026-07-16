@@ -103,7 +103,7 @@
 
 <nav>
      <div>
-        <a href="homepage.html">Home</a>
+        <a href="../homepage.html">Home</a>
         <a href="addParticipant_page.html">Add Participant</a>
     </div>
     
@@ -148,13 +148,13 @@ let participants = [];
 
 logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "homepage.html";
+    window.location.href = "../homepage.html";
 });
 
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
-        window.location.replace("homepage.html");
+        window.location.replace("../homepage.html");
         return;
     }
 
@@ -162,13 +162,13 @@ onAuthStateChanged(auth, async (user) => {
 
     if (!userSnap.exists()) {
         await signOut(auth);
-        window.location.replace("homepage.html");
+        window.location.replace("../homepage.html");
         return;
     }
     const roles = userSnap.data().roles || [];
 
     if (!roles.includes("staff") && !roles.includes("caller")) {
-        window.location.replace("homepage.html");
+        window.location.replace("../homepage.html");
         return;
     }
     

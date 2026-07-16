@@ -77,10 +77,17 @@
   .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
  
   /* ---------- Sidebar layout ---------- */
-  .layout { display: flex; align-items: flex-start; min-height: calc(100vh - 71px); }
+  .layout {
+    display: flex;
+    height: calc(100vh - 71px);
+  }
   .sidebar {
-    width: 250px; flex-shrink: 0; background: var(--sage);
-    padding: 32px 20px; min-height: calc(100vh - 71px);
+    width: 250px;
+    flex-shrink: 0;
+    background: var(--sage);
+    padding: 32px 20px;
+    height: 100%;
+    overflow-y: auto;
   }
   .sidebar h2 {
     color: white; font-family: Arial, sans-serif; font-weight: 800;
@@ -94,7 +101,12 @@
   }
   .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
   .sidebar a.nav-btn.active { background: var(--deep-green); }
-  .main-content { flex: 1; min-width: 0; }
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    height: 100%;
+  }
   @media (max-width: 720px) {
     .layout { flex-direction: column; }
     .sidebar { width: 100%; min-height: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -394,102 +406,102 @@
     </aside>
  
     <main class="main-content">
-  <div class="page">
- 
-    <div class="page-header">
-      <div>
-        <h1>Share a Community Resource</h1>
-        <p>Know of a local resource, service, or asset that could help your neighbors? Submit it below — our team reviews every post before it appears on the map.</p>
-      </div>
-      <button class="new-thread-btn" type="button" onclick="document.getElementById('resourceForm').scrollIntoView({behavior:'smooth'})">+ New Resource Post</button>
-    </div>
- 
-    <!-- FORM CARD -->
-    <form class="card" id="resourceForm">
- 
-      <div class="review-notice">
-        <span>&#128712;</span>
-        <span>Submissions are reviewed by Root Causes staff before they're published. This usually takes 1&ndash;2 business days.</span>
-      </div>
- 
-      <div class="warning" id="categoryWarning">
-        <span>&#9888;&#65039;</span>
-        <span>Please select a category before submitting.</span>
-      </div>
- 
-      <!-- Title -->
-      <div class="section">
-        <label class="field-label" for="title">Resource Title</label>
-        <input type="text" id="title" name="title" placeholder="e.g. Free flu shots at Durham Community Clinic" required>
-      </div>
- 
-      <!-- Category -->
-      <div class="section">
-        <label class="field-label">Category</label>
-        <div class="chip-row" id="categoryChips">
-          <div class="chip" data-cat="Food">Food Assistance</div>
-          <div class="chip" data-cat="Housing">Housing</div>
-          <div class="chip" data-cat="Healthcare">Healthcare</div>
-          <div class="chip" data-cat="Education">Education</div>
-          <div class="chip" data-cat="Transportation">Transportation</div>
-          <div class="chip" data-cat="Financial">Financial Assistance</div>
-          <div class="chip" data-cat="Childcare">Childcare</div>
-          <div class="chip" data-cat="Other">Other</div>
-        </div>
-        <input type="hidden" id="categoryValue" name="category">
-      </div>
- 
-      <!-- Description -->
-      <div class="section">
-        <label class="field-label" for="description">Description</label>
-        <div class="field-hint">What is this resource? Who is it for? Any eligibility requirements or hours?</div>
-        <textarea id="description" name="description" placeholder="Describe the resource..." required></textarea>
-      </div>
- 
-      <!-- Location / link -->
-      <div class="section">
-        <label class="field-label" for="location">Location or Website</label>
-        <div class="field-hint">An address, or a link if it's an online resource.</div>
-        <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Durham, NC or https://...">
-      </div>
- 
-      <!-- Contact info -->
-      <div class="section">
-        <label class="field-label">Your Contact Info</label>
-        <div class="field-hint">Shared with staff in case they have follow-up questions about your submission.</div>
-        <div class="contact-grid">
-          <input type="text" placeholder="Name" name="name" required>
-          <input type="tel" placeholder="Phone number" name="phone" required>
-          <input type="email" placeholder="Email" name="email" class="full" required>
-        </div>
-      </div>
- 
-      <!-- Anonymous -->
-      <div class="section toggle-row">
-        <div class="toggle-option">
-          <input type="checkbox" id="anonymous" name="anonymous">
+      <div class="page">
+    
+        <div class="page-header">
           <div>
-            <label for="anonymous">Post anonymously</label>
-            <span class="toggle-desc">Hide your name from the public listing once approved.</span>
+            <h1>Share a Community Resource</h1>
+            <p>Know of a local resource, service, or asset that could help your neighbors? Submit it below — our team reviews every post before it appears on the map.</p>
           </div>
+          <button class="new-thread-btn" type="button" onclick="document.getElementById('resourceForm').scrollIntoView({behavior:'smooth'})">+ New Resource Post</button>
         </div>
+    
+        <!-- FORM CARD -->
+        <form class="card" id="resourceForm">
+    
+          <div class="review-notice">
+            <span>&#128712;</span>
+            <span>Submissions are reviewed by Root Causes staff before they're published. This usually takes 1&ndash;2 business days.</span>
+          </div>
+    
+          <div class="warning" id="categoryWarning">
+            <span>&#9888;&#65039;</span>
+            <span>Please select a category before submitting.</span>
+          </div>
+    
+          <!-- Title -->
+          <div class="section">
+            <label class="field-label" for="title">Resource Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Free flu shots at Durham Community Clinic" required>
+          </div>
+    
+          <!-- Category -->
+          <div class="section">
+            <label class="field-label">Category</label>
+            <div class="chip-row" id="categoryChips">
+              <div class="chip" data-cat="Food">Food Assistance</div>
+              <div class="chip" data-cat="Housing">Housing</div>
+              <div class="chip" data-cat="Healthcare">Healthcare</div>
+              <div class="chip" data-cat="Education">Education</div>
+              <div class="chip" data-cat="Transportation">Transportation</div>
+              <div class="chip" data-cat="Financial">Financial Assistance</div>
+              <div class="chip" data-cat="Childcare">Childcare</div>
+              <div class="chip" data-cat="Other">Other</div>
+            </div>
+            <input type="hidden" id="categoryValue" name="category">
+          </div>
+    
+          <!-- Description -->
+          <div class="section">
+            <label class="field-label" for="description">Description</label>
+            <div class="field-hint">What is this resource? Who is it for? Any eligibility requirements or hours?</div>
+            <textarea id="description" name="description" placeholder="Describe the resource..." required></textarea>
+          </div>
+    
+          <!-- Location / link -->
+          <div class="section">
+            <label class="field-label" for="location">Location or Website</label>
+            <div class="field-hint">An address, or a link if it's an online resource.</div>
+            <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Durham, NC or https://...">
+          </div>
+    
+          <!-- Contact info -->
+          <div class="section">
+            <label class="field-label">Your Contact Info</label>
+            <div class="field-hint">Shared with staff in case they have follow-up questions about your submission.</div>
+            <div class="contact-grid">
+              <input type="text" placeholder="Name" name="name" required>
+              <input type="tel" placeholder="Phone number" name="phone" required>
+              <input type="email" placeholder="Email" name="email" class="full" required>
+            </div>
+          </div>
+    
+          <!-- Anonymous -->
+          <div class="section toggle-row">
+            <div class="toggle-option">
+              <input type="checkbox" id="anonymous" name="anonymous">
+              <div>
+                <label for="anonymous">Post anonymously</label>
+                <span class="toggle-desc">Hide your name from the public listing once approved.</span>
+              </div>
+            </div>
+          </div>
+    
+          <div class="form-footer">
+            <button type="button" class="btn-secondary" onclick="window.location.href='homepage.html'">Cancel</button>
+            <button type="submit" class="btn-primary">Submit for Review</button>
+          </div>
+        </form>
+    
+        <!-- SUCCESS CARD -->
+        <div class="card success-card" id="successCard">
+          <div class="success-icon">&#10003;</div>
+          <h2>Thanks — your submission is in!</h2>
+          <p>Our team will review it shortly. Approved resources will appear on the community map.</p>
+          <a href="homepage.html">&larr; Back to Home</a>
+        </div>
+    
       </div>
- 
-      <div class="form-footer">
-        <button type="button" class="btn-secondary" onclick="window.location.href='homepage.html'">Cancel</button>
-        <button type="submit" class="btn-primary">Submit for Review</button>
-      </div>
-    </form>
- 
-    <!-- SUCCESS CARD -->
-    <div class="card success-card" id="successCard">
-      <div class="success-icon">&#10003;</div>
-      <h2>Thanks — your submission is in!</h2>
-      <p>Our team will review it shortly. Approved resources will appear on the community map.</p>
-      <a href="homepage.html">&larr; Back to Home</a>
-    </div>
- 
-  </div>
     </main>
   </div>
  
