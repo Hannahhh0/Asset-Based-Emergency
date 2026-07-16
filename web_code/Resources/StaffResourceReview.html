@@ -149,9 +149,10 @@
   <div class="layout">
     <aside class="sidebar">
       <h2>Menu</h2>
-      <a href="resourceDashboard.html" class="nav-btn">Dashboard</a>
-      <a href="shareResource.html" class="nav-btn">Add a Resource</a>
-      <a href="staffResourceReview.html" class="nav-btn active">Staff Review</a>
+      <a href="ResourceDashboard.html" class="nav-btn">Dashboard</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn">
+        Staff Review
+      <a href="ShareResource.html" class="nav-btn">Add a Resource</a>
     </aside>
  
     <main class="main-content">
@@ -178,8 +179,20 @@
   // TODO: If app_config.js already exports a firebaseConfig object, replace
   // the block below with: import { firebaseConfig } from './app_config.js';
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {getFirestore,
+    collection,
+    onSnapshot,
+    doc,
+    updateDoc,
+    query,
+    orderBy,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -201,15 +214,63 @@
   const emptyState = document.getElementById('emptyState');
   const loading = document.getElementById('loading');
  
-  const q = query(collection(db, 'resourceSubmissions'), orderBy('createdAt', 'desc'));
-  onSnapshot(q, (snapshot) => {
-    loading.style.display = 'none';
-    allSubmissions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    updateCounts();
-    render();
-  }, (err) => {
-    loading.textContent = 'Could not load submissions. Check your Firebase config / security rules.';
-    console.error(err);
+  onAuthStateChanged(auth, async (user) => {
+    console.log("Auth user:", user);
+    if (!user) {
+        window.location.replace("resourceDashboard.html");
+        return;
+    }
+
+    const userSnap = await getDoc(doc(db, "users", user.email));
+
+    if (!userSnap.exists()) {
+        console.log("No user document");
+        await signOut(auth);
+        window.location.replace("resourceDashboard.html");
+        return;
+    }
+
+    const roles = userSnap.data().roles || [];
+
+    console.log("Roles:", roles);
+
+
+    if (!roles.includes("staff")) {
+        console.log("Not staff");
+        window.location.replace("resourceDashboard.html");
+        return;
+    }
+
+
+    // ==========================
+    // STAFF ONLY LOADS THIS
+    // ==========================
+
+    const q = query(
+        collection(db, 'resourceSubmissions'),
+        orderBy('createdAt', 'desc')
+    );
+
+    onSnapshot(q, (snapshot) => {
+
+        loading.style.display = 'none';
+
+        allSubmissions = snapshot.docs.map(d => ({
+            id: d.id,
+            ...d.data()
+        }));
+
+        updateCounts();
+        render();
+
+    }, (err) => {
+
+        loading.textContent =
+            'Could not load submissions. Check your Firebase config / security rules.';
+
+        console.error(err);
+    });
+
   });
  
   document.querySelectorAll('.tab').forEach(tab => {
