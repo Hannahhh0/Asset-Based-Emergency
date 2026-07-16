@@ -251,96 +251,114 @@ function toBool(value) {
 }
 
 saveBtn.addEventListener("click", async () => {
-
     try {
 
-        const groupAssignment = 
-        document.getElementById("editGroupAssignment").value;
-        
-        const phone =
-        document.getElementById("editPhone").value;
-        const alternatePhone = 
-        document.getElementById("editAlternatePhone").value;
+        const getValue = (id) => {
+            const element = document.getElementById(id);
+            return element ? element.value : null;
+        };
+
+
+        const groupAssignment = getValue("editGroupAssignment");
+
+        const phone = getValue("editPhone");
+        const alternatePhone = getValue("editAlternatePhone");
+
         const textsPreferred = 
-        toBool(document.getElementById("editTextsPreferred").value);
+            toBool(getValue("editTextsPreferred"));
+
         const canReceiveTexts = 
-        toBool(document.getElementById("editCanReceiveTexts").value);
-        const email =
-        document.getElementById("editEmail").value;
+            toBool(getValue("editCanReceiveTexts"));
 
-        const household =
-        Number(document.getElementById("editHousehold").value);
-        const bags = 
-        Number(document.getElementById("editBags").value);
+        const email = getValue("editEmail");
 
-        const address =
-        document.getElementById("editAddress").value;
-        const street =
-        document.getElementById("editStreet").value;
-        const city =
-        document.getElementById("editCity").value;
-        const state = 
-        document.getElementById("editState").value;
-        const postalCode = 
-        document.getElementById("editPostalCode").value;
-        const country = 
-        document.getElementById("editCountry").value;
 
-        const language =
-        document.getElementById("editLanguage").value;
-        const pronouns = 
-        document.getElementById("editPronouns").value;
-        const raceEthnicity = 
-        document.getElementById("editRaceEthnicity").value;
+        const household = Number(getValue("editHousehold"));
+        const bags = Number(getValue("editBags"));
 
-        const driverNotes = 
-        document.getElementById("editDriverNotes").value;
-        const lockedBuildingRaw =
-        document.getElementById("editLockedBuilding").value;
+
+        const language = getValue("editLanguage");
+        const pronouns = getValue("editPronouns");
+        const raceEthnicity = getValue("editRaceEthnicity");
+
+
+        const driverNotes = getValue("editDriverNotes");
+
+
+        const lockedBuildingRaw = getValue("editLockedBuilding");
+
         const lockedBuilding =
-        lockedBuildingRaw === "true"
+            lockedBuildingRaw === "true"
             ? true
             : lockedBuildingRaw === "false"
             ? false
             : null;
-        const distanceFromFFS =
-        document.getElementById("editDistanceFromFFS").value;
-        const driveTimeMinutes =
-        Number(document.getElementById("editDriveTime").value);
-        const latitude =
-        Number(document.getElementById("editLatitude").value);
-        const longitude =
-        Number(document.getElementById("editLongitude").value);
-        const geocodedDate =
-        document.getElementById("editGeocodedDate").value;
 
+        const distanceFromFFS = 
+            getValue("editDistanceFromFFS");
+        const driveTimeMinutes = 
+        Number(getValue("editDriveTime"));
         const medicalConsent =
-        toBool(document.getElementById("editMedicalConsent").value);
-
+            toBool(getValue("editMedicalConsent"));
         const annualSurveyComplete =
-        toBool(document.getElementById("editAnnualSurveyComplete").value);
+            toBool(getValue("editAnnualSurveyComplete"));
         const paired =
-        toBool(document.getElementById("editPaired").value);
+            toBool(getValue("editPaired"));
         const pairedWith =
-        document.getElementById("editPairedWith").value;
+            getValue("editPairedWith");
+        const teamNotes =
+            getValue("editTeamNotes");
 
-        const teamNotes = 
-        document.getElementById("editTeamNotes").value;
+        const address = getValue("editAddress");
+        const street = getValue("editStreet");
+        const city = getValue("editCity");
+        const state = getValue("editState");
+        const postalCode = getValue("editPostalCode");
+        const country = getValue("editCountry");
+
 
         const docRef = doc(db, "participants", participantId);
 
+
         await updateDoc(docRef, {
 
-            groupAssignment: groupAssignment,
-            
+
+            groupAssignment,
+
+
             "contact.primaryPhone": phone,
             "contact.alternatePhone": alternatePhone,
             "contact.textsPreferred": textsPreferred,
             "contact.canReceiveTexts": canReceiveTexts,
             "contact.email": email,
 
+
             "household.size": household,
             "household.bags": bags,
+
+
+            "demographics.preferredLanguage": language,
+            "demographics.pronouns": pronouns,
+            "demographics.raceEthnicity": raceEthnicity,
+
+
+            "location.distanceFromFFS": distanceFromFFS,
+            "location.driveTimeMinutes": driveTimeMinutes,
+
+
+            "delivery.lockedBuilding": lockedBuilding,
+            "delivery.driverNotes": driverNotes,
+
+
+            "medical.medicalConsent": medicalConsent,
+
+
+            "status.annualSurveyComplete": annualSurveyComplete,
+            "status.paired": paired,
+            "status.pairedWith": pairedWith || null,
+
+
+            "notes.teamNotes": teamNotes,
 
             "address.fullAddress": address,
             "address.street": street,
@@ -349,29 +367,8 @@ saveBtn.addEventListener("click", async () => {
             "address.postalCode": postalCode,
             "address.country": country,
 
-            "demographics.preferredLanguage": language,
-            "demographics.pronouns": pronouns,
-            "demographics.raceEthnicity": raceEthnicity,
-
-            "location.distanceFromFFS": distanceFromFFS,
-            "location.driveTimeMinutes": driveTimeMinutes,
-            "location.latitude": latitude,
-            "location.longitude": longitude,
-
-            "metadata.geocodedDate": geocodedDate,
-
-            "delivery.lockedBuilding": lockedBuilding,
-            "delivery.driverNotes": driverNotes,
-
-            "medical.medicalConsent": medicalConsent,
-
-            "status.annualSurveyComplete": annualSurveyComplete,
-            "status.paired": paired,
-            "status.pairedWith": pairedWith || null,
-
-            "notes.teamNotes": teamNotes
-
         });
+
 
         editing = false;
 
@@ -379,16 +376,15 @@ saveBtn.addEventListener("click", async () => {
         cancelBtn.style.display = "none";
         editBtn.style.display = "inline-block";
 
+
         await loadParticipant();
 
         alert("Changes saved successfully.");
 
-    }
 
-    catch (error) {
+    } catch(error){
 
         console.error(error);
-
         alert("Unable to save changes.");
 
     }
@@ -644,7 +640,10 @@ async function loadParticipant(editMode = false, role = "staff") {
                     <div class="section-body hidden" id="address">
                         <div class="field">
                             <span class="label">Full Address:</span>
-                            ${data.address?.fullAddress || ""}
+                            ${editMode
+                                ? `<input id="editAddress" 
+                                value="${data.address?.fullAddress || ""}">`
+                                : data.address?.fullAddress || ""}
                         </div>
                     </div>
                 </div>
