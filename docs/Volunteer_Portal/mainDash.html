@@ -1121,14 +1121,22 @@
                     }
                 });
 
-                Object.keys(driverMap).forEach(driver => {
-                    const bags = driverMap[driver];
-                    const displayName = driverNames[driver] || driver;
-                    sumDrivers += bags;
+                Object.keys(driverMap)
+                    .filter(driver => driver !== "Unassigned")
+                    .forEach(driver => {
+                        const bags = driverMap[driver];
+                        const displayName = driverNames[driver] || driver;
+
+                        breakdownDiv.innerHTML += `
+                            <p><b>${displayName}</b>: ${bags} bags</p>
+                        `;
+                    });
+
+                if (driverMap["Unassigned"]) {
                     breakdownDiv.innerHTML += `
-                        <p><b>${displayName}</b>: ${bags} bags</p>
+                        <p><b>Unassigned</b>: ${driverMap["Unassigned"]} bags</p>
                     `;
-                });
+                }
 
                 const validation = document.getElementById("validation");
 
