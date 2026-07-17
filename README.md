@@ -25,3 +25,14 @@ A web application designed to support Root Causes in coordinating emergency food
 ## Live Demo
 
 https://hannahhh0.github.io/Asset-Based-Emergency/homepage.html
+
+## Acknowledgments
+
+Developed for Root Causes, a student-led organization at Duke University School of Medicine.
+
+
+### Team
+
+- Natalie Alba
+- Hannah Park
+- Diana Rocío Vazquez
