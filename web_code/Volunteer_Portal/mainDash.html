@@ -9,14 +9,14 @@
             margin: 0;
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; 
             height: 100vh;
         }
 
         .content-wrapper {
             display: flex;
             flex: 1;          
-            overflow: hidden;
+            overflow: hidden; 
         }
 
         :root {
@@ -68,8 +68,6 @@
             background: rgba(255,255,255,0.1);
             cursor: pointer;
             border-radius: 6px;
-
-            /* FIX: start disabled visually + interaction disabled */
             opacity: 0.2;
             pointer-events: none;
         }
@@ -394,6 +392,7 @@
         };
 
         window.loadVolunteerList = async function () {
+            alert("NEW LOAD VOLUNTEER FUNCTION");
             const container = document.getElementById("volunteerList");
             container.innerHTML = "Loading volunteers...";
 
@@ -418,8 +417,7 @@
                             Change Roles
                         </button>
 
-                        <button
-                            onclick="deleteVolunteer('${docSnap.id}', '${data.name || "this volunteer"}')"
+                        <button onclick="deleteVolunteer('${docSnap.id}')"
                             style="
                                 background:#c0392b;
                                 color:white;
