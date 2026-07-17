@@ -52,7 +52,7 @@
         closeModal.addEventListener("click", async () => {
             modal.close();
             await auth.signOut();
-            window.location.href = "../homepage.html";
+            window.location.replace("../homepage.html");
         });
 
         window.signInWithGoogle = async function () {
@@ -67,7 +67,7 @@
                     await auth.signOut();
                     return;
                 }
-                window.location.href = "../homepage.html";
+                window.location.replace("../homepage.html");
             } catch (error) {
                 console.error(error);
                 modal.showModal();
