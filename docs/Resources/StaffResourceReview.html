@@ -47,10 +47,17 @@
   .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
  
   /* ---------- Sidebar layout ---------- */
-  .layout { display: flex; align-items: flex-start; min-height: calc(100vh - 71px); }
+  .layout {
+    display: flex;
+    height: calc(100vh - 71px);
+  }
   .sidebar {
-    width: 250px; flex-shrink: 0; background: var(--sage);
-    padding: 32px 20px; min-height: calc(100vh - 71px);
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--sage);
+    padding: 32px 20px;
+    height: 100%;
+    overflow-y: auto;
   }
   .sidebar h2 {
     color: white; font-family: Arial, sans-serif; font-weight: 800;
@@ -64,13 +71,6 @@
   }
   .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
   .sidebar a.nav-btn.active { background: var(--deep-green); }
-  .main-content { flex: 1; min-width: 0; }
-  @media (max-width: 720px) {
-    .layout { flex-direction: column; }
-    .sidebar { width: 100%; min-height: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .sidebar h2 { width: 100%; margin-bottom: 4px; }
-    .sidebar a.nav-btn { margin-bottom: 0; }
-  }
  
   .page { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
  
@@ -129,6 +129,13 @@
   .btn-undo { background: white; color: var(--navy); border: 1.5px solid var(--card-border); }
  
   .loading { font-family: Arial, sans-serif; color: #7A8578; text-align: center; padding: 40px; }
+
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    height: 100%;
+  }
 </style>
 </head>
 <body>
@@ -156,22 +163,22 @@
     </aside>
  
     <main class="main-content">
-  <div class="page">
-    <div class="page-header">
-      <h1>Resource Submissions</h1>
-      <p>Review community-submitted resources before they go live on the public dashboard.</p>
-    </div>
- 
-    <div class="tabs">
-      <div class="tab active" data-filter="pending">Pending <span class="count" id="countPending">0</span></div>
-      <div class="tab" data-filter="approved">Approved <span class="count" id="countApproved">0</span></div>
-      <div class="tab" data-filter="rejected">Rejected <span class="count" id="countRejected">0</span></div>
-    </div>
- 
-    <div id="loading" class="loading">Loading submissions...</div>
-    <div id="listContainer"></div>
-    <div id="emptyState" class="empty-state" style="display:none;">Nothing here yet.</div>
-  </div>
+      <div class="page">
+        <div class="page-header">
+          <h1>Resource Submissions</h1>
+          <p>Review community-submitted resources before they go live on the public dashboard.</p>
+        </div>
+    
+        <div class="tabs">
+          <div class="tab active" data-filter="pending">Pending <span class="count" id="countPending">0</span></div>
+          <div class="tab" data-filter="approved">Approved <span class="count" id="countApproved">0</span></div>
+          <div class="tab" data-filter="rejected">Rejected <span class="count" id="countRejected">0</span></div>
+        </div>
+    
+        <div id="loading" class="loading">Loading submissions...</div>
+        <div id="listContainer"></div>
+        <div id="emptyState" class="empty-state" style="display:none;">Nothing here yet.</div>
+      </div>
     </main>
   </div>
  
