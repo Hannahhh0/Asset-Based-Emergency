@@ -22,9 +22,10 @@
  
   body {
     margin: 0;
-    font-family: 'Georgia', 'Iowan Old Style', serif;
-    background: var(--cream);
-    color: var(--navy);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
   }
  
   /* ---------- Top bar ---------- */
@@ -84,7 +85,6 @@
   .sidebar {
     width: 220px;
     background: var(--sage);
-    padding: 32px 20px;
     height: 100%;
     overflow-y: auto;
   }
@@ -104,14 +104,9 @@
     flex: 1;
     min-width: 0;
     overflow-y: auto;
-    height: 100%;
   }
-  @media (max-width: 720px) {
-    .layout { flex-direction: column; }
-    .sidebar { width: 100%; min-height: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .sidebar h2 { width: 100%; margin-bottom: 4px; }
-    .sidebar a.nav-btn { margin-bottom: 0; }
-  }
+
+
  
   /* ---------- Layout ---------- */
   .page {
@@ -240,9 +235,6 @@
     gap: 16px;
   }
   .contact-grid .full { grid-column: 1 / -1; }
-  @media (max-width: 560px) {
-    .contact-grid { grid-template-columns: 1fr; }
-  }
  
   /* Toggle: Anonymous */
   .toggle-row {
