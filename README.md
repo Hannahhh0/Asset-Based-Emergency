@@ -24,7 +24,9 @@ A web application designed to support Root Causes in coordinating emergency food
 
 ## Live Demo
 
-https://hannahhh0.github.io/Asset-Based-Emergency/homepage.html
+Website: https://hannahhh0.github.io/Asset-Based-Emergency/homepage.html
+
+Website Demo: https://drive.google.com/file/d/1aeVJ176nhsORf5FgKYVm7D3foQxFVjOJ/view?usp=sharing
 
 ## Acknowledgments
 
