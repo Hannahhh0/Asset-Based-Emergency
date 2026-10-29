@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Root Causes</title>
+  <style>
+    :root {
+      --deep-green: #24402A;
+      --deep-green-dark: #1A2F1F;
+      --sage: #819077;
+      --sage-light: #9BAB92;
+      --sage-pale: #E8EDE5;
+      --navy: #1B2A41;
+      --cream: #F7F7F4;
+      --card-border: #DDE3D8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex; flex-direction: column; height: 100vh; background: var(--cream);
+    }
+    .topbar {
+      background: var(--deep-green); color: white;
+      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
+    }
+    .brand-sub { font-size: 0.82rem; color: var(--sage-light); }
+    .topbar a { color: white; text-decoration: none; font-size: 0.93rem; opacity: 0.9; }
+    .topbar a:hover { opacity: 1; text-decoration: underline; }
+    .layout { display: flex; flex: 1; overflow: hidden; }
+    .sidebar {
+      width: 220px; min-width: 220px; background: var(--sage); color: white;
+      padding: 24px 16px; display: flex; flex-direction: column; overflow-y: auto;
+    }
+    .sidebar .nav-btn {
+      display: block; background: rgba(255,255,255,0.15); color: white;
+      text-decoration: none; font-weight: 600; font-size: 0.93rem;
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s;
+    }
+    .sidebar .nav-btn:hover { background: rgba(255,255,255,0.25); }
+    .sidebar .nav-btn.active { background: var(--deep-green); }
+    .sidebar .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 20px 0 8px 4px;
+    }
+    .sidebar .section-label:first-child { margin-top: 0; }
+    .sidebar-bottom {
+      margin-top: auto; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .sidebar-bottom .nav-btn { background: rgba(255,255,255,0.1); }
+    .main { flex: 1; padding: 40px 48px; overflow-y: auto; }
+    .page-header h1 {
+      font-family: Georgia, serif; font-size: 2rem; color: var(--deep-green-dark); margin-bottom: 6px;
+    }
+    .page-header p { color: #566057; font-size: 0.95rem; max-width: 60ch; margin-bottom: 20px; }
+
+    .about-card {
+      background: white; border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .about-card h2 {
+      font-family: Georgia, serif; font-size: 1.3rem; color: var(--deep-green-dark);
+      margin-bottom: 12px;
+    }
+    .about-card p {
+      font-size: 0.95rem; color: #384339; line-height: 1.7; margin-bottom: 12px;
+    }
+    .about-card p:last-child { margin-bottom: 0; }
+    .about-card a { color: var(--sage); font-weight: 600; }
+
+    .team-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px; margin-top: 16px;
+    }
+    .team-member {
+      background: var(--sage-pale); border-radius: 10px; padding: 20px; text-align: center;
+    }
+    .team-member h3 { font-size: 1rem; color: var(--deep-green-dark); margin-bottom: 2px; }
+    .team-member p { font-size: 0.85rem; color: #566057; margin: 0; }
+    .lang-toggle {
+      font-size: 0.85rem; color: rgba(255,255,255,0.6); padding-left: 4px;
+      cursor: pointer; background: none; border: none; text-align: left;
+    }
+    .lang-toggle:hover { color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">RC</div>
+      <div>Root Causes<div class="brand-sub">Community Resource</div></div>
+    </div>
+    <a href="../homepage.html" data-en="← Back to Home" data-es="← Volver al Inicio">&larr; Back to Home</a>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section-label" data-en="Browse" data-es="Explorar">Browse</div>
+      <a href="ResourceDashboard.html" class="nav-btn" data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</a>
+      <a href="ResourceMap.html" class="nav-btn" data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</a>
+      <a href="ThisWeek.html" class="nav-btn" data-en="This Week" data-es="Esta Semana">This Week</a>
+      <div class="section-label" data-en="Contribute" data-es="Contribuir">Contribute</div>
+      <a href="ShareResource.html" class="nav-btn" data-en="Add a Resource" data-es="Agregar un Recurso">Add a Resource</a>
+      <a href="MySubmissions.html" class="nav-btn" data-en="My Submissions" data-es="Mis Envíos">My Submissions</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn" style="display:none;" data-en="Staff Review" data-es="Revisión del Personal">Staff Review</a>
+      <div class="sidebar-bottom">
+        <a href="About.html" class="nav-btn active" data-en="About" data-es="Acerca de">About</a>
+        <button class="lang-toggle" onclick="toggleLang()">Español</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-header">
+        <h1 data-en="About Root Causes" data-es="Sobre Root Causes">About Root Causes</h1>
+        <p data-en="A student-led organization at Duke University School of Medicine connecting communities with emergency food assistance and local resources."
+           data-es="Una organización estudiantil de la Escuela de Medicina de Duke University que conecta comunidades con asistencia alimentaria de emergencia y recursos locales.">
+          A student-led organization at Duke University School of Medicine connecting communities with emergency food assistance and local resources.
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h2 data-en="Our Mission" data-es="Nuestra Misión">Our Mission</h2>
+        <p data-en="Root Causes works to address food insecurity and connect community members with essential resources in Durham, NC. We take an asset-based approach — building on the strengths and resources that already exist within communities rather than focusing on deficits."
+           data-es="Root Causes trabaja para abordar la inseguridad alimentaria y conectar a los miembros de la comunidad con recursos esenciales en Durham, NC. Adoptamos un enfoque basado en activos — construyendo sobre las fortalezas y recursos que ya existen dentro de las comunidades en lugar de enfocarnos en las carencias.">
+          Root Causes works to address food insecurity and connect community members with essential resources in Durham, NC. We take an asset-based approach — building on the strengths and resources that already exist within communities rather than focusing on deficits.
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h2 data-en="What We Do" data-es="Lo Que Hacemos">What We Do</h2>
+        <p data-en="Through this platform, we coordinate volunteer operations, manage participant outreach, track deliveries, and maintain a community resource directory. Community members can discover local resources and submit new ones for staff review."
+           data-es="A través de esta plataforma, coordinamos operaciones de voluntarios, gestionamos el alcance a participantes, rastreamos entregas y mantenemos un directorio de recursos comunitarios. Los miembros de la comunidad pueden descubrir recursos locales y enviar nuevos para revisión del personal.">
+          Through this platform, we coordinate volunteer operations, manage participant outreach, track deliveries, and maintain a community resource directory. Community members can discover local resources and submit new ones for staff review.
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h2 data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</h2>
+        <p data-en="The Community Resource board is open to everyone. You can browse approved resources, view them on a map, submit new resources for review, and even contribute grocery price reports through our partnership with OpenShelf."
+           data-es="El tablero de Recursos Comunitarios está abierto a todos. Puedes explorar recursos aprobados, verlos en un mapa, enviar nuevos recursos para revisión, e incluso contribuir informes de precios de comestibles a través de nuestra asociación con OpenShelf.">
+          The Community Resource board is open to everyone. You can browse approved resources, view them on a map, submit new resources for review, and even contribute grocery price reports through our partnership with OpenShelf.
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h2 data-en="The Team" data-es="El Equipo">The Team</h2>
+        <p data-en="Developed for Root Causes by students at Duke University." data-es="Desarrollado para Root Causes por estudiantes de Duke University.">Developed for Root Causes by students at Duke University.</p>
+        <div class="team-grid">
+          <div class="team-member">
+            <h3>Natalie Alba</h3>
+          </div>
+          <div class="team-member">
+            <h3>Hannah Park</h3>
+          </div>
+          <div class="team-member">
+            <h3>Diana Rocío Vazquez</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-card">
+        <h2 data-en="Get in Touch" data-es="Contáctanos">Get in Touch</h2>
+        <p data-en="Learn more at the <a href='https://rootcauses.wixsite.com/rootcauses'>Root Causes website</a> or <a href='https://rootcauses.wixsite.com/rootcauses/contact'>contact us</a>."
+           data-es="Obtén más información en el <a href='https://rootcauses.wixsite.com/rootcauses'>sitio web de Root Causes</a> o <a href='https://rootcauses.wixsite.com/rootcauses/contact'>contáctanos</a>.">
+          Learn more at the <a href="https://rootcauses.wixsite.com/rootcauses">Root Causes website</a> or <a href="https://rootcauses.wixsite.com/rootcauses/contact">contact us</a>.
+        </p>
+      </div>
+    </main>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+    authDomain: "asset-based-emergency.firebaseapp.com",
+    projectId: "asset-based-emergency",
+    storageBucket: "asset-based-emergency.firebasestorage.app",
+    messagingSenderId: "166630111593",
+    appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userSnap = await getDoc(doc(db, "users", user.email));
+    if (!userSnap.exists()) return;
+    if ((userSnap.data().roles || []).includes("staff")) {
+      document.getElementById("staffReviewTab").style.display = "block";
+    }
+  });
+
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit a Price | Root Causes</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --deep-green: #24402A;
+      --deep-green-dark: #1A2F1F;
+      --sage: #819077;
+      --sage-light: #9BAB92;
+      --sage-pale: #E8EDE5;
+      --navy: #1B2A41;
+      --cream: #F7F7F4;
+      --card-border: #DDE3D8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--cream);
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--deep-green); color: white;
+      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
+    }
+    .brand-sub { font-size: 0.82rem; color: var(--sage-light); }
+    .topbar > a { color: white; text-decoration: none; font-size: 0.93rem; opacity: 0.9; }
+    .topbar > a:hover { opacity: 1; text-decoration: underline; }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; min-width: 220px; background: var(--sage); color: white;
+      padding: 24px 16px; display: flex; flex-direction: column; overflow-y: auto;
+    }
+    .sidebar .nav-btn {
+      display: block; background: rgba(255,255,255,0.15); color: white;
+      text-decoration: none; font-weight: 600; font-size: 0.93rem;
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s;
+    }
+    .sidebar .nav-btn:hover { background: rgba(255,255,255,0.25); }
+    .sidebar .nav-btn.active { background: var(--deep-green); }
+    .sidebar .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 20px 0 8px 4px;
+    }
+    .sidebar .section-label:first-child { margin-top: 0; }
+    .sidebar-bottom {
+      margin-top: auto; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .sidebar-bottom .nav-btn { background: rgba(255,255,255,0.1); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1; overflow-y: auto; padding: 40px 48px;
+    }
+
+    .back-link {
+      color: var(--sage); font-size: 0.9rem; text-decoration: none; margin-bottom: 12px;
+      display: inline-block;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .page-header h1 {
+      font-family: Georgia, serif; font-size: 2rem;
+      color: var(--deep-green-dark); margin-bottom: 6px;
+    }
+    .page-header p { color: #566057; font-size: 0.95rem; max-width: 60ch; margin-bottom: 20px; }
+
+    /* ── Two-column layout ── */
+    .form-layout {
+      display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start;
+    }
+    @media (max-width: 900px) {
+      .form-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Form card ── */
+    .form-card {
+      background: white; border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .field { margin-bottom: 24px; }
+    .field-label {
+      font-size: 0.9rem; font-weight: 700; color: var(--deep-green-dark);
+      margin-bottom: 8px; display: block;
+    }
+    .field-hint { font-size: 0.82rem; color: #7A8578; margin: -4px 0 10px; }
+
+    input[type="text"], input[type="number"], input[type="date"], select {
+      width: 100%; font-size: 0.95rem; padding: 12px 14px;
+      border: 1.5px solid var(--card-border); border-radius: 8px;
+      background: var(--cream); color: var(--navy); font-family: Arial, sans-serif;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--sage); background: white; }
+
+    /* Autocomplete dropdown */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-list {
+      display: none; position: absolute; top: 100%; left: 0; right: 0;
+      background: white; border: 1.5px solid var(--card-border); border-top: none;
+      border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 10;
+    }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-item {
+      padding: 12px 14px; cursor: pointer; font-size: 0.93rem; color: var(--navy);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .autocomplete-item:hover { background: var(--sage-pale); }
+    .autocomplete-item .sub { font-size: 0.82rem; color: #7A8578; }
+    .add-store-link {
+      padding: 12px 14px; font-size: 0.88rem; color: var(--sage);
+      cursor: pointer; font-weight: 600;
+    }
+    .add-store-link:hover { background: var(--sage-pale); }
+
+    /* Item chips */
+    .item-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .item-chip {
+      font-size: 0.85rem; padding: 6px 14px; border-radius: 999px;
+      border: 1.5px solid var(--card-border); background: white; color: var(--navy);
+      cursor: pointer;
+    }
+    .item-chip:hover { border-color: var(--sage-light); }
+    .item-chip.selected { background: var(--sage); border-color: var(--sage); color: white; }
+
+    /* Price row */
+    .price-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .price-input-wrap {
+      position: relative;
+    }
+    .price-input-wrap .dollar {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: #7A8578; font-size: 0.95rem; pointer-events: none;
+    }
+    .price-input-wrap input { padding-left: 28px; }
+
+    /* Toggle chips */
+    .toggle-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .toggle-chip {
+      font-size: 0.88rem; padding: 8px 16px; border-radius: 999px;
+      border: 1.5px solid var(--card-border); background: white; color: var(--navy);
+      cursor: pointer; user-select: none; transition: all 0.12s;
+    }
+    .toggle-chip:hover { border-color: var(--sage-light); }
+    .toggle-chip.active { background: var(--sage-pale); border-color: var(--sage); color: var(--deep-green-dark); }
+
+    /* Buttons */
+    .form-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-green {
+      background: var(--sage); color: white; border: none; padding: 12px 24px;
+      border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    }
+    .btn-green:hover { background: var(--deep-green); }
+    .btn-outline {
+      background: white; color: var(--navy); border: 1.5px solid var(--card-border);
+      padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer;
+    }
+    .btn-outline:hover { border-color: var(--sage-light); }
+
+    /* ── Right info panel ── */
+    .info-panel { display: flex; flex-direction: column; gap: 20px; }
+    .info-card {
+      background: white; border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .info-card h3 { font-size: 1rem; color: var(--deep-green-dark); margin-bottom: 10px; }
+    .info-card p { font-size: 0.88rem; color: #566057; line-height: 1.5; }
+    .info-card code {
+      display: block; background: var(--cream); padding: 12px;
+      border-radius: 6px; font-size: 0.8rem; color: #566057; margin-top: 10px;
+      line-height: 1.6;
+    }
+    #previewMap {
+      width: 100%; height: 180px; border-radius: 8px;
+      border: 1px solid var(--card-border); margin-bottom: 10px;
+    }
+    .preview-label {
+      font-size: 0.85rem; color: #566057;
+    }
+
+    /* Toast */
+    .toast {
+      display: none; position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: var(--deep-green); color: white; padding: 14px 28px;
+      border-radius: 10px; font-size: 0.95rem; z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .toast.show { display: block; }
+    .lang-toggle {
+      font-size: 0.85rem; color: rgba(255,255,255,0.6); padding-left: 4px;
+      cursor: pointer; background: none; border: none; text-align: left;
+    }
+    .lang-toggle:hover { color: white; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">RC</div>
+      <div>
+        Root Causes
+        <div class="brand-sub">Community Resource</div>
+      </div>
+    </div>
+    <a href="../homepage.html" data-en="← Back to Home" data-es="← Volver al Inicio">&larr; Back to Home</a>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="section-label" data-en="Browse" data-es="Explorar">Browse</div>
+      <a href="ResourceDashboard.html" class="nav-btn" data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</a>
+      <a href="ResourceMap.html" class="nav-btn" data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</a>
+      <a href="ThisWeek.html" class="nav-btn" data-en="This Week" data-es="Esta Semana">This Week</a>
+      <div class="section-label" data-en="Contribute" data-es="Contribuir">Contribute</div>
+      <a href="ShareResource.html" class="nav-btn" data-en="Add a Resource" data-es="Agregar un Recurso">Add a Resource</a>
+      <a href="MySubmissions.html" class="nav-btn" data-en="My Submissions" data-es="Mis Envíos">My Submissions</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn" style="display:none;" data-en="Staff Review" data-es="Revisión del Personal">Staff Review</a>
+      <div class="sidebar-bottom">
+        <a href="About.html" class="nav-btn" data-en="About" data-es="Acerca de">About</a>
+        <button class="lang-toggle" onclick="toggleLang()">Español</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <a class="back-link" href="ResourceDashboard.html" data-en="← Back to Community Resources" data-es="← Volver a Recursos Comunitarios">&larr; Back to Community Resources</a>
+
+      <div class="page-header">
+        <h1 data-en="Submit a Price" data-es="Enviar un Precio">Submit a Price</h1>
+        <p data-en="Takes about 20 seconds. Your report goes straight into OpenShelf, and appears on the Resource Map when the &quot;Prices (OpenShelf)&quot; chip is on." data-es="Toma unos 20 segundos. Tu reporte va directo a OpenShelf y aparece en el Mapa de Recursos cuando el chip &quot;Precios (OpenShelf)&quot; está activado.">Takes about 20 seconds. Your report goes straight into OpenShelf, and appears on the Resource Map when the "Prices (OpenShelf)" chip is on.</p>
+      </div>
+
+      <div class="form-layout">
+        <!-- Left: form -->
+        <form class="form-card" id="priceForm">
+          <!-- Store -->
+          <div class="field">
+            <label class="field-label" data-en="Store" data-es="Tienda">Store</label>
+            <div class="autocomplete-wrap">
+              <input type="text" id="storeInput" placeholder="📍 Start typing a store name or address..." data-en-placeholder="📍 Start typing a store name or address..." data-es-placeholder="📍 Empieza a escribir el nombre o dirección de una tienda...">
+              <div class="autocomplete-list" id="storeDropdown">
+                <div class="add-store-link" id="addStoreLink">+ Add a store that isn't listed</div>
+              </div>
+            </div>
+            <input type="hidden" id="storeId" name="store_id">
+            <input type="hidden" id="storeLat" name="lat">
+            <input type="hidden" id="storeLng" name="lng">
+          </div>
+
+          <!-- Item -->
+          <div class="field">
+            <label class="field-label" data-en="Item" data-es="Artículo">Item</label>
+            <input type="text" id="itemInput" placeholder='Start typing — "eggs", "rice", "diapers"...' data-en-placeholder='Start typing — "eggs", "rice", "diapers"...' data-es-placeholder='Empieza a escribir — "huevos", "arroz", "pañales"...'>
+            <div class="item-chips" id="itemChips"></div>
+            <input type="hidden" id="itemId" name="item_id">
+          </div>
+
+          <!-- Price / Unit / Date -->
+          <div class="field">
+            <div class="price-row">
+              <div>
+                <label class="field-label" data-en="Price" data-es="Precio">Price</label>
+                <div class="price-input-wrap">
+                  <span class="dollar">$</span>
+                  <input type="number" id="priceInput" name="price" step="0.01" min="0" placeholder="0.00">
+                </div>
+              </div>
+              <div>
+                <label class="field-label" data-en="Unit" data-es="Unidad">Unit</label>
+                <select id="unitSelect" name="unit">
+                  <option value="each">per each</option>
+                  <option value="lb">per lb</option>
+                  <option value="oz">per oz</option>
+                  <option value="dozen">per dozen</option>
+                  <option value="gallon">per gallon</option>
+                  <option value="liter">per liter</option>
+                  <option value="pack">per pack</option>
+                  <option value="bag">per bag</option>
+                  <option value="box">per box</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" data-en="Seen on" data-es="Visto el">Seen on</label>
+                <input type="date" id="seenDate" name="observed_at">
+              </div>
+            </div>
+          </div>
+
+          <!-- Toggle chips -->
+          <div class="toggle-chips">
+            <div class="toggle-chip" data-flag="on_sale" data-en="On sale" data-es="En oferta">On sale</div>
+            <div class="toggle-chip" data-flag="ebt_eligible" data-en="EBT eligible" data-es="Elegible para EBT">EBT eligible</div>
+            <div class="toggle-chip" data-flag="out_of_stock" data-en="Out of stock" data-es="Agotado">Out of stock</div>
+          </div>
+
+          <!-- Submit -->
+          <div class="form-actions">
+            <button type="submit" class="btn-green" id="submitBtn" data-en="Submit price" data-es="Enviar precio">Submit price</button>
+            <button type="button" class="btn-outline" id="saveAnotherBtn" data-en="Save and add another" data-es="Guardar y agregar otro">Save and add another</button>
+          </div>
+        </form>
+
+        <!-- Right: info cards -->
+        <div class="info-panel">
+          <div class="info-card">
+            <h3 data-en="Preview on the map" data-es="Vista previa en el mapa">Preview on the map</h3>
+            <div id="previewMap"></div>
+            <div class="preview-label" id="previewLabel" data-en="Select a store to see the pin." data-es="Selecciona una tienda para ver el pin.">Select a store to see the pin.</div>
+          </div>
+
+          <div class="info-card">
+            <h3 data-en="Where it goes" data-es="A dónde va">Where it goes</h3>
+            <p data-en="Inserted into your Supabase <strong>price_reports</strong> table alongside the rest of the OpenShelf data, then read back by both the OpenShelf app and this map. One row, one source of truth." data-es="Insertado en tu tabla <strong>price_reports</strong> de Supabase junto con el resto de los datos de OpenShelf, luego leído por la app de OpenShelf y este mapa. Una fila, una fuente de verdad.">Inserted into your Supabase <strong>price_reports</strong> table alongside the rest of the OpenShelf data, then read back by both the OpenShelf app and this map. One row, one source of truth.</p>
+            <code>store_id · item_id<br>price_cents · unit<br>lat · lng · observed_at<br>source: 'root-causes'</code>
+          </div>
+
+          <div class="info-card">
+            <h3 data-en="After submitting" data-es="Después de enviar">After submitting</h3>
+            <p data-en="Toast: &quot;Thanks — your price is live.&quot; Then straight to the map, centred on the new pin, with the report open in the right rail." data-es="Aviso: &quot;Gracias — tu precio está en vivo.&quot; Luego directo al mapa, centrado en el nuevo pin, con el reporte abierto en el panel derecho.">Toast: "Thanks — your price is live." Then straight to the map, centred on the new pin, with the report open in the right rail.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Thanks — your price is live.</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+    authDomain: "asset-based-emergency.firebaseapp.com",
+    projectId: "asset-based-emergency",
+    storageBucket: "asset-based-emergency.firebasestorage.app",
+    messagingSenderId: "166630111593",
+    appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Staff review tab
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userSnap = await getDoc(doc(db, "users", user.email));
+    if (!userSnap.exists()) return;
+    if ((userSnap.data().roles || []).includes("staff")) {
+      document.getElementById("staffReviewTab").style.display = "block";
+    }
+  });
+
+  // ── Preview map ──
+  const previewMap = L.map('previewMap', { zoomControl: false, attributionControl: false })
+    .setView([35.994, -78.8986], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 })
+    .addTo(previewMap);
+  let previewMarker = null;
+
+  function updatePreview(lat, lng, label) {
+    const latlng = L.latLng(lat, lng);
+    previewMap.setView(latlng, 15);
+    if (previewMarker) previewMap.removeLayer(previewMarker);
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
+      <path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.27 21.73 0 14 0z" fill="#C26B7A"/>
+      <circle cx="14" cy="14" r="6" fill="white" opacity="0.9"/>
+    </svg>`;
+    previewMarker = L.marker(latlng, {
+      icon: L.divIcon({ html: svg, iconSize: [28, 40], iconAnchor: [14, 40], className: '' })
+    }).addTo(previewMap);
+
+    document.getElementById('previewLabel').textContent = label;
+  }
+
+  // Default date to today
+  document.getElementById('seenDate').valueAsDate = new Date();
+
+  // ── Toggle chips ──
+  document.querySelectorAll('.toggle-chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+  });
+
+  // ── Store autocomplete ──
+  // This fetches from the OpenShelf Supabase stores table.
+  // TODO: Wire up to your Supabase instance with the actual URL and anon key.
+  const storeInput = document.getElementById('storeInput');
+  const storeDropdown = document.getElementById('storeDropdown');
+  let storeResults = [];
+
+  storeInput.addEventListener('focus', () => storeDropdown.classList.add('open'));
+  storeInput.addEventListener('input', async () => {
+    const q = storeInput.value.trim();
+    if (q.length < 2) { storeResults = []; renderStoreDropdown(); return; }
+
+    // TODO: Replace with actual Supabase fetch:
+    // const res = await fetch(`${SUPABASE_URL}/rest/v1/stores?name=ilike.*${q}*&select=id,name,address,lat,lng&limit=5`, {
+    //   headers: { 'apikey': SUPABASE_ANON_KEY }
+    // });
+    // storeResults = await res.json();
+
+    renderStoreDropdown();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.autocomplete-wrap')) storeDropdown.classList.remove('open');
+  });
+
+  function renderStoreDropdown() {
+    const existing = storeDropdown.querySelectorAll('.autocomplete-item');
+    existing.forEach(el => el.remove());
+
+    storeResults.forEach(store => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-item';
+      div.innerHTML = `<strong>${esc(store.name)}</strong><div class="sub">${esc(store.address || '')}</div>`;
+      div.addEventListener('click', () => {
+        storeInput.value = store.name;
+        document.getElementById('storeId').value = store.id;
+        document.getElementById('storeLat').value = store.lat;
+        document.getElementById('storeLng').value = store.lng;
+        storeDropdown.classList.remove('open');
+        if (store.lat && store.lng) {
+          updatePreview(store.lat, store.lng, `${store.name} · ${store.address || ''}`);
+        }
+      });
+      storeDropdown.insertBefore(div, document.getElementById('addStoreLink'));
+    });
+
+    storeDropdown.classList.add('open');
+  }
+
+  // ── Item autocomplete ──
+  const itemInput = document.getElementById('itemInput');
+  const itemChips = document.getElementById('itemChips');
+  let itemTimeout;
+
+  itemInput.addEventListener('input', () => {
+    clearTimeout(itemTimeout);
+    itemTimeout = setTimeout(async () => {
+      const q = itemInput.value.trim();
+      if (q.length < 2) { itemChips.innerHTML = ''; return; }
+
+      // TODO: Replace with actual Supabase fetch:
+      // const res = await fetch(`${SUPABASE_URL}/rest/v1/items?name=ilike.*${q}*&select=id,name,unit&limit=5`, {
+      //   headers: { 'apikey': SUPABASE_ANON_KEY }
+      // });
+      // const items = await res.json();
+
+      // Placeholder suggestions for demo
+      const items = [];
+      renderItemChips(items);
+    }, 250);
+  });
+
+  function renderItemChips(items) {
+    itemChips.innerHTML = '';
+    items.forEach(item => {
+      const chip = document.createElement('div');
+      chip.className = 'item-chip';
+      chip.textContent = item.name;
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.item-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        document.getElementById('itemId').value = item.id;
+        itemInput.value = item.name;
+        if (item.unit) document.getElementById('unitSelect').value = item.unit;
+      });
+      itemChips.appendChild(chip);
+    });
+  }
+
+  // ── Build preview label on input changes ──
+  function getPreviewText() {
+    const item = itemInput.value.trim() || '...';
+    const price = document.getElementById('priceInput').value;
+    const store = storeInput.value.trim() || '...';
+    const priceText = price ? `$${parseFloat(price).toFixed(2)}` : '$...';
+    return `${item} · ${priceText} · ${store} · today`;
+  }
+
+  [itemInput, document.getElementById('priceInput')].forEach(el => {
+    el.addEventListener('input', () => {
+      document.getElementById('previewLabel').textContent = getPreviewText();
+    });
+  });
+
+  // ── Submit handler ──
+  document.getElementById('priceForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await submitPrice(false);
+  });
+
+  document.getElementById('saveAnotherBtn').addEventListener('click', async () => {
+    await submitPrice(true);
+  });
+
+  async function submitPrice(addAnother) {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    const flags = {};
+    document.querySelectorAll('.toggle-chip.active').forEach(c => {
+      flags[c.dataset.flag] = true;
+    });
+
+    const payload = {
+      store_id: document.getElementById('storeId').value,
+      item_id: document.getElementById('itemId').value,
+      price_cents: Math.round(parseFloat(document.getElementById('priceInput').value || 0) * 100),
+      unit: document.getElementById('unitSelect').value,
+      lat: parseFloat(document.getElementById('storeLat').value) || null,
+      lng: parseFloat(document.getElementById('storeLng').value) || null,
+      observed_at: document.getElementById('seenDate').value,
+      source: 'root-causes',
+      ...flags
+    };
+
+    try {
+      // TODO: Replace with actual Supabase insert:
+      // await fetch(`${SUPABASE_URL}/rest/v1/price_reports`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'apikey': SUPABASE_ANON_KEY,
+      //     'Content-Type': 'application/json',
+      //     'Prefer': 'return=representation'
+      //   },
+      //   body: JSON.stringify(payload)
+      // });
+
+      console.log('Price payload:', payload);
+
+      // Show toast
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+
+      if (addAnother) {
+        // Reset form but keep store
+        itemInput.value = '';
+        document.getElementById('itemId').value = '';
+        document.getElementById('priceInput').value = '';
+        document.getElementById('seenDate').valueAsDate = new Date();
+        document.querySelectorAll('.toggle-chip').forEach(c => c.classList.remove('active'));
+        itemChips.innerHTML = '';
+        btn.disabled = false;
+        btn.textContent = 'Submit price';
+      } else {
+        // Redirect to map centered on the pin
+        const lat = payload.lat || 35.994;
+        const lng = payload.lng || -78.8986;
+        window.location.href = `ResourceMap.html#price=${lat},${lng}`;
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Submit price';
+    }
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+</script>
+<script src="lang.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Submissions | Root Causes</title>
+  <style>
+    :root {
+      --deep-green: #24402A;
+      --deep-green-dark: #1A2F1F;
+      --sage: #819077;
+      --sage-light: #9BAB92;
+      --sage-pale: #E8EDE5;
+      --navy: #1B2A41;
+      --cream: #F7F7F4;
+      --card-border: #DDE3D8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex; flex-direction: column; height: 100vh; background: var(--cream);
+    }
+    .topbar {
+      background: var(--deep-green); color: white;
+      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
+    }
+    .brand-sub { font-size: 0.82rem; color: var(--sage-light); }
+    .topbar a { color: white; text-decoration: none; font-size: 0.93rem; opacity: 0.9; }
+    .topbar a:hover { opacity: 1; text-decoration: underline; }
+    .layout { display: flex; flex: 1; overflow: hidden; }
+    .sidebar {
+      width: 220px; min-width: 220px; background: var(--sage); color: white;
+      padding: 24px 16px; display: flex; flex-direction: column; overflow-y: auto;
+    }
+    .sidebar .nav-btn {
+      display: block; background: rgba(255,255,255,0.15); color: white;
+      text-decoration: none; font-weight: 600; font-size: 0.93rem;
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s;
+    }
+    .sidebar .nav-btn:hover { background: rgba(255,255,255,0.25); }
+    .sidebar .nav-btn.active { background: var(--deep-green); }
+    .sidebar .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 20px 0 8px 4px;
+    }
+    .sidebar .section-label:first-child { margin-top: 0; }
+    .sidebar-bottom {
+      margin-top: auto; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .sidebar-bottom .nav-btn { background: rgba(255,255,255,0.1); }
+    .main { flex: 1; padding: 40px 48px; overflow-y: auto; }
+    .page-header h1 {
+      font-family: Georgia, serif; font-size: 2rem; color: var(--deep-green-dark); margin-bottom: 6px;
+    }
+    .page-header p { color: #566057; font-size: 0.95rem; max-width: 60ch; margin-bottom: 20px; }
+    .btn-green {
+      background: var(--sage); color: white; border: none; padding: 11px 22px;
+      border-radius: 8px; font-weight: 600; font-size: 0.93rem; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 24px;
+    }
+    .btn-green:hover { background: var(--deep-green); }
+
+    /* Submission cards */
+    .submission-card {
+      background: white; border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .submission-top {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+      margin-bottom: 8px;
+    }
+    .submission-card h3 { font-size: 1.1rem; color: var(--deep-green-dark); margin: 0; }
+    .badge {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.03em; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+    }
+    .badge.pending { background: #FBF0DD; color: #6B5416; }
+    .badge.approved { background: var(--sage-pale); color: var(--deep-green-dark); }
+    .badge.rejected { background: #F6E8E8; color: #8C3B3B; }
+    .cat-pill {
+      display: inline-block; font-size: 0.78rem;
+      background: var(--sage-pale); color: var(--deep-green-dark);
+      padding: 3px 10px; border-radius: 999px; margin-bottom: 10px;
+    }
+    .submission-card p {
+      font-size: 0.9rem; color: #384339; line-height: 1.5; margin: 0 0 12px;
+    }
+    .submission-meta {
+      font-size: 0.82rem; color: #7A8578;
+      border-top: 1px solid var(--card-border); padding-top: 10px;
+    }
+
+    .empty-state {
+      color: #7A8578; text-align: center; padding: 60px 20px;
+      border: 1px dashed var(--card-border); border-radius: 12px; background: white;
+    }
+    .empty-state a { color: var(--sage); font-weight: 600; }
+    .loading { color: #7A8578; text-align: center; padding: 60px 20px; }
+
+    .sign-in-prompt {
+      text-align: center; padding: 80px 20px;
+      background: white; border: 1px solid var(--card-border); border-radius: 12px;
+    }
+    .sign-in-prompt h2 { color: var(--deep-green-dark); margin-bottom: 8px; }
+    .sign-in-prompt p { color: #566057; margin-bottom: 20px; }
+    .sign-in-btn {
+      background: var(--sage); color: white; border: none; padding: 12px 28px;
+      border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer;
+    }
+    .sign-in-btn:hover { background: var(--deep-green); }
+    .lang-toggle {
+      font-size: 0.85rem; color: rgba(255,255,255,0.6); padding-left: 4px;
+      cursor: pointer; background: none; border: none; text-align: left;
+    }
+    .lang-toggle:hover { color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">RC</div>
+      <div>Root Causes<div class="brand-sub">Community Resource</div></div>
+    </div>
+    <a href="../homepage.html" data-en="← Back to Home" data-es="← Volver al Inicio">&larr; Back to Home</a>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section-label" data-en="Browse" data-es="Explorar">Browse</div>
+      <a href="ResourceDashboard.html" class="nav-btn" data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</a>
+      <a href="ResourceMap.html" class="nav-btn" data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</a>
+      <a href="ThisWeek.html" class="nav-btn" data-en="This Week" data-es="Esta Semana">This Week</a>
+      <div class="section-label" data-en="Contribute" data-es="Contribuir">Contribute</div>
+      <a href="ShareResource.html" class="nav-btn" data-en="Add a Resource" data-es="Agregar un Recurso">Add a Resource</a>
+      <a href="MySubmissions.html" class="nav-btn active" data-en="My Submissions" data-es="Mis Envíos">My Submissions</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn" style="display:none;" data-en="Staff Review" data-es="Revisión del Personal">Staff Review</a>
+      <div class="sidebar-bottom">
+        <a href="About.html" class="nav-btn" data-en="About" data-es="Acerca de">About</a>
+        <button class="lang-toggle" onclick="toggleLang()">Español</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-header">
+        <h1 data-en="My Submissions" data-es="Mis Envíos">My Submissions</h1>
+        <p data-en="Track the status of resources you've submitted." data-es="Sigue el estado de los recursos que has enviado.">Track the status of resources you've submitted.</p>
+      </div>
+
+      <!-- Shown when not signed in -->
+      <div id="signInPrompt" class="sign-in-prompt" style="display:none;">
+        <h2 data-en="Sign in to see your submissions" data-es="Inicia sesión para ver tus envíos">Sign in to see your submissions</h2>
+        <p data-en="You need to be logged in to track your resource submissions." data-es="Necesitas iniciar sesión para ver tus envíos de recursos.">You need to be logged in to track your resource submissions.</p>
+        <button class="sign-in-btn" id="signInBtn" data-en="Sign in with Google" data-es="Iniciar sesión con Google">Sign in with Google</button>
+      </div>
+
+      <!-- Shown when signed in -->
+      <div id="content" style="display:none;">
+        <a class="btn-green" href="ShareResource.html">+ Submit a New Resource</a>
+        <div id="loading" class="loading" data-en="Loading your submissions..." data-es="Cargando tus envíos...">Loading your submissions...</div>
+        <div id="list"></div>
+        <div id="emptyState" class="empty-state" style="display:none;"
+             data-en="You haven't submitted any resources yet. <a href='ShareResource.html'>Share one now →</a>"
+             data-es="Aún no has enviado ningún recurso. <a href='ShareResource.html'>Comparte uno ahora →</a>">
+          You haven't submitted any resources yet. <a href="ShareResource.html">Share one now →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot, query, where, orderBy, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+    authDomain: "asset-based-emergency.firebaseapp.com",
+    projectId: "asset-based-emergency",
+    storageBucket: "asset-based-emergency.firebasestorage.app",
+    messagingSenderId: "166630111593",
+    appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const signInPrompt = document.getElementById('signInPrompt');
+  const content = document.getElementById('content');
+  const list = document.getElementById('list');
+  const loading = document.getElementById('loading');
+  const emptyState = document.getElementById('emptyState');
+
+  // Sign in button
+  document.getElementById('signInBtn').addEventListener('click', async () => {
+    const provider = new GoogleAuthProvider();
+    try { await signInWithPopup(auth, provider); }
+    catch (err) { console.error('Sign-in error:', err); }
+  });
+
+  let unsubscribe = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+
+    if (!user) {
+      signInPrompt.style.display = 'block';
+      content.style.display = 'none';
+      return;
+    }
+
+    signInPrompt.style.display = 'none';
+    content.style.display = 'block';
+
+    // Staff review tab
+    const userSnap = await getDoc(doc(db, "users", user.email));
+    if (userSnap.exists() && (userSnap.data().roles || []).includes("staff")) {
+      document.getElementById("staffReviewTab").style.display = "block";
+    }
+
+    // Query this user's submissions by email
+    const q = query(
+      collection(db, 'resourceSubmissions'),
+      where('email', '==', user.email),
+      orderBy('createdAt', 'desc')
+    );
+
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      loading.style.display = 'none';
+      const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      list.innerHTML = '';
+      emptyState.style.display = items.length ? 'none' : 'block';
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'submission-card';
+        const date = item.createdAt?.toDate?.();
+        const dateStr = date ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const status = item.status || 'pending';
+
+        card.innerHTML = `
+          <div class="submission-top">
+            <h3>${esc(item.title || 'Untitled resource')}</h3>
+            <span class="badge ${status}">${status}</span>
+          </div>
+          <span class="cat-pill">${esc(item.category || 'Other')}</span>
+          <p>${esc(item.description || '')}</p>
+          ${item.location ? `<div style="font-size:0.85rem; color:#566057; margin-bottom:8px;">📍 ${esc(item.location)}</div>` : ''}
+          <div class="submission-meta">Submitted ${dateStr}</div>
+        `;
+        list.appendChild(card);
+      });
+    }, (err) => {
+      loading.textContent = 'Could not load your submissions.';
+      console.error(err);
+    });
+  });
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

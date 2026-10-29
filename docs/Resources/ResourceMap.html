@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resource Map | Root Causes</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --deep-green: #24402A;
+      --deep-green-dark: #1A2F1F;
+      --sage: #819077;
+      --sage-light: #9BAB92;
+      --sage-pale: #E8EDE5;
+      --navy: #1B2A41;
+      --cream: #F7F7F4;
+      --card-border: #DDE3D8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--cream);
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--deep-green); color: white;
+      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
+    }
+    .brand-sub { font-size: 0.82rem; color: var(--sage-light); }
+    .topbar a { color: white; text-decoration: none; font-size: 0.93rem; opacity: 0.9; }
+    .topbar a:hover { opacity: 1; text-decoration: underline; }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; min-width: 220px; background: var(--sage); color: white;
+      padding: 24px 16px; display: flex; flex-direction: column; overflow-y: auto;
+    }
+    .sidebar .nav-btn {
+      display: block; background: rgba(255,255,255,0.15); color: white;
+      text-decoration: none; font-weight: 600; font-size: 0.93rem;
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s;
+    }
+    .sidebar .nav-btn:hover { background: rgba(255,255,255,0.25); }
+    .sidebar .nav-btn.active { background: var(--deep-green); }
+    .sidebar .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 20px 0 8px 4px;
+    }
+    .sidebar .section-label:first-child { margin-top: 0; }
+    .sidebar-bottom {
+      margin-top: auto; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .sidebar-bottom .nav-btn { background: rgba(255,255,255,0.1); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* ── Header area ── */
+    .map-header {
+      padding: 28px 40px 0;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .map-header h1 {
+      font-family: Georgia, serif; font-size: 2rem;
+      color: var(--deep-green-dark); margin-bottom: 6px;
+    }
+    .map-header p { color: #566057; font-size: 0.95rem; max-width: 60ch; }
+    .btn-green {
+      background: var(--sage); color: white; border: none; padding: 11px 22px;
+      border-radius: 8px; font-weight: 600; font-size: 0.93rem; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-green:hover { background: var(--deep-green); }
+
+    /* ── Filters ── */
+    .filter-bar {
+      padding: 16px 40px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .search-box {
+      flex: 1; min-width: 200px; font-size: 0.93rem; padding: 10px 14px;
+      border: 1.5px solid var(--card-border); border-radius: 8px; background: white;
+    }
+    .search-box:focus { outline: none; border-color: var(--sage); }
+    .chip {
+      font-size: 0.85rem; padding: 7px 14px; border-radius: 999px;
+      border: 1.5px solid var(--card-border); background: white; color: var(--navy);
+      cursor: pointer; user-select: none; transition: all 0.12s;
+    }
+    .chip:hover { border-color: var(--sage-light); }
+    .chip.selected { background: var(--sage); border-color: var(--sage); color: white; }
+
+    /* ── Map + rail layout ── */
+    .map-body {
+      flex: 1; display: flex; overflow: hidden; padding: 0 40px 24px; gap: 20px;
+    }
+    #map {
+      flex: 1; border-radius: 12px; border: 1px solid var(--card-border);
+      min-height: 300px; position: relative; z-index: 0;
+    }
+
+    .locate-btn {
+      position: absolute; top: 12px; right: 12px; z-index: 1000;
+      background: white; border: 1.5px solid var(--card-border); border-radius: 8px;
+      padding: 8px 14px; font-size: 0.85rem; cursor: pointer; color: var(--navy);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .locate-btn:hover { border-color: var(--sage); }
+
+    /* ── Right rail ── */
+    .rail {
+      width: 340px; min-width: 300px; display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .rail-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .rail-header h3 { font-size: 1rem; color: var(--deep-green-dark); }
+    .rail-header select {
+      font-size: 0.82rem; border: 1px solid var(--card-border); border-radius: 6px;
+      padding: 4px 8px; color: var(--navy); background: white;
+    }
+    .rail-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+    .rail-card {
+      background: white; border: 1px solid var(--card-border); border-radius: 10px;
+      padding: 16px; cursor: pointer; transition: border-color 0.15s;
+    }
+    .rail-card:hover { border-color: var(--sage); }
+    .rail-card .cat-pill {
+      display: inline-block; font-size: 0.72rem;
+      background: var(--sage-pale); color: var(--deep-green-dark);
+      padding: 2px 8px; border-radius: 999px; margin-bottom: 6px;
+    }
+    .rail-card h4 { font-size: 0.95rem; color: var(--deep-green-dark); margin-bottom: 4px; }
+    .rail-card .desc { font-size: 0.82rem; color: #566057; margin-bottom: 6px; }
+    .rail-card .loc { font-size: 0.8rem; color: #7A8578; }
+    .rail-card .dist { font-size: 0.8rem; color: #7A8578; float: right; }
+
+    /* ── Legend ── */
+    .legend {
+      position: absolute; bottom: 16px; left: 16px; z-index: 1000;
+      background: white; border-radius: 10px; padding: 12px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12); font-size: 0.78rem; color: var(--navy);
+    }
+    .legend h4 { font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; }
+    .legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    .empty-rail {
+      text-align: center; color: #7A8578; padding: 40px 12px;
+      border: 1px dashed var(--card-border); border-radius: 10px;
+    }
+    .lang-toggle {
+      font-size: 0.85rem; color: rgba(255,255,255,0.6); padding-left: 4px;
+      cursor: pointer; background: none; border: none; text-align: left;
+    }
+    .lang-toggle:hover { color: white; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">RC</div>
+      <div>
+        Root Causes
+        <div class="brand-sub">Community Resource</div>
+      </div>
+    </div>
+    <a href="../homepage.html" data-en="← Back to Home" data-es="← Volver al Inicio">&larr; Back to Home</a>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="section-label" data-en="Browse" data-es="Explorar">Browse</div>
+      <a href="ResourceDashboard.html" class="nav-btn" data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</a>
+      <a href="ResourceMap.html" class="nav-btn active" data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</a>
+      <a href="ThisWeek.html" class="nav-btn" data-en="This Week" data-es="Esta Semana">This Week</a>
+      <div class="section-label" data-en="Contribute" data-es="Contribuir">Contribute</div>
+      <a href="ShareResource.html" class="nav-btn" data-en="Add a Resource" data-es="Agregar un Recurso">Add a Resource</a>
+      <a href="MySubmissions.html" class="nav-btn" data-en="My Submissions" data-es="Mis Envíos">My Submissions</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn" style="display:none;" data-en="Staff Review" data-es="Revisión del Personal">Staff Review</a>
+      <div class="sidebar-bottom">
+        <a href="About.html" class="nav-btn" data-en="About" data-es="Acerca de">About</a>
+        <button class="lang-toggle" onclick="toggleLang()">Español</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <div class="map-header">
+        <div>
+          <h1 data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</h1>
+          <p data-en="Every approved resource with an address, plotted around you." data-es="Cada recurso aprobado con dirección, ubicado a tu alrededor.">Every approved resource with an address, plotted around you.</p>
+        </div>
+        <a class="btn-green" href="ShareResource.html" data-en="+ Add a Resource" data-es="+ Agregar un Recurso">+ Add a Resource</a>
+      </div>
+
+      <div class="filter-bar" id="filterBar">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search resources..." data-en-placeholder="Search resources..." data-es-placeholder="Buscar recursos...">
+        <div class="chip selected" data-cat="All" data-en="All" data-es="Todos">All</div>
+        <div class="chip" data-cat="Food" data-en="Food Assistance" data-es="Asistencia Alimentaria">Food Assistance</div>
+        <div class="chip" data-cat="Housing" data-en="Housing" data-es="Vivienda">Housing</div>
+        <div class="chip" data-cat="Healthcare" data-en="Healthcare" data-es="Salud">Healthcare</div>
+        <div class="chip" data-cat="Education" data-en="Education" data-es="Educación">Education</div>
+        <div class="chip" data-cat="Prices" data-en="Prices (OpenShelf)" data-es="Precios (OpenShelf)">Prices (OpenShelf)</div>
+      </div>
+
+      <div class="map-body">
+        <div id="map">
+          <button class="locate-btn" id="locateBtn" data-en="◎ Use my location" data-es="◎ Usar mi ubicación">◎ Use my location</button>
+
+          <div class="legend">
+            <h4 data-en="Categories" data-es="Categorías">Categories</h4>
+            <div class="legend-items">
+              <div class="legend-item"><span class="legend-dot" style="background:#5B7553;"></span> <span data-en="Food" data-es="Alimentos">Food</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#4A7C6F;"></span> <span data-en="Housing" data-es="Vivienda">Housing</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#3D4F5F;"></span> <span data-en="Healthcare" data-es="Salud">Healthcare</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#8B6E4E;"></span> <span data-en="Education" data-es="Educación">Education</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#C26B7A;"></span> <span data-en="Price report (OpenShelf)" data-es="Reporte de precios (OpenShelf)">Price report (OpenShelf)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rail">
+          <div class="rail-header">
+            <h3 id="railCount">0 resources nearby</h3>
+            <select id="sortSelect">
+              <option value="closest" data-en="Closest" data-es="Más cercano">Closest</option>
+              <option value="newest" data-en="Newest" data-es="Más reciente">Newest</option>
+            </select>
+          </div>
+          <div class="rail-list" id="railList">
+            <div class="empty-rail" data-en="Loading resources..." data-es="Cargando recursos...">Loading resources...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot, query, where, orderBy, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
+    authDomain: "asset-based-emergency.firebaseapp.com",
+    projectId: "asset-based-emergency",
+    storageBucket: "asset-based-emergency.firebasestorage.app",
+    messagingSenderId: "166630111593",
+    appId: "1:166630111593:web:9f8942e7301ca552e565f8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // Staff review tab
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userSnap = await getDoc(doc(db, "users", user.email));
+    if (!userSnap.exists()) return;
+    if ((userSnap.data().roles || []).includes("staff")) {
+      document.getElementById("staffReviewTab").style.display = "block";
+    }
+  });
+
+  // ── Category colors for map pins ──
+  const catColors = {
+    Food: '#5B7553',
+    Housing: '#4A7C6F',
+    Healthcare: '#3D4F5F',
+    Education: '#8B6E4E',
+    Financial: '#6B5B8A',
+    Transportation: '#7A6B5B',
+    Childcare: '#8B7355',
+    Prices: '#C26B7A',
+    Other: '#819077'
+  };
+
+  function pinIcon(color) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
+      <path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.27 21.73 0 14 0z" fill="${color}"/>
+      <circle cx="14" cy="14" r="6" fill="white" opacity="0.9"/>
+    </svg>`;
+    return L.divIcon({
+      html: svg,
+      iconSize: [28, 40],
+      iconAnchor: [14, 40],
+      popupAnchor: [0, -36],
+      className: ''
+    });
+  }
+
+  // ── Map setup — centered on Durham, NC ──
+  const map = L.map('map', { zoomControl: true }).setView([35.994, -78.8986], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  let userMarker = null;
+  let userLatLng = null;
+  let allResources = [];
+  let markers = [];
+  let activeCategory = 'All';
+  let searchTerm = '';
+
+  // ── Locate user ──
+  document.getElementById('locateBtn').addEventListener('click', () => {
+    if (!navigator.geolocation) return alert('Geolocation not supported.');
+    navigator.geolocation.getCurrentPosition((pos) => {
+      userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+      map.setView(userLatLng, 14);
+      if (userMarker) map.removeLayer(userMarker);
+      userMarker = L.circleMarker(userLatLng, {
+        radius: 8, fillColor: '#4A90D9', fillOpacity: 1,
+        color: 'white', weight: 3
+      }).addTo(map);
+      renderRail();
+    }, () => alert('Could not get your location.'));
+  });
+
+  // ── Filters ──
+  document.getElementById('filterBar').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('chip')) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    e.target.classList.add('selected');
+    activeCategory = e.target.dataset.cat;
+    renderMap();
+    renderRail();
+  });
+
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    searchTerm = e.target.value.toLowerCase();
+    renderMap();
+    renderRail();
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', () => renderRail());
+
+  // ── Load resources from Firestore ──
+  const q = query(
+    collection(db, 'resourceSubmissions'),
+    where('status', '==', 'approved'),
+    orderBy('createdAt', 'desc')
+  );
+
+  onSnapshot(q, (snapshot) => {
+    allResources = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderMap();
+    renderRail();
+  }, (err) => {
+    console.error(err);
+    document.getElementById('railList').innerHTML =
+      '<div class="empty-rail">Could not load resources.</div>';
+  });
+
+  function filtered() {
+    let items = allResources;
+    if (activeCategory !== 'All') {
+      items = items.filter(r => r.category === activeCategory);
+    }
+    if (searchTerm) {
+      items = items.filter(r =>
+        (r.title || '').toLowerCase().includes(searchTerm) ||
+        (r.description || '').toLowerCase().includes(searchTerm)
+      );
+    }
+    return items;
+  }
+
+  // ── Render map markers ──
+  function renderMap() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    filtered().forEach(item => {
+      if (!item.lat || !item.lng) return;
+      const color = catColors[item.category] || catColors.Other;
+      const m = L.marker([item.lat, item.lng], { icon: pinIcon(color) })
+        .bindPopup(`<strong>${esc(item.title)}</strong><br>${esc(item.location || '')}`)
+        .addTo(map);
+      m._resourceId = item.id;
+      markers.push(m);
+    });
+  }
+
+  // ── Render right rail ──
+  function renderRail() {
+    const list = document.getElementById('railList');
+    const items = filtered();
+
+    // Compute distances if user location available
+    const withDist = items.map(item => {
+      let dist = null;
+      if (userLatLng && item.lat && item.lng) {
+        dist = userLatLng.distanceTo(L.latLng(item.lat, item.lng));
+      }
+      return { ...item, _dist: dist };
+    });
+
+    const sortBy = document.getElementById('sortSelect').value;
+    if (sortBy === 'closest') {
+      withDist.sort((a, b) => {
+        if (a._dist === null && b._dist === null) return 0;
+        if (a._dist === null) return 1;
+        if (b._dist === null) return -1;
+        return a._dist - b._dist;
+      });
+    }
+
+    document.getElementById('railCount').textContent =
+      `${withDist.length} resource${withDist.length !== 1 ? 's' : ''} nearby`;
+
+    if (!withDist.length) {
+      list.innerHTML = '<div class="empty-rail">No resources match your filters.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    withDist.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'rail-card';
+
+      let distText = '';
+      if (item._dist !== null) {
+        const mi = (item._dist * 0.000621371).toFixed(1);
+        distText = `<span class="dist">${mi} mi</span>`;
+      }
+
+      card.innerHTML = `
+        ${distText}
+        <span class="cat-pill">${esc(item.category || 'Other')}</span>
+        <h4>${esc(item.title || 'Untitled')}</h4>
+        <div class="desc">${esc((item.description || '').slice(0, 80))}${(item.description || '').length > 80 ? '...' : ''}</div>
+        ${item.location ? `<div class="loc">📍 ${esc(item.location)}</div>` : ''}
+      `;
+
+      card.addEventListener('click', () => {
+        if (item.lat && item.lng) {
+          map.setView([item.lat, item.lng], 16);
+          const marker = markers.find(m => m._resourceId === item.id);
+          if (marker) marker.openPopup();
+        }
+      });
+
+      card.addEventListener('mouseenter', () => {
+        const marker = markers.find(m => m._resourceId === item.id);
+        if (marker) marker.openPopup();
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+</script>
+<script src="lang.js"></script>
+
+</body>
+</html>

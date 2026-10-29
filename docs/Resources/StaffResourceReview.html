@@ -17,64 +17,57 @@
     --red: #8C3B3B;
     --red-bg: #F6E8E8;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     margin: 0;
-    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     background: var(--cream);
-    color: var(--navy);
   }
   .topbar {
-    background: var(--deep-green);
-    color: white;
-    padding: 18px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+    background: var(--deep-green); color: white;
+    padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
   }
-  .brand { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
   .brand-mark {
     width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
     display: flex; align-items: center; justify-content: center;
     font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
   }
-  .brand-sub { font-size: 0.85rem; font-weight: normal; color: var(--sage-light); font-family: Arial, sans-serif; }
-  .topbar-actions a {
-    color: white; text-decoration: none; font-family: Arial, sans-serif; font-size: 0.95rem; opacity: 0.9;
-  }
-  .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
- 
-  /* ---------- Sidebar layout ---------- */
-  .layout {
-    display: flex;
-    height: calc(100vh - 71px);
-  }
+  .brand-sub { font-size: 0.82rem; color: var(--sage-light); }
+  .topbar a { color: white; text-decoration: none; font-size: 0.93rem; opacity: 0.9; }
+  .topbar a:hover { opacity: 1; text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .layout { display: flex; flex: 1; overflow: hidden; }
   .sidebar {
-    width: 220px;
-    background: var(--sage);
-    padding: 32px 20px;
-    height: 100%;
-    overflow-y: auto;
+    width: 220px; min-width: 220px; background: var(--sage); color: white;
+    padding: 24px 16px; display: flex; flex-direction: column; overflow-y: auto;
   }
-  .sidebar h2 {
-    color: white; font-family: Arial, sans-serif; font-weight: 800;
-    font-size: 1.35rem; margin: 0 0 22px;
+  .sidebar .nav-btn {
+    display: block; background: rgba(255,255,255,0.15); color: white;
+    text-decoration: none; font-weight: 600; font-size: 0.93rem;
+    padding: 13px 16px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s;
   }
-  .sidebar a.nav-btn {
-    display: block; background: rgba(255,255,255,0.18); color: white;
-    text-decoration: none; font-family: Arial, sans-serif; font-weight: 600;
-    font-size: 0.95rem; padding: 14px 18px; border-radius: 10px; margin-bottom: 14px;
-    transition: background 0.15s ease;
+  .sidebar .nav-btn:hover { background: rgba(255,255,255,0.25); }
+  .sidebar .nav-btn.active { background: var(--deep-green); }
+  .sidebar .section-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 20px 0 8px 4px;
   }
-  .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
-  .sidebar a.nav-btn.active { background: var(--deep-green); }
+  .sidebar .section-label:first-child { margin-top: 0; }
+  .sidebar-bottom {
+    margin-top: auto; padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .sidebar-bottom .nav-btn { background: rgba(255,255,255,0.1); }
  
   .page { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
  
-  .page-header h1 { font-size: 1.9rem; margin: 0 0 6px; color: var(--deep-green-dark); }
-  .page-header p { font-family: Arial, sans-serif; color: #566057; margin: 0; font-size: 0.95rem; }
+  .page-header h1 { font-family: Georgia, serif; font-size: 2rem; margin: 0 0 6px; color: var(--deep-green-dark); }
+  .page-header p { color: #566057; font-size: 0.95rem; max-width: 60ch; margin-bottom: 20px; }
  
   .tabs { display: flex; gap: 10px; margin: 26px 0 20px; font-family: Arial, sans-serif; }
   .tab {
@@ -128,12 +121,16 @@
   .btn-undo { background: white; color: var(--navy); border: 1.5px solid var(--card-border); }
  
   .loading { font-family: Arial, sans-serif; color: #7A8578; text-align: center; padding: 40px; }
+  .lang-toggle {
+    font-size: 0.85rem; color: rgba(255,255,255,0.6); padding-left: 4px;
+    cursor: pointer; background: none; border: none; text-align: left;
+  }
+  .lang-toggle:hover { color: white; }
 
-  .main-content {
+  .main {
     flex: 1;
     min-width: 0;
     overflow-y: auto;
-    height: 100%;
   }
 </style>
 </head>
@@ -144,34 +141,39 @@
       <div class="brand-mark">RC</div>
       <div>
         Root Causes
-        <div class="brand-sub">Staff — Resource Review</div>
+        <div class="brand-sub">Community Resource</div>
       </div>
     </div>
-    <div class="topbar-actions">
-      <a href="../homepage.html">&larr; Back to Home</a>
-    </div>
+    <a href="../homepage.html" data-en="← Back to Home" data-es="← Volver al Inicio">&larr; Back to Home</a>
   </div>
  
   <div class="layout">
     <aside class="sidebar">
-      <h2>Menu</h2>
-      <a href="ResourceDashboard.html" class="nav-btn">Dashboard</a>
-      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn">
-        Staff Review
-      </a>
+      <div class="section-label" data-en="Browse" data-es="Explorar">Browse</div>
+      <a href="ResourceDashboard.html" class="nav-btn" data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</a>
+      <a href="ResourceMap.html" class="nav-btn" data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</a>
+      <a href="ThisWeek.html" class="nav-btn" data-en="This Week" data-es="Esta Semana">This Week</a>
+      <div class="section-label" data-en="Contribute" data-es="Contribuir">Contribute</div>
+      <a href="ShareResource.html" class="nav-btn" data-en="Add a Resource" data-es="Agregar un Recurso">Add a Resource</a>
+      <a href="MySubmissions.html" class="nav-btn" data-en="My Submissions" data-es="Mis Envíos">My Submissions</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn active" data-en="Staff Review" data-es="Revisión del Personal">Staff Review</a>
+      <div class="sidebar-bottom">
+        <a href="About.html" class="nav-btn" data-en="About" data-es="Acerca de">About</a>
+        <button class="lang-toggle" onclick="toggleLang()">Español</button>
+      </div>
     </aside>
  
-    <main class="main-content">
+    <main class="main">
       <div class="page">
         <div class="page-header">
-          <h1>Resource Submissions</h1>
-          <p>Review community-submitted resources before they go live on the public dashboard.</p>
+          <h1 data-en="Resource Submissions" data-es="Envíos de Recursos">Resource Submissions</h1>
+          <p data-en="Review community-submitted resources before they go live on the public dashboard." data-es="Revisa los recursos enviados por la comunidad antes de que se publiquen en el panel público.">Review community-submitted resources before they go live on the public dashboard.</p>
         </div>
     
         <div class="tabs">
-          <div class="tab active" data-filter="pending">Pending <span class="count" id="countPending">0</span></div>
-          <div class="tab" data-filter="approved">Approved <span class="count" id="countApproved">0</span></div>
-          <div class="tab" data-filter="rejected">Rejected <span class="count" id="countRejected">0</span></div>
+          <div class="tab active" data-filter="pending"><span data-en="Pending" data-es="Pendiente">Pending</span> <span class="count" id="countPending">0</span></div>
+          <div class="tab" data-filter="approved"><span data-en="Approved" data-es="Aprobado">Approved</span> <span class="count" id="countApproved">0</span></div>
+          <div class="tab" data-filter="rejected"><span data-en="Rejected" data-es="Rechazado">Rejected</span> <span class="count" id="countRejected">0</span></div>
         </div>
     
         <div id="loading" class="loading">Loading submissions...</div>
@@ -357,7 +359,9 @@
     div.textContent = str;
     return div.innerHTML;
   }
+
 </script>
+<script src="lang.js"></script>
  
 </body>
 </html>

@@ -18,106 +18,60 @@
     --warn-border: #E8C77E;
   }
  
-  * { box-sizing: border-box; }
- 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     margin: 0;
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
     height: 100vh;
+    background: var(--cream);
   }
- 
+
   /* ---------- Top bar ---------- */
   .topbar {
     background: var(--deep-green);
     color: white;
-    padding: 18px 32px;
+    padding: 16px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
   }
- 
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.25rem;
-    letter-spacing: 0.02em;
-  }
- 
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
   .brand-mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    background: var(--sage);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: var(--deep-green-dark);
-    font-family: Georgia, serif;
+    width: 34px; height: 34px; border-radius: 8px; background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; color: var(--deep-green-dark); font-family: Georgia, serif;
   }
+  .brand-sub { font-size: 0.82rem; color: var(--sage-light); }
+  .topbar a { color: white; text-decoration: none; font-size: 0.93rem; opacity: 0.9; }
+  .topbar a:hover { opacity: 1; text-decoration: underline; }
  
-  .brand-sub {
-    font-size: 0.85rem;
-    font-weight: normal;
-    color: var(--sage-light);
-    font-family: Arial, sans-serif;
-  }
- 
-  .topbar-actions a {
-    color: white;
-    text-decoration: none;
-    font-family: Arial, sans-serif;
-    font-size: 0.95rem;
-    opacity: 0.9;
-  }
-  .topbar-actions a:hover { opacity: 1; text-decoration: underline; }
- 
-  @media (max-width: 768px) {
-    .page-header {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-
-    .page-header > div {
-      flex: 1;
-      min-width: 0;
-    }
-  }
-
-  /* ---------- Sidebar layout ---------- */
-  .layout {
-    display: flex;
-    height: calc(100vh - 71px);
-  }
+  /* ---------- Layout ---------- */
+  .layout { display: flex; flex: 1; overflow: hidden; }
   .sidebar {
-    width: 220px;
-    background: var(--sage);
-    padding: 32px 20px;
-    height: 100%;
-    overflow-y: auto;
+    width: 220px; min-width: 220px; background: var(--sage); color: white;
+    padding: 24px 16px; display: flex; flex-direction: column; overflow-y: auto;
   }
-  
-  .sidebar h2 {
-    color: white; font-family: Arial, sans-serif; font-weight: 800;
-    font-size: 1.35rem; margin: 0 0 22px;
+  .sidebar .nav-btn {
+    display: block; background: rgba(255,255,255,0.15); color: white;
+    text-decoration: none; font-weight: 600; font-size: 0.93rem;
+    padding: 13px 16px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s;
   }
-  .sidebar a.nav-btn {
-    display: block; background: rgba(255,255,255,0.18); color: white;
-    text-decoration: none; font-family: Arial, sans-serif; font-weight: 600;
-    font-size: 0.95rem; padding: 14px 18px; border-radius: 10px; margin-bottom: 14px;
-    transition: background 0.15s ease;
+  .sidebar .nav-btn:hover { background: rgba(255,255,255,0.25); }
+  .sidebar .nav-btn.active { background: var(--deep-green); }
+  .sidebar .section-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 20px 0 8px 4px;
   }
-  .sidebar a.nav-btn:hover { background: rgba(255,255,255,0.28); }
-  .sidebar a.nav-btn.active { background: var(--deep-green); }
-  .main-content {
+  .sidebar .section-label:first-child { margin-top: 0; }
+  .sidebar-bottom {
+    margin-top: auto; padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .sidebar-bottom .nav-btn { background: rgba(255,255,255,0.1); }
+  .main {
     flex: 1;
     min-width: 0;
     overflow-y: auto;
@@ -142,18 +96,13 @@
   }
  
   .page-header h1 {
-    font-size: 1.9rem;
-    margin: 0;
+    font-family: Georgia, serif;
+    font-size: 2rem;
     color: var(--deep-green-dark);
+    margin-bottom: 6px;
   }
  
-  .page-header p {
-    font-family: Arial, sans-serif;
-    color: #566057;
-    margin: 6px 0 0;
-    font-size: 0.95rem;
-    max-width: 55ch;
-  }
+  .page-header p { color: #566057; font-size: 0.95rem; max-width: 60ch; margin-bottom: 20px; }
  
   .new-thread-btn {
     background: var(--sage);
@@ -387,6 +336,11 @@
     font-weight: 700;
     text-decoration: none;
   }
+  .lang-toggle {
+    font-size: 0.85rem; color: rgba(255,255,255,0.6); padding-left: 4px;
+    cursor: pointer; background: none; border: none; text-align: left;
+  }
+  .lang-toggle:hover { color: white; }
 </style>
 </head>
 <body>
@@ -396,30 +350,37 @@
       <div class="brand-mark">RC</div>
       <div>
         Root Causes
-        <div class="brand-sub">Community Resource Board</div>
+        <div class="brand-sub">Community Resource</div>
       </div>
     </div>
-    <div class="topbar-actions">
-      <a href="../homepage.html">&larr; Back to Home</a>
-    </div>
+    <a href="../homepage.html" data-en="← Back to Home" data-es="← Volver al Inicio">&larr; Back to Home</a>
   </div>
- 
+
   <div class="layout">
     <aside class="sidebar">
-      <h2>Menu</h2>
-      <a href="ResourceDashboard.html" class="nav-btn">Dashboard</a>
-      <a href="staffResourceReview.html" class="nav-btn" id="staff-btn" style="display: none;">Staff Review</a>
+      <div class="section-label" data-en="Browse" data-es="Explorar">Browse</div>
+      <a href="ResourceDashboard.html" class="nav-btn" data-en="Community Resources" data-es="Recursos Comunitarios">Community Resources</a>
+      <a href="ResourceMap.html" class="nav-btn" data-en="Resource Map" data-es="Mapa de Recursos">Resource Map</a>
+      <a href="ThisWeek.html" class="nav-btn" data-en="This Week" data-es="Esta Semana">This Week</a>
+      <div class="section-label" data-en="Contribute" data-es="Contribuir">Contribute</div>
+      <a href="ShareResource.html" class="nav-btn active" data-en="Add a Resource" data-es="Agregar un Recurso">Add a Resource</a>
+      <a href="MySubmissions.html" class="nav-btn" data-en="My Submissions" data-es="Mis Envíos">My Submissions</a>
+      <a id="staffReviewTab" href="StaffResourceReview.html" class="nav-btn" style="display:none;" data-en="Staff Review" data-es="Revisión del Personal">Staff Review</a>
+      <div class="sidebar-bottom">
+        <a href="About.html" class="nav-btn" data-en="About" data-es="Acerca de">About</a>
+        <button class="lang-toggle" onclick="toggleLang()">Español</button>
+      </div>
     </aside>
  
-    <main class="main-content">
+    <main class="main">
       <div class="page">
     
         <div class="page-header">
           <div>
-            <h1>Share a Community Resource</h1>
-            <p>Know of a local resource, service, or asset that could help your neighbors? Submit it below — our team reviews every post before it appears on the map.</p>
+            <h1 data-en="Share a Community Resource" data-es="Compartir un Recurso Comunitario">Share a Community Resource</h1>
+            <p data-en="Know of a local resource, service, or asset that could help your neighbors? Submit it below — our team reviews every post before it appears on the map." data-es="¿Conoces un recurso local, servicio o activo que podría ayudar a tus vecinos? Envíalo abajo — nuestro equipo revisa cada publicación antes de que aparezca en el mapa.">Know of a local resource, service, or asset that could help your neighbors? Submit it below — our team reviews every post before it appears on the map.</p>
           </div>
-          <button class="new-thread-btn" type="button" onclick="document.getElementById('resourceForm').scrollIntoView({behavior:'smooth'})">+ New Resource Post</button>
+          <button class="new-thread-btn" type="button" onclick="document.getElementById('resourceForm').scrollIntoView({behavior:'smooth'})" data-en="+ New Resource Post" data-es="+ Nueva Publicación">+ New Resource Post</button>
         </div>
     
         <!-- FORM CARD -->
@@ -427,7 +388,7 @@
     
           <div class="review-notice">
             <span>&#128712;</span>
-            <span>Submissions are reviewed by Root Causes staff before they're published. This usually takes 1&ndash;2 business days.</span>
+            <span data-en="Submissions are reviewed by Root Causes staff before they're published. This usually takes 1–2 business days." data-es="Los envíos son revisados por el personal de Root Causes antes de ser publicados. Esto generalmente toma 1-2 días hábiles.">Submissions are reviewed by Root Causes staff before they're published. This usually takes 1&ndash;2 business days.</span>
           </div>
     
           <div class="warning" id="categoryWarning">
@@ -437,48 +398,48 @@
     
           <!-- Title -->
           <div class="section">
-            <label class="field-label" for="title">Resource Title</label>
-            <input type="text" id="title" name="title" placeholder="e.g. Free flu shots at Durham Community Clinic" required>
+            <label class="field-label" for="title" data-en="Resource Title" data-es="Título del Recurso">Resource Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Free flu shots at Durham Community Clinic" data-en-placeholder="e.g. Free flu shots at Durham Community Clinic" data-es-placeholder="ej. Vacunas de gripe gratis en Durham Community Clinic" required>
           </div>
     
           <!-- Category -->
           <div class="section">
-            <label class="field-label">Category</label>
+            <label class="field-label" data-en="Category" data-es="Categoría">Category</label>
             <div class="chip-row" id="categoryChips">
-              <div class="chip" data-cat="Food">Food Assistance</div>
-              <div class="chip" data-cat="Housing">Housing</div>
-              <div class="chip" data-cat="Healthcare">Healthcare</div>
-              <div class="chip" data-cat="Education">Education</div>
-              <div class="chip" data-cat="Transportation">Transportation</div>
-              <div class="chip" data-cat="Financial">Financial Assistance</div>
-              <div class="chip" data-cat="Childcare">Childcare</div>
-              <div class="chip" data-cat="Other">Other</div>
+              <div class="chip" data-cat="Food" data-en="Food Assistance" data-es="Asistencia Alimentaria">Food Assistance</div>
+              <div class="chip" data-cat="Housing" data-en="Housing" data-es="Vivienda">Housing</div>
+              <div class="chip" data-cat="Healthcare" data-en="Healthcare" data-es="Salud">Healthcare</div>
+              <div class="chip" data-cat="Education" data-en="Education" data-es="Educación">Education</div>
+              <div class="chip" data-cat="Transportation" data-en="Transportation" data-es="Transporte">Transportation</div>
+              <div class="chip" data-cat="Financial" data-en="Financial Assistance" data-es="Asistencia Financiera">Financial Assistance</div>
+              <div class="chip" data-cat="Childcare" data-en="Childcare" data-es="Cuidado Infantil">Childcare</div>
+              <div class="chip" data-cat="Other" data-en="Other" data-es="Otro">Other</div>
             </div>
             <input type="hidden" id="categoryValue" name="category">
           </div>
     
           <!-- Description -->
           <div class="section">
-            <label class="field-label" for="description">Description</label>
-            <div class="field-hint">What is this resource? Who is it for? Any eligibility requirements or hours?</div>
-            <textarea id="description" name="description" placeholder="Describe the resource..." required></textarea>
+            <label class="field-label" for="description" data-en="Description" data-es="Descripción">Description</label>
+            <div class="field-hint" data-en="What is this resource? Who is it for? Any eligibility requirements or hours?" data-es="¿Qué es este recurso? ¿Para quién es? ¿Requisitos de elegibilidad u horarios?">What is this resource? Who is it for? Any eligibility requirements or hours?</div>
+            <textarea id="description" name="description" placeholder="Describe the resource..." data-en-placeholder="Describe the resource..." data-es-placeholder="Describe el recurso..." required></textarea>
           </div>
     
           <!-- Location / link -->
           <div class="section">
-            <label class="field-label" for="location">Location or Website</label>
-            <div class="field-hint">An address, or a link if it's an online resource.</div>
-            <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Durham, NC or https://...">
+            <label class="field-label" for="location" data-en="Location or Website" data-es="Ubicación o Sitio Web">Location or Website</label>
+            <div class="field-hint" data-en="An address, or a link if it's an online resource." data-es="Una dirección, o un enlace si es un recurso en línea.">An address, or a link if it's an online resource.</div>
+            <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Durham, NC or https://..." data-en-placeholder="e.g. 123 Main St, Durham, NC or https://..." data-es-placeholder="ej. 123 Main St, Durham, NC o https://...">
           </div>
     
           <!-- Contact info -->
           <div class="section">
-            <label class="field-label">Your Contact Info</label>
-            <div class="field-hint">Shared with staff in case they have follow-up questions about your submission.</div>
+            <label class="field-label" data-en="Your Contact Info" data-es="Tu Información de Contacto">Your Contact Info</label>
+            <div class="field-hint" data-en="Shared with staff in case they have follow-up questions about your submission." data-es="Compartido con el personal en caso de que tengan preguntas sobre tu envío.">Shared with staff in case they have follow-up questions about your submission.</div>
             <div class="contact-grid">
-              <input type="text" placeholder="Name" name="name" required>
-              <input type="tel" placeholder="Phone number" name="phone" required>
-              <input type="email" placeholder="Email" name="email" class="full" required>
+              <input type="text" placeholder="Name" name="name" data-en-placeholder="Name" data-es-placeholder="Nombre" required>
+              <input type="tel" placeholder="Phone number" name="phone" data-en-placeholder="Phone number" data-es-placeholder="Número de teléfono" required>
+              <input type="email" placeholder="Email" name="email" class="full" data-en-placeholder="Email" data-es-placeholder="Correo electrónico" required>
             </div>
           </div>
     
@@ -487,24 +448,24 @@
             <div class="toggle-option">
               <input type="checkbox" id="anonymous" name="anonymous">
               <div>
-                <label for="anonymous">Post anonymously</label>
-                <span class="toggle-desc">Hide your name from the public listing once approved.</span>
+                <label for="anonymous" data-en="Post anonymously" data-es="Publicar anónimamente">Post anonymously</label>
+                <span class="toggle-desc" data-en="Hide your name from the public listing once approved." data-es="Oculta tu nombre de la lista pública una vez aprobado.">Hide your name from the public listing once approved.</span>
               </div>
             </div>
           </div>
     
           <div class="form-footer">
-            <button type="button" class="btn-secondary" onclick="window.location.href='homepage.html'">Cancel</button>
-            <button type="submit" class="btn-primary">Submit for Review</button>
+            <button type="button" class="btn-secondary" onclick="window.location.href='homepage.html'" data-en="Cancel" data-es="Cancelar">Cancel</button>
+            <button type="submit" class="btn-primary" data-en="Submit for Review" data-es="Enviar para Revisión">Submit for Review</button>
           </div>
         </form>
     
         <!-- SUCCESS CARD -->
         <div class="card success-card" id="successCard">
           <div class="success-icon">&#10003;</div>
-          <h2>Thanks — your submission is in!</h2>
-          <p>Our team will review it shortly. Approved resources will appear on the community map.</p>
-          <a href="ResourceDashboard.html">&larr; Back to Dashboard</a>
+          <h2 data-en="Thanks — your submission is in!" data-es="¡Gracias — tu envío fue recibido!">Thanks — your submission is in!</h2>
+          <p data-en="Our team will review it shortly. Approved resources will appear on the community map." data-es="Nuestro equipo lo revisará pronto. Los recursos aprobados aparecerán en el mapa comunitario.">Our team will review it shortly. Approved resources will appear on the community map.</p>
+          <a href="ResourceDashboard.html" data-en="← Back to Community Resources" data-es="← Volver a Recursos Comunitarios">&larr; Back to Community Resources</a>
         </div>
     
       </div>
@@ -516,8 +477,8 @@
   // TODO: If app_config.js already exports a firebaseConfig object, replace
   // the block below with: import { firebaseConfig } from './app_config.js';
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import {getAuth} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCTFi3yRm9DEoj9jqTPGX5tbVS2kxhbkiI",
@@ -545,10 +506,29 @@
     });
   });
  
+  // ---------- Geocode helper (Nominatim, free) ----------
+  async function geocode(address) {
+    if (!address || address.startsWith('http')) return { lat: null, lng: null };
+    try {
+      const q = encodeURIComponent(address);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      const results = await res.json();
+      if (results.length > 0) {
+        return { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) };
+      }
+    } catch (err) {
+      console.warn('Geocoding failed:', err);
+    }
+    return { lat: null, lng: null };
+  }
+
   // ---------- Submit handler ----------
   const form = document.getElementById('resourceForm');
   form.addEventListener('submit', handleSubmit);
- 
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!categoryValue.value) {
@@ -556,18 +536,24 @@
       document.getElementById('categoryWarning').scrollIntoView({behavior:'smooth', block:'center'});
       return false;
     }
- 
+
     const data = Object.fromEntries(new FormData(e.target));
     const submitBtn = form.querySelector('.btn-primary');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
- 
+
     try {
+      // Geocode the location to get coordinates for the map
+      const locationText = data.location.trim();
+      const coords = await geocode(locationText);
+
       await addDoc(collection(db, "resourceSubmissions"), {
         title: data.title.trim(),
         category: data.category,
         description: data.description.trim(),
-        location: data.location.trim(),
+        location: locationText,
+        lat: coords.lat,
+        lng: coords.lng,
 
         name: data.name.trim(),
         phone: data.phone.trim(),
@@ -591,13 +577,18 @@
     return false;
   }
 
-  const roles = userSnap.data().roles || [];
+  // Show staff review tab for staff users
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userSnap = await getDoc(doc(db, "users", user.email));
+    if (!userSnap.exists()) return;
+    if ((userSnap.data().roles || []).includes("staff")) {
+      document.getElementById("staffReviewTab").style.display = "block";
+    }
+  });
 
-  if (roles.includes("staff")) {
-      document.getElementById("staff-btn").style.display = "block";
-  }
-    
 </script>
+<script src="lang.js"></script>
  
 </body>
 </html>

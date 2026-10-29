@@ -237,7 +237,7 @@
     <a href="https://rootcauses.wixsite.com/rootcauses">About <span>Us</span></a>
     <a href="https://rootcauses.wixsite.com/rootcauses/contact">Contact <Span>Us</Span></a>
     <a href="resources.html">Additional <span>Resources</span></a>
-    <a href="https://rootcauses.wixsite.com/rootcauses/volunteer">Get <span>Invovled</span></a>
+    <a href="https://rootcauses.wixsite.com/rootcauses/volunteer">Get <span>Involved</span></a>
 
     <div style="margin-left:auto;">
 
@@ -290,7 +290,7 @@
   <h3>Share a Community Resource</h3>
   <p>
     Looking for local resources or know of one that could help others? 
-    Explore the community resource pageto find available services, or add a new resource for others to discover.
+    Explore the community resource page to find available services, or add a new resource for others to discover.
   </p>
   <a href="Resources/ResourceDashboard.html" class="card-btn btn-vol">Resources</a>
       </div>
@@ -305,7 +305,7 @@
 </svg></div>
         <h3>Volunteer Portal</h3>
         <p>Want to make a difference? Sign in to volunteer and help your community during times of need. Every hour counts.</p>
-        <a href="Volunteer_Portal/mainDash.html" class="card-btn btn-vol">Volunteer Access</a>
+        <a href="Volunteer_Portal/mainDash.html" class="card-btn btn-vol" id="volLink">Volunteer Access</a>
       </div>
  
       <div class="card">
@@ -315,12 +315,25 @@
 </svg></div>
         <h3>Staff Portal</h3>
         <p>Authorized personnel only. Sign in to access the staff database, manage cases, and review program data.</p>
-        <a href="Participant_Dashboard/dashboard.html" class="card-btn btn-staff">Staff Dashboard</a>
+        <a href="Participant_Dashboard/dashboard.html" class="card-btn btn-staff" id="staffLink">Staff Dashboard</a>
       </div>
  
     </div>
 
   </section>
+
+  <!-- Sign-in modal -->
+  <div id="signInModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; display:none; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:40px 36px; max-width:400px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+      <div style="width:56px; height:56px; border-radius:50%; background:#e8f2ea; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px;">🔒</div>
+      <h2 style="font-family:Georgia,serif; color:#1A2F1F; margin-bottom:8px; font-size:1.4rem;">Sign in required</h2>
+      <p style="font-family:Arial,sans-serif; color:#566057; font-size:0.95rem; line-height:1.5; margin-bottom:24px;">You need to be signed in to access this area. Please sign in with your authorized account to continue.</p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button onclick="window.location.href='Login_Authorization/login.html'" style="background:#819077; color:white; border:none; padding:12px 28px; border-radius:8px; font-family:Arial,sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer;">Sign In</button>
+        <button onclick="document.getElementById('signInModal').style.display='none'" style="background:white; color:#1B2A41; border:1.5px solid #DDE3D8; padding:12px 28px; border-radius:8px; font-family:Arial,sans-serif; font-size:0.95rem; cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
@@ -378,6 +391,21 @@
           document.getElementById("userEmail").textContent =
               user.email;
         });
+
+        // Intercept Volunteer/Staff links when not signed in
+        function guardLink(linkId) {
+          const link = document.getElementById(linkId);
+          if (!link) return;
+          link.addEventListener('click', (e) => {
+            if (!auth.currentUser) {
+              e.preventDefault();
+              const modal = document.getElementById('signInModal');
+              modal.style.display = 'flex';
+            }
+          });
+        }
+        guardLink('volLink');
+        guardLink('staffLink');
   </script>
 </body>
 </html>
